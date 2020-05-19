@@ -5,9 +5,9 @@ account: aslewis
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2280497
-bundleId: 3166719
+bundleId: 3167087
 url: https://aslewis.shinyapps.io/Forecast_Screening/
-when: 1589900966.53741
+when: 1589907343.34941
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: app1.R|README.md|savedrecs_001_500.csv|savedrecs_1001_1500.csv|savedrecs_1501_2000.csv|savedrecs_2001_2500.csv|savedrecs_2501_2956.csv|savedrecs_501_1000.csv
+ignoredFiles: app1.R|README.md|savedrecs_001_500.csv|savedrecs_1001_1500.csv|savedrecs_1501_2000.csv|savedrecs_2001_2500.csv|savedrecs_2501_2956.csv|savedrecs_501_1000.csv|selection_output.csv|selection_output2.csv

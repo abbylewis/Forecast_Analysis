@@ -17,15 +17,23 @@ source("helpers.R") # Load all the code needed to show feedback on a button clic
 #data4 <- read_csv("savedrecs_1501_2000.csv")
 #data5 <- read_csv("savedrecs_2001_2500.csv")
 #data6 <- read_csv("savedrecs_2501_2956.csv")
-#data_full <- data1%>% select(TI, AB, DI, AU, PY)%>%
-#  full_join(data2%>%  select(TI, AB, DI, AU, PY))%>%
-#  full_join(data3%>%  select(TI, AB, DI, AU, PY))%>%
-#  full_join(data4%>%  select(TI, AB, DI, AU, PY))%>%
-#  full_join(data5%>%  select(TI, AB, DI, AU, PY))%>%
-#  full_join(data6%>%  select(TI, AB, DI, AU, PY))
+#data_full <- data1%>% select(TI, AB, DI, AU, PY, DT)%>%
+#  full_join(data2%>%  select(TI, AB, DI, AU, PY, DT))%>%
+#  full_join(data3%>%  select(TI, AB, DI, AU, PY, DT))%>%
+#  full_join(data4%>%  select(TI, AB, DI, AU, PY, DT))%>%
+#  full_join(data5%>%  select(TI, AB, DI, AU, PY, DT))%>%
+#  full_join(data6%>%  select(TI, AB, DI, AU, PY, DT))
+#
+#data_full2 <- data_full[data_full$DT %in% c("Article","Article; Book Chapter","Article; Data Paper","Article; Early Access","Article; Proceedings Paper","Proceedings Paper"),]
+#data<-read.csv("https://www.dropbox.com/s/serwffb516rv843/selection_output.csv?dl=1", row.names = NULL)
+#final <- data_full2%>%
+#  left_join(data)
+#write.csv(final, "selection_output2.csv", row.names = F)
+#drop_upload("selection_output2.csv")
+
 #
 #write.csv(data_full,"selection_output.csv")
-data<-read.csv("https://www.dropbox.com/s/serwffb516rv843/selection_output.csv?dl=1", row.names = NULL)
+data<-read.csv("https://www.dropbox.com/s/xp0aels1d1eylgp/selection_output.csv?dl=1", row.names = NULL)
 #data<-read.csv("selection_output.csv")
 #data_col <- colnames(data)
 #if(!"Ecological" %in% data_col){
@@ -129,7 +137,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$submit, handlerExpr = {
     withBusyIndicatorServer("submit",{
-      data<-read.csv("https://www.dropbox.com/s/serwffb516rv843/selection_output.csv?dl=1", row.names = NULL)
+      data<-read.csv("https://www.dropbox.com/s/xp0aels1d1eylgp/selection_output.csv?dl=1", row.names = NULL)
       data$Forecast[paper_num()] <- input$forecast
       data$NearTerm[paper_num()] <- input$nearterm
       data$Ecological[paper_num()] <- input$ecology
