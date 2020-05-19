@@ -1,0 +1,13 @@
+name: Forecast_Screening
+title: Forecast_Screening
+username:
+account: aslewis
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2280497
+bundleId: 3166719
+url: https://aslewis.shinyapps.io/Forecast_Screening/
+when: 1589900966.53741
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: app1.R|README.md|savedrecs_001_500.csv|savedrecs_1001_1500.csv|savedrecs_1501_2000.csv|savedrecs_2001_2500.csv|savedrecs_2501_2956.csv|savedrecs_501_1000.csv
