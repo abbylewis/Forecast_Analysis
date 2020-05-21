@@ -127,6 +127,13 @@ server <- function(input, output, session) {
     )
   }
   
+  completeModal <- function() {
+    modalDialog(
+      easyClose = T,
+      span('You did it!! Woohoo! 300 abstracts screened!')
+    )
+  }
+  
   showModal(nameModal())
   
   observeEvent(input$submit_name, handlerExpr = {
@@ -149,6 +156,9 @@ server <- function(input, output, session) {
     
     output$num <- renderText({
       num_complete = sum(data$Reviewer == tolower(trimws(input$name)),na.rm = TRUE)
+      if(num_complete == 300){
+        showModal(completeModal())
+      }
       paste(num_complete)
     })
     
