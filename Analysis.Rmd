@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(VennDiagram)
+data<-read.csv("https://www.dropbox.com/s/xp0aels1d1eylgp/selection_output.csv?dl=1", row.names = NULL)
+data<-read.csv("selection_output.csv")
+to_venn <- data%>%
+  select(NearTerm,Ecological,Forecast, Reviewer)
+#to_venn[!is.na(to_venn$Reviewer) & to_venn$Reviewer != "mary lofton",]<-"z"
+to_venn[is.na(to_venn)]<-"z"
+to_venn[to_venn!=1]<-"z"
+
+to_venn$NearTerm[to_venn$NearTerm == 1]<-row.names(to_venn)[to_venn$NearTerm == 1]
+to_venn$Ecological[to_venn$Ecological == 1]<-row.names(to_venn)[to_venn$Ecological == 1]
+to_venn$Forecast[to_venn$Forecast == 1]<-row.names(to_venn)[to_venn$Forecast == 1]
+
+n <- to_venn$NearTerm[to_venn$NearTerm != "z"]
+e <- to_venn$Ecological[to_venn$Ecological != "z"]
+f <- to_venn$Forecast[to_venn$Forecast != "z"]
+
+venn.plot <- venn.diagram(
+	list("Near term" = n,"Ecological" = e,"Forecast" = f), 
+	"venn_data.tiff"
+	)
+```
+
+
+```{r}
+set.seed(47)
+yes <- data[!is.na(data$Reviewer) & !is.na(data$NearTerm) & data$NearTerm==1 & data$Ecological==1 & data$Forecast==1,]
+rows <- sample(nrow(yes))
+yes <- yes[rows,] 
+
+unks_maybe <- data[(!is.na(data$NearTerm) & data$NearTerm %in% c(1,99)) & data$Ecological %in% c(1,99) & data$Forecast %in% c(1,99),]
+rows <- sample(nrow(unks_maybe))
+unks_maybe <- unks_maybe[rows,]
+
+unks_no <- data[(is.na(data$NearTerm) | data$Ecological ==0 | data$Forecast == 0) & ((!is.na(data$NearTerm) & data$NearTerm==99) | data$Ecological==99 | data$Forecast==99),]
+rows <- sample(nrow(unks_no))
+unks_no = unks_no[rows,]
+
+all <- data
+rows <- sample(nrow(data))
+all <- all[rows,]
+
+sorted <- yes%>%
+  full_join(unks_maybe)%>%
+  full_join(unks_no)%>%
+  full_join(all)
+
+sorted$DI[!is.na(sorted$DI)] <- paste0("https://doi.org/",sorted$DI[!is.na(sorted$DI)])
+write.csv(sorted, "second_review.csv")
+
+yes$DI[!is.na(yes$DI)] <- paste0("https://doi.org/",yes$DI[!is.na(yes$DI)])
+yes$JR <- NA
+for_matrix <- yes%>%
+  select(X,TI,AU,DI,JR,PY)
+set.seed(47)
+rows <- sample(nrow(for_matrix))
+for_matrix <- for_matrix[rows,]
+final <- as.data.frame(t(for_matrix))
+write.csv(final, "final_selections.csv")
+```
+
