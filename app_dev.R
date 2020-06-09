@@ -152,64 +152,66 @@ server <- function(input, output, session) {
       data$Reviewer[paper_num()] <- tolower(trimws(input$name))
       write.csv(data, "selection_output.csv", row.names = F)
       drop_upload("selection_output.csv")
+      
+      output$num <- renderText({
+        num_complete = sum(data$Reviewer == tolower(trimws(input$name)),na.rm = TRUE)
+        if(num_complete == 300){
+          showModal(completeModal())
+        }
+        paste(num_complete)
+      })
+      
+      output$total <- renderText({
+        num = sum(!is.na(data$Reviewer))
+        total = nrow(data)
+        paste0("Combined, we have screened ", num, " out of ", total, " abstracts")
+      })
+      
+      num = sample(seq(1,nrow(data), by = 1)[is.na(data$Reviewer)],1)
+      paper_num(num)
+      updateRadioGroupButtons(session = session,
+                              inputId = "forecast",
+                              label = "Is this a forecast/hindcast?", 
+                              choiceNames = c("Yes","No","Unsure: requires a second review"), 
+                              choiceValues = c(1,0,99),
+                              selected = character(0))
+      updateRadioGroupButtons(session = session,
+                              inputId = "nearterm",
+                              label = "Is it near-term (<10 year forecast horizon)?", 
+                              choiceNames = c("Yes","No","NA","Unsure: requires a second review"), 
+                              choiceValues = c(1,0,NA,99),
+                              selected = character(0))
+      updateRadioGroupButtons(session = session,
+                              inputId = "ecology",
+                              label = "Is it a function of living things?", 
+                              choiceNames = c("Yes","No","Unsure: requires a second review"), 
+                              choiceValues = c(1,0,99),
+                              selected = character(0))
+      updateTextInput(session = session,
+                      "comment",
+                      label = "Any other comments?",
+                      value = "")
+      
+      output$meme <- renderImage({
+        files <- list.files("./memes")
+        num = sum(data$Reviewer == tolower(trimws(input$name)),na.rm = TRUE)
+        filename = paste0("./memes/",files[(num+1)%%length(files)+1])
+        # Return a list containing the filename and alt text
+        list(src = filename,
+             alt = paste("[insert funny meme here]"),
+             width = "100%")
+      }, deleteFile = FALSE)
+      
+      output$leaderboard <- renderTable({
+        leads <- summary(as.factor(data$Reviewer))
+        leads <- as.data.frame(leads[-length(leads)])
+        colnames(leads) <- c("Papers Screened")
+        leads$Name <- rownames(leads)
+        leads[order(leads$'Papers Screened', decreasing = T),c(2,1)]
+      })
+      
     })
     
-    output$num <- renderText({
-      num_complete = sum(data$Reviewer == tolower(trimws(input$name)),na.rm = TRUE)
-      if(num_complete == 300){
-        showModal(completeModal())
-      }
-      paste(num_complete)
-    })
-    
-    output$total <- renderText({
-      num = sum(!is.na(data$Reviewer))
-      total = nrow(data)
-      paste0("Combined, we have screened ", num, " out of ", total, " abstracts")
-    })
-    
-    num = sample(seq(1,nrow(data), by = 1)[is.na(data$Reviewer)],1)
-    paper_num(num)
-    updateRadioGroupButtons(session = session,
-                            inputId = "forecast",
-                            label = "Is this a forecast/hindcast?", 
-                            choiceNames = c("Yes","No","Unsure: requires a second review"), 
-                            choiceValues = c(1,0,99),
-                            selected = character(0))
-    updateRadioGroupButtons(session = session,
-                            inputId = "nearterm",
-                            label = "Is it near-term (<10 year forecast horizon)?", 
-                            choiceNames = c("Yes","No","NA","Unsure: requires a second review"), 
-                            choiceValues = c(1,0,NA,99),
-                            selected = character(0))
-    updateRadioGroupButtons(session = session,
-                            inputId = "ecology",
-                            label = "Is it a function of living things?", 
-                            choiceNames = c("Yes","No","Unsure: requires a second review"), 
-                            choiceValues = c(1,0,99),
-                            selected = character(0))
-    updateTextInput(session = session,
-                    "comment",
-                    label = "Any other comments?",
-                    value = "")
-    
-    output$meme <- renderImage({
-      files <- list.files("./memes")
-      num = sum(data$Reviewer == tolower(trimws(input$name)),na.rm = TRUE)
-      filename = paste0("./memes/",files[(num+1)%%length(files)])
-      # Return a list containing the filename and alt text
-      list(src = filename,
-           alt = paste("[insert funny meme here]"),
-           width = "100%")
-    }, deleteFile = FALSE)
-    
-    output$leaderboard <- renderTable({
-      leads <- summary(as.factor(data$Reviewer))
-      leads <- as.data.frame(leads[-length(leads)])
-      colnames(leads) <- c("Papers Screened")
-      leads$Name <- rownames(leads)
-      leads[order(leads$'Papers Screened', decreasing = T),c(2,1)]
-    })
   })
   
   output$name <- renderText({paste0("Hi ",input$name,"!")})
@@ -240,7 +242,7 @@ server <- function(input, output, session) {
   output$meme <- renderImage({
     files <- list.files("./memes")
     num = sum(data$Reviewer == tolower(trimws(input$name)),na.rm = TRUE)
-    filename = paste0("./memes/",files[(num+1)%%length(files)])
+    filename = paste0("./memes/",files[(num+1)%%length(files)+1])
     # Return a list containing the filename and alt text
     list(src = filename,
          alt = paste("[insert funny meme here]"),

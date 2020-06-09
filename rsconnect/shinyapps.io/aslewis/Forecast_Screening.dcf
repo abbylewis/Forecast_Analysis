@@ -5,9 +5,9 @@ account: aslewis
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2280497
-bundleId: 3167087
+bundleId: 3220246
 url: https://aslewis.shinyapps.io/Forecast_Screening/
-when: 1589907343.34941
+when: 1591131766.33399
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: app1.R|README.md|savedrecs_001_500.csv|savedrecs_1001_1500.csv|savedrecs_1501_2000.csv|savedrecs_2001_2500.csv|savedrecs_2501_2956.csv|savedrecs_501_1000.csv|selection_output.csv|selection_output2.csv
+ignoredFiles: app_dev.R|app1.R|final_selections.csv|README.md|savedrecs_001_500.csv|savedrecs_1001_1500.csv|savedrecs_1501_2000.csv|savedrecs_2001_2500.csv|savedrecs_2501_2956.csv|savedrecs_501_1000.csv|selection_output2.csv|venn_data_abby.tiff|venn_data_abby.tiff.2020-05-24_15-36-44.log|venn_data_abby.tiff.2020-05-24_15-38-13.log|venn_data_heather.tiff|venn_data_heather.tiff.2020-05-24_15-40-14.log|venn_data_mary.tiff|venn_data_mary.tiff.2020-05-24_15-43-44.log|venn_data_mary.tiff.2020-05-27_14-06-02.log|venn_data_whitney.tiff|venn_data_whitney.tiff.2020-05-24_15-41-05.log|venn_data.tiff|venn_data.tiff.2020-05-24_15-03-13.log|venn_data.tiff.2020-05-27_14-06-28.log|venn_data.tiff.2020-05-27_14-07-16.log|venn_data.tiff.2020-05-27_15-00-46.log
