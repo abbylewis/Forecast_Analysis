@@ -108,7 +108,7 @@ ui <- fluidPage(theme = shinytheme("lumen"),
 
 #Define server function
 server <- function(input, output, session) {
-  num = sample(seq(1,nrow(data), by = 1)[is.na(data$Reviewer)],1)
+  num = sample(seq(1,nrow(data), by = 1) )[is.na(data$Reviewer)],1)
   paper_num <- reactiveVal(value = num)
   results <- reactiveValues()
   

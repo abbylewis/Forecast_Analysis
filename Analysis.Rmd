@@ -28,7 +28,7 @@ venn.plot <- venn.diagram(
 	)
 ```
 
-
+Creating spreadsheet for second round of review
 ```{r}
 set.seed(47)
 yes <- data[!is.na(data$Reviewer) & !is.na(data$NearTerm) & data$NearTerm==1 & data$Ecological==1 & data$Forecast==1,]
@@ -64,5 +64,92 @@ rows <- sample(nrow(for_matrix))
 for_matrix <- for_matrix[rows,]
 final <- as.data.frame(t(for_matrix))
 write.csv(final, "final_selections.csv")
+```
+ Plotting papers per year
+```{r}
+second <- read.csv("second_review_complete.csv")
+yes <- second[!is.na(second$NearTerm) & second$NearTerm==1 & second$Ecological==1 & second$Forecast==1,]
+no_space <- yes[is.na(yes$Only.Space) & nchar(yes$PaperUnavailable)==0,]
+no_space[no_space$PY<1960,]
+hist(no_space$PY, breaks = 50, main = "",xlab = "Year")
+hist(yes$PY, breaks = 50)
+
+eco_total <- read.csv("ecology_results.txt", sep = "\t")
+
+years <- as.data.frame(seq(min(no_space$PY, na.rm = T)-1,max(no_space$PY, na.rm = T)))
+colnames(years)<- "PY"
+for_hist1 <- no_space%>%
+  group_by(PY)%>%
+  summarize(total = n())
+for_hist <- years%>%
+  left_join(for_hist1)%>%
+  filter(PY !=2020)
+for_hist$total[is.na(for_hist$total)] <- 0
+  
+
+for_2000 <- for_hist$total[for_hist$PY == 2010]
+for_max <- max(for_hist$total)
+eco_2000 <- eco_total$records[eco_total$Publication.Years == 2010]
+eco_max = eco_2000*for_max/for_2000
+
+par(mar = c(5, 5, 3, 5))
+#hist(no_space$PY, breaks = 50, main = "",xlab = "Year", ylab = "ecological forecasts")
+plot(for_hist$PY, for_hist$total, main = "",xlab = "Year", ylab = "ecological forecasts", type = "l", ylim = c(0,for_max))
+par(new = T)
+plot(eco_total$Publication.Years[-1],eco_total$records[-1], type = "l",xaxt = "n", yaxt = "n",
+     ylab = "", xlab = "", col = "red", ylim = c(0, eco_max), xlim = range(for_hist$PY))
+axis(4)
+mtext("publications in ecology journals", side = 4, line = 3)
+legend("topleft", c("near-term ecological forecasts", "total publications"),
+       col = c("black", "red"), lty = 1)
+
+
+no_access<- second[nchar(second$PaperUnavailable)!=0 & second$PaperUnavailable!="22",]
+hist(no_access$PY)
+```
+
+Adding journal and language to database. Creating spreadsheets for each person
+```{r}
+data1 <- read_csv("savedrecs_001_500.csv")
+data2 <- read_csv("savedrecs_501_1000.csv")
+data3 <- read_csv("savedrecs_1001_1500.csv")
+data4 <- read_csv("savedrecs_1501_2000.csv")
+data5 <- read_csv("savedrecs_2001_2500.csv")
+data6 <- read_csv("savedrecs_2501_2956.csv")
+data_full <- data1%>% select(TI, AB, DI, AU, PY, DT, JI, LA)%>%
+  full_join(data2%>%  select(TI, AB, DI, AU, PY, DT, JI, LA))%>%
+  full_join(data3%>%  select(TI, AB, DI, AU, PY, DT, JI, LA))%>%
+  full_join(data4%>%  select(TI, AB, DI, AU, PY, DT, JI, LA))%>%
+  full_join(data5%>%  select(TI, AB, DI, AU, PY, DT, JI, LA))%>%
+  full_join(data6%>%  select(TI, AB, DI, AU, PY, DT, JI, LA))
+
+
+data_full2 <- data_full[data_full$DT %in% c("Article","Article; Book Chapter","Article; Data Paper","Article; Early Access","Article; Proceedings Paper","Proceedings Paper"),]
+
+with_journal <- second%>%
+  full_join(data_full2%>%select(TI, JI, LA), by = c("TI"))
+
+reviewers <- c("ASL","HLW","WMW","JS","RC","NWH","DWH","RPM","CCC","RQT")
+set.seed(47)
+yes1 <- with_journal[!is.na(with_journal$NearTerm) & with_journal$NearTerm==1 & with_journal$Ecological==1 & with_journal$Forecast==1 & nchar(with_journal$PaperUnavailable)==0,]
+yes1 <- yes1[is.na(yes1$Only.Space),] ## GET RID OF THIS IF WE ARE USING SPACE
+yes <- yes1%>%
+  select(X,TI,AU,DI,JI,PY, Comment,SecondComment)
+rows <- sample(nrow(yes))
+splits <- split(rows, 1:length(reviewers))
+
+for(i in 1:length(reviewers)){
+  prev <- if(i == 1){length(reviewers)}else{i-1}
+  post <- if(i == length(reviewers)){1}else{i+1}
+  assigned_rows <- c(unlist(splits[paste0(i)]),unlist(splits[paste0(prev)])[1],unlist(splits[paste0(post)])[2])
+  set.seed(47)
+  assigned <- yes[assigned_rows[sample(length(assigned_rows))],]
+  assigned <- assigned%>%
+    mutate(Name = reviewers[i])%>%
+    select(X,Name,TI,AU,DI,JI,PY, Comment, SecondComment)
+  final <- as.data.frame(t(assigned))
+  write.csv(final, paste0("matrix analysis - ", reviewers[i],".csv"))
+}
+
 ```
 
