@@ -73,6 +73,7 @@ no_space <- yes[is.na(yes$Only.Space) & nchar(yes$PaperUnavailable)==0,]
 no_space[no_space$PY<1960,]
 hist(no_space$PY, breaks = 50, main = "",xlab = "Year")
 hist(yes$PY, breaks = 50)
+nrow(no_space)
 
 eco_total <- read.csv("ecology_results.txt", sep = "\t")
 
@@ -135,6 +136,7 @@ yes1 <- with_journal[!is.na(with_journal$NearTerm) & with_journal$NearTerm==1 & 
 yes1 <- yes1[is.na(yes1$Only.Space),] ## GET RID OF THIS IF WE ARE USING SPACE
 yes <- yes1%>%
   select(X,TI,AU,DI,JI,PY, Comment,SecondComment)
+nrow(yes)
 rows <- sample(nrow(yes))
 splits <- split(rows, 1:length(reviewers))
 
@@ -150,6 +152,47 @@ for(i in 1:length(reviewers)){
   final <- as.data.frame(t(assigned))
   write.csv(final, paste0("matrix analysis - ", reviewers[i],".csv"))
 }
+```
 
+To search for citing articles and cited articles
+```{r}
+search <- c(yes$TI[1])
+for( i in 2:length(yes$TI)){
+  search <- c(search, "OR", yes$TI[i])
+}
+search <- paste(search)
+
+
+refs <- read.csv("referenced_papers_all.csv")
+search <- c(refs$TI[1])
+for( i in 2:length(refs$TI)){
+  search <- c(search, "OR", refs$TI[i])
+}
+search <- paste(search)
+write.table(search, "references.txt")
+```
+
+```{r}
+citing <- read_csv("papers_citing_forecasts_full.csv")
+citing_new <- citing[!citing$TI %in% second$TI,]
+citing_new <- citing_new %>%
+  filter(DT %in% c("Article", "Article; Book Chapter", "Article; Proceedings Paper","Article; Early Access","Article; Proceedings Paper","Proceedings Paper"))
+
+cited<- read_csv("referenced_papers_forecasts.csv")
+cited_new <- cited[!cited$TI %in% second$TI,]
+cited_new <- cited_new %>%
+  filter(DT %in% c("Article", "Article; Proceedings Paper","Proceedings Paper"))
+summary(as.factor(citing_new$DT))
+
+sum(citing$TI %in% second$TI)
+sum(cited$TI %in% second$TI)
+sum(cited_new$TI %in% citing_new$TI)
+
+nrow(citing_new)+nrow(cited_new)-sum(cited_new$TI %in% citing_new$TI)
+
+cited_ing_comb <- citing_new%>%
+  select(-GP, -CA, -BS, -VL, - D2, - EA)%>%
+  full_join(cited_new)
+write.csv(cited_ing_comb, "papers_to_add.csv")
 ```
 
