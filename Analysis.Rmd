@@ -6,10 +6,14 @@ output: html_notebook
 
 ```{r}
 library(VennDiagram)
-data<-read.csv("https://www.dropbox.com/s/xp0aels1d1eylgp/selection_output.csv?dl=1", row.names = NULL)
-data<-read.csv("selection_output.csv")
+library(tidyverse)
+data<-read.csv("second_review_complete.csv", row.names = NULL)
+#data[data$NearTerm==1&data$Forecast==1&data$Ecological==0,]
+data$Forecast[!is.na(data$Only.Space)]<-0 #Change if we are keeping spatial forecasts
 to_venn <- data%>%
-  select(NearTerm,Ecological,Forecast, Reviewer)
+  filter(nchar(PaperUnavailable) == 0)%>%
+  select(NearTerm,Ecological,Forecast)
+to_venn$NearTerm[to_venn$Forecast != 1] <- 0
 #to_venn[!is.na(to_venn$Reviewer) & to_venn$Reviewer != "mary lofton",]<-"z"
 to_venn[is.na(to_venn)]<-"z"
 to_venn[to_venn!=1]<-"z"
@@ -24,8 +28,10 @@ f <- to_venn$Forecast[to_venn$Forecast != "z"]
 
 venn.plot <- venn.diagram(
 	list("Near term" = n,"Ecological" = e,"Forecast" = f), 
-	"venn_data.tiff"
+	"VennDiagrams/venn_data.tiff"
 	)
+
+#data[!is.na(data$Only.Space)&data$Only.Space==1,]
 ```
 
 Creating spreadsheet for second round of review
@@ -130,7 +136,10 @@ data_full2 <- data_full[data_full$DT %in% c("Article","Article; Book Chapter","A
 with_journal <- second%>%
   full_join(data_full2%>%select(TI, JI, LA), by = c("TI"))
 
+set.seed(47)
 reviewers <- c("ASL","HLW","WMW","JS","RC","NWH","DWH","RPM","CCC","RQT")
+review_n <- sample(length(reviewers))
+reviewers <- reviewers[review_n]
 set.seed(47)
 yes1 <- with_journal[!is.na(with_journal$NearTerm) & with_journal$NearTerm==1 & with_journal$Ecological==1 & with_journal$Forecast==1 & nchar(with_journal$PaperUnavailable)==0,]
 yes1 <- yes1[is.na(yes1$Only.Space),] ## GET RID OF THIS IF WE ARE USING SPACE
@@ -141,16 +150,16 @@ rows <- sample(nrow(yes))
 splits <- split(rows, 1:length(reviewers))
 
 for(i in 1:length(reviewers)){
-  prev <- if(i == 1){length(reviewers)}else{i-1}
-  post <- if(i == length(reviewers)){1}else{i+1}
-  assigned_rows <- c(unlist(splits[paste0(i)]),unlist(splits[paste0(prev)])[1],unlist(splits[paste0(post)])[2])
+  one_before <- if(i == 1){length(reviewers)}else{i-1}
+  two_before <- if(i == 2){length(reviewers)}else if(i == 1){length(reviewers)-1}else{i-2}
+  assigned_rows <- c(unlist(splits[paste0(i)]),unlist(splits[paste0(one_before)])[1],unlist(splits[paste0(two_before)])[2])
   set.seed(47)
   assigned <- yes[assigned_rows[sample(length(assigned_rows))],]
   assigned <- assigned%>%
     mutate(Name = reviewers[i])%>%
     select(X,Name,TI,AU,DI,JI,PY, Comment, SecondComment)
   final <- as.data.frame(t(assigned))
-  write.csv(final, paste0("matrix analysis - ", reviewers[i],".csv"))
+  write.csv(final, paste0("paper assignments/matrix analysis - ", reviewers[i],".csv"))
 }
 ```
 
