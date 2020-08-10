@@ -7,11 +7,20 @@ output: html_notebook
 ```{r}
 library(VennDiagram)
 library(tidyverse)
+library(readxl)
 data<-read.csv("second_review_complete.csv", row.names = NULL)
-#data[data$NearTerm==1&data$Forecast==1&data$Ecological==0,]
-data$Forecast[!is.na(data$Only.Space)]<-0 #Change if we are keeping spatial forecasts
+data$Forecast[data$Forecast == "0?"]<-0
+class(data$Forecast)<-"numeric"
+found <- read.csv("papers_to_find_edited.csv")
+data2 <- data%>%
+  full_join(found, by = c("TI", "DI","AB","AU","PY","DT","Reviewer", "Comment","SecondReviewer"))
+data2[!is.na(data2$Found.)& data2$Found. == 1,c("NearTerm.x","Ecological.x","Forecast.x")]<-data2[!is.na(data2$Found.)& data2$Found. == 1,c("NearTerm.y","Ecological.y","Forecast.y")]
+data <- data2%>%
+  rename(Forecast = Forecast.x, NearTerm = NearTerm.x, Ecological = Ecological.x)
+data$Forecast[!is.na(data$Only.Space.x)]<-0 #Change if we are keeping spatial forecasts
 to_venn <- data%>%
-  filter(nchar(PaperUnavailable) == 0)%>%
+  filter(nchar(PaperUnavailable.x) == 0|Found. == 1)%>%
+  #filter(is.na(LA))%>%
   select(NearTerm,Ecological,Forecast)
 to_venn$NearTerm[to_venn$Forecast != 1] <- 0
 #to_venn[!is.na(to_venn$Reviewer) & to_venn$Reviewer != "mary lofton",]<-"z"
@@ -28,8 +37,9 @@ f <- to_venn$Forecast[to_venn$Forecast != "z"]
 
 venn.plot <- venn.diagram(
 	list("Near term" = n,"Ecological" = e,"Forecast" = f), 
-	"VennDiagrams/venn_data.tiff"
+	"VennDiagrams/venn_data.tiff", cex = 2, cat.cex = 1.5, cat.dist = c(.03,0.1,0.06), cat.pos = c(320,40,160),margin = .1
 	)
+
 
 #data[!is.na(data$Only.Space)&data$Only.Space==1,]
 ```
@@ -71,6 +81,8 @@ for_matrix <- for_matrix[rows,]
 final <- as.data.frame(t(for_matrix))
 write.csv(final, "final_selections.csv")
 ```
+ 
+ 
  Plotting papers per year
 ```{r}
 second <- read.csv("second_review_complete.csv")
@@ -133,19 +145,22 @@ data_full <- data1%>% select(TI, AB, DI, AU, PY, DT, JI, LA)%>%
 
 data_full2 <- data_full[data_full$DT %in% c("Article","Article; Book Chapter","Article; Data Paper","Article; Early Access","Article; Proceedings Paper","Proceedings Paper"),]
 
+nrow(data_full2[data_full2$LA == "English",])
+summary(as.factor(data_full2$LA))
+
 with_journal <- second%>%
   full_join(data_full2%>%select(TI, JI, LA), by = c("TI"))
 
 set.seed(47)
-reviewers <- c("ASL","HLW","WMW","JS","RC","NWH","DWH","RPM","CCC","RQT")
+reviewers <- c("RPM","HLW","WMW","JS","RC","NWH","DWH","CCC","ASL","RQT")
 review_n <- sample(length(reviewers))
 reviewers <- reviewers[review_n]
 set.seed(47)
 yes1 <- with_journal[!is.na(with_journal$NearTerm) & with_journal$NearTerm==1 & with_journal$Ecological==1 & with_journal$Forecast==1 & nchar(with_journal$PaperUnavailable)==0,]
 yes1 <- yes1[is.na(yes1$Only.Space),] ## GET RID OF THIS IF WE ARE USING SPACE
 yes <- yes1%>%
-  select(X,TI,AU,DI,JI,PY, Comment,SecondComment)
-nrow(yes)
+  select(X,TI,AU,DI,JI,PY, Comment,SecondComment)%>%
+  filter(TI != "Developing an automated iterative near-term forecasting system for an ecological study")
 rows <- sample(nrow(yes))
 splits <- split(rows, 1:length(reviewers))
 
@@ -161,6 +176,9 @@ for(i in 1:length(reviewers)){
   final <- as.data.frame(t(assigned))
   write.csv(final, paste0("paper assignments/matrix analysis - ", reviewers[i],".csv"))
 }
+
+unavail <- with_journal[nchar(with_journal$PaperUnavailable)!=0,]
+write.csv(unavail, "papers_to_find.csv")
 ```
 
 To search for citing articles and cited articles
@@ -203,5 +221,134 @@ cited_ing_comb <- citing_new%>%
   select(-GP, -CA, -BS, -VL, - D2, - EA)%>%
   full_join(cited_new)
 write.csv(cited_ing_comb, "papers_to_add.csv")
+
+cited_ing_comb_formatted <- cited_ing_comb%>%
+  select(TI, AB, DI, AU, PY, DT, JI, LA)%>%
+  mutate(Reviewer = NA,
+         NearTerm = NA,
+         Ecological = NA,
+         Forecast = NA,
+         Only.Space = NA,
+         Comment = NA,
+         PaperUnavailable = NA)
+set.seed(47)
+rows <- sample(nrow(cited_ing_comb_formatted))
+cited_ing_comb_formatted <- cited_ing_comb_formatted[rows,]
+write.csv(cited_ing_comb_formatted, "cited_ing_comb_formatted.csv")
+#finished <- read.csv("cited_ing_comb_formatted.csv")
+#finished$DI[!is.na(finished$DI)] <- paste0("https://doi.org/",finished$DI[!is.na(finished$DI)])
+#write.csv(finished, "cited_ing_comb_formatted.csv")
+```
+
+
+
+```{r}
+data <- read_csv("cited_ing_comb_finished.csv")
+set.seed(47)
+yes <- data[!is.na(data$Reviewer) & !is.na(data$NearTerm) & data$NearTerm==1 & data$Ecological==1 & data$Forecast==1,]
+rows <- sample(nrow(yes))
+yes <- yes[rows,] 
+
+unks_maybe <- data[(!is.na(data$NearTerm) & data$NearTerm %in% c(1,99)) & data$Ecological %in% c(1,99) & data$Forecast %in% c(1,99),]
+rows <- sample(nrow(unks_maybe))
+unks_maybe <- unks_maybe[rows,]
+
+unks_no <- data[(is.na(data$NearTerm) | data$Ecological ==0 | data$Forecast == 0) | ((!is.na(data$NearTerm) & data$NearTerm==99) | data$Ecological==99 | data$Forecast==99),]
+rows <- sample(nrow(unks_no))
+unks_no = unks_no[rows,]
+
+all <- data
+rows <- sample(nrow(data))
+all <- all[rows,]
+
+sorted <- yes%>%
+  full_join(unks_maybe)%>%
+  full_join(unks_no)%>%
+  full_join(all)
+
+write.csv(sorted, "cited_ing_comb_second_review.csv")
+```
+
+
+Second round of matrix review
+```{r}
+found = read_csv("papers_to_find_edited.csv")
+cited_ing_with_journal <- read_csv("cited_ing_comb_second_review_finished.csv")
+unavail <- cited_ing_with_journal[!is.na(cited_ing_with_journal$NearTerm) & cited_ing_with_journal$NearTerm==99 | is.na(cited_ing_with_journal$Ecological) | is.na(cited_ing_with_journal$Forecast) | cited_ing_with_journal$Ecological==99 & cited_ing_with_journal$Forecast==99,]
+#write.csv(unavail, "cited_ing_papers_to_find.csv")
+class(cited_ing_with_journal$PaperUnavailable)<-"character"
+
+with_journal <- cited_ing_with_journal%>%
+  full_join(found)
+
+reviewers <- c("HLW","WMW","JS","RC","NWH","DWH","ASL")
+set.seed(470)
+yes1 <-  with_journal[!is.na(with_journal$NearTerm) & with_journal$NearTerm==1 & with_journal$Ecological==1 & with_journal$Forecast==1,]
+yes1 <- yes1[is.na(yes1$Only.Space),] ## GET RID OF THIS IF WE ARE USING SPACE
+yes <- yes1%>%
+  select(X1,TI,AU,DI,JI,PY, Comment,SecondComment)%>%
+  filter(TI != "Developing an automated iterative near-term forecasting system for an ecological study",
+         TI != "Adaptive forecasting of phytoplankton communities")
+rows <- sample(nrow(yes))
+splits <- split(rows, 1:length(reviewers))
+#abbys_extra <- splits[1]
+splits <- splits[1:length(splits)]
+#reviewers <- reviewers[1:(length(reviewers)-1)]
+set.seed(470)
+review_n <- sample(length(reviewers))
+reviewers <- reviewers[review_n]
+
+for(i in 1:length(reviewers)){
+  one_before <- if(i == 1){length(reviewers)}else{i-1}
+  two_before <- if(i == 2){length(reviewers)}else if(i == 1){length(reviewers)-1}else{i-2}
+  assigned_rows <- c(unlist(splits[paste0(i)]),unlist(splits[paste0(one_before)])[1],unlist(splits[paste0(two_before)])[2])
+  #if(reviewers[i]=="ASL"){
+  #  assigned_rows <- c(assigned_rows, unlist(abbys_extra))
+  #}
+  set.seed(470)
+  assigned <- yes[assigned_rows[sample(length(assigned_rows))],]
+  assigned <- assigned%>%
+    mutate(Name = reviewers[i])%>%
+    select(X1,Name,TI,AU,DI,JI,PY, Comment, SecondComment)
+  final <- as.data.frame(t(assigned))
+  write.csv(final, paste0("paper assignments/second matrix analysis - ", reviewers[i],".csv"))
+}
+
+
+```
+
+```{r}
+cited_ing_with_journal <- read_csv("cited_ing_comb_second_review_finished.csv")
+found <- read_csv("cited_ing_papers_to_find_edited.csv")
+
+data2 <- cited_ing_with_journal%>%
+  full_join(found, by = colnames(cited_ing_with_journal)[!colnames(cited_ing_with_journal) %in% c("X1","NearTerm","Ecological","Forecast","PaperUnavailable", "SecondComment")])
+
+data2[!is.na(data2$PaperUnavailable.y)& data2$PaperUnavailable.y == 0,c("NearTerm.x","Ecological.x","Forecast.x")]<-data2[!is.na(data2$PaperUnavailable.y)& data2$PaperUnavailable.y == 0,c("NearTerm.y","Ecological.y","Forecast.y")]
+data <- data2%>%
+  rename(Forecast = Forecast.x, NearTerm = NearTerm.x, Ecological = Ecological.x)
+data$Forecast[!is.na(data$Only.Space.x)]<-0 #Change if we are keeping spatial forecasts
+
+to_venn <- data%>%
+  filter(is.na(PaperUnavailable.x)|PaperUnavailable.x != 1|PaperUnavailable.y == 0)%>%
+  #filter(is.na(LA))%>%
+  select(NearTerm,Ecological,Forecast)
+to_venn$NearTerm[to_venn$Forecast != 1] <- 0
+#to_venn[!is.na(to_venn$Reviewer) & to_venn$Reviewer != "mary lofton",]<-"z"
+to_venn[is.na(to_venn)]<-0
+to_venn[to_venn!=1]<-0
+
+to_venn$NearTerm[to_venn$NearTerm == 1]<-row.names(to_venn)[to_venn$NearTerm == 1]
+to_venn$Ecological[to_venn$Ecological == 1]<-row.names(to_venn)[to_venn$Ecological == 1]
+to_venn$Forecast[to_venn$Forecast == 1]<-row.names(to_venn)[to_venn$Forecast == 1]
+
+n <- to_venn$NearTerm[to_venn$NearTerm != 0]
+e <- to_venn$Ecological[to_venn$Ecological != 0]
+f <- to_venn$Forecast[to_venn$Forecast != 0]
+
+venn.plot <- venn.diagram(
+	list("Near term" = n,"Ecological" = e,"Forecast" = f), 
+	"VennDiagrams/venn_data_cited_ing.tiff", cex = 2, cat.cex = 1.5, cat.dist = c(.03,0.1,0.06), cat.pos = c(320,40,160),margin = .1
+	)
 ```
 
