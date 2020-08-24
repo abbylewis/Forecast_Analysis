@@ -53,11 +53,6 @@ comb$Phys_covar_yn <- grepl("physical", comb$Covariate_classes, ignore.case = T)
 comb$Bio_covar_yn <- grepl("biological", comb$Covariate_classes, ignore.case = T)*1
 comb$Chem_covar_yn <- grepl("chemical", comb$Covariate_classes, ignore.case = T)*1
 
-
-dups <- comb[comb$Title %in% comb$Title[duplicated(comb$Title)],]
-dups = dups%>%
-  arrange(Title)
-
 comb2 <- comb[!duplicated(comb$Title),]#Filtering out rescreened papers for now
 
 complete_forecasts <- comb2[is.na(comb2$Include_yn)|tolower(comb2$Include_yn)=="yes"|comb2$Include_yn=="1",]
@@ -65,9 +60,67 @@ exclude <- comb2[!(is.na(comb2$Include_yn)|tolower(comb2$Include_yn)=="yes"|comb
 complete_forecasts$Year <- as.numeric(complete_forecasts$Year)
 complete_forecasts[complete_forecasts=="n"] <- "0"
 complete_forecasts[complete_forecasts=="y"] <- "1"
-
-
 ```
+
+
+```{r}
+dups <- comb[comb$Title %in% comb$Title[duplicated(comb$Title)],]
+
+dups = dups%>%
+  arrange(Title)
+dups$Include_yn[is.na(dups$Include_yn)|tolower(dups$Include_yn)=="yes"]<-"1"
+dups$Include_yn[!is.na(dups$Include_yn)&!tolower(dups$Include_yn)%in%c("yes","1")]<-"0"
+dups$How_often_days[dups$How_often_days%in%c("0","never","UNK")]<-NA
+dup2 = dups%>%
+  group_by(Title)%>%
+  summarize(forecast_agree = sum(length(unique(Include_yn))==1),
+            reviewers_diff = length(unique(Reviewer)))%>%
+  filter(reviewers_diff == 2)
+
+sum(dup2$forecast_agree)/nrow(dup2) ## Reviewers were in agreement about whether to include the paper 79% of the time
+
+dup_include1 <- dup2%>%
+  left_join(dups)
+
+dup_include = dup_include1 %>%
+  filter(forecast_agree == 1)%>%
+  filter(Include_yn == 1)
+
+agree <- function(x){
+  return(sum(length(unique(x))==1))
+}
+
+forecasts_agree = dup_include%>%
+  group_by(Title)%>%
+  summarise_all(funs(agree))
+
+forecasts_agree[forecasts_agree=="UNK"]<- NA
+
+forecasts_agree%>%
+  summarise_all(funs(mean))%>%
+  select(-Title, -forecast_agree, -reviewers_diff, -PaperID, -Reviewer, -Authors, -DOI, -Journal, -Year, -FirstComment, -SecondComment, -ThirdComment, -Include_yn, -Coords, -Vars_ident, -Model_desc, -Covariate_classes, -Eval_metrics,-Round,-Author_n)
+
+for_dup_compare <- as.data.frame(t(dup_include1%>%select(-forecast_agree,-reviewers_diff,-Round,-Author_n)))
+write.csv(for_dup_compare,"for_dup_compare.csv")
+```
+```{r}
+rescreen2 <- comb[!comb$Title %in% dup_include1$Title & !tolower(comb$Include_yn) %in% c("0","no"),]
+rescreen2 = rescreen2[1:9]
+
+set.seed(470)
+rescreen <- rescreen2%>%
+  filter(Title != "Developing an automated iterative near-term forecasting system for an ecological study")
+rows <- sample(nrow(rescreen))
+rescreen = rescreen[rows,]
+rescreen$Reviewer2 <- NA
+reviewers <- c("RPM","MEL","HLW","WMW","JS","RC","NWH","DWH","ASL")
+rescreen$Reviewer2 <- rep(reviewers, length.out = length(rescreen$Reviewer2))
+rescreen <- rescreen%>%
+  arrange(Reviewer2)
+rescreen_final <- as.data.frame(t(rescreen))
+#write.csv(rescreen_final, "second_rescreening.csv")
+```
+
 
 ```{r}
 complete_forecasts%>%
@@ -83,13 +136,16 @@ complete_forecasts%>%
 
 Journals
 ```{r}
-jpeg("EF_journals.jpg",res=300,width = 4, height = 10, units = "in")
+#IMPORTANT NOTE HERE: NOT ALL FORECASTS FROM THE SECOND ROUND WERE CITING/CITED PAPERS (SOME COULDN'T BE FOUND IN THE FIRST ROUND)
+jpeg("EF_journals.jpg",res=300,width = 4, height = 12, units = "in")
 complete_forecasts%>%
   ggplot(aes(y = Journal, fill = as.factor(Round)))+
   geom_bar()+
-  labs(fill = "Round")
+  labs(fill = "Round") +
+  scale_y_discrete(limits = c(rev(levels(as.factor(complete_forecasts$Journal))),NA))
 dev.off()
-complete_forecasts$Round
+
+length(unique(complete_forecasts$Journal)) #108 different journals
 ```
 
 Map
@@ -185,15 +241,16 @@ dev.off()
 Group by year
 ```{r}
 n_breaks = 2
-breaks <- quantile(as.numeric(complete_forecasts$Year), probs = seq(0,1,length.out = n_breaks+1)) #to make this divided in three use probs = c(0,1/3,2/3,1)
+breaks <- quantile(as.numeric(complete_forecasts$Year), probs = seq(0,1,length.out = n_breaks+1)) 
 breaks <- floor(breaks)
+breaks[length(breaks)] <- breaks[length(breaks)]+1
 #breaks = c(1932,2000,2016,2020)
 for(i in n_breaks:1){
-  complete_forecasts$Quantile[complete_forecasts$Year <= breaks[i+1]] <- paste0(breaks[i]+1, " to ", breaks[i+1])
+  complete_forecasts$Quantile[complete_forecasts$Year <= breaks[i+1]-1] <- paste0(breaks[i], " to ", breaks[i+1]-1)
 }
 
-complete_forecasts$Archiving_yn[complete_forecasts$Archiving_yn=="No data streams"] <- 0
-complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval_shown == "y (very loosely)"] <- 1
+complete_forecasts$Automated_bin <- 0
+complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1
 
 time_graph = complete_forecasts%>%
   group_by(Quantile)%>%
@@ -204,6 +261,9 @@ time_graph = complete_forecasts%>%
             Archiving_yn = sum(as.numeric(Archiving_yn), na.rm = T),
             End_user_yn = sum(as.numeric(End_user_yn), na.rm = T),
             Proc = sum(as.numeric(Model_type=="process-based"), na.rm = T),
+            Auto_yn = sum(Automated_bin, na.rm = T),
+            Non_ac = sum(Coauthors_nonAc>0),
+            Multiple_approaches_yn = sum(as.numeric(Multiple_approaches_yn), na.rm = T),
             Count = n())
 
 #time_graph%>%
@@ -218,19 +278,32 @@ time_graph2 = time_graph%>%
   pivot_longer(seq(2,ncol(time_graph)-1))%>%
   mutate(Percent = value/Count*100)
 
-time_graph2$name = factor(time_graph2$name, levels = c("Uncert_yn","Iterative_yn","End_user_yn","Null_yn","Archiving_yn","Eval_yn", "Proc"))
+time_graph2$name = factor(time_graph2$name, levels = c("Uncert_yn", "Iterative_yn", "End_user_yn", "Null_yn", "Archiving_yn", "Eval_yn", "Auto_yn", "Non_ac","Multiple_approaches_yn","Proc"))
 
-jpeg("Forecasts_over_time.jpeg",width = 8, height = 4, units = "in", res = 300)
+jpeg("Forecasts_over_time.jpeg",width = 10, height = 4, units = "in", res = 300)
 time_graph2%>%
   ggplot(aes(x = name, y = Percent, fill = Quantile))+
   geom_bar(stat = "identity", position = "dodge", color = "black")+
   xlab("")+
   ylab("Percent of papers")+
-  scale_x_discrete(breaks = c("Uncert_yn","Iterative_yn","End_user_yn","Null_yn","Archiving_yn","Eval_yn", "Proc"), labels = c("Data-driven \nuncertainty", "Iterative \nforecasts","End user \nspecified","Null model \ncomparison","Forecast \narchiving","Forecast \nevaluation \nin paper", "Process-based \nmodel"))+
+  scale_x_discrete(breaks = c("Uncert_yn","Iterative_yn","End_user_yn","Null_yn","Archiving_yn","Eval_yn", "Auto_yn","Non_ac","Multiple_approaches_yn","Proc"), labels = c("Data-driven \nuncertainty", "Iterative \nforecasts","End user \nspecified","Null model \ncomparison","Forecast \narchiving","Forecast \nevaluation \nin paper", "Workflow \nAutomation","Coauthor \nfrom outside \nacademia","Multiple \napproaches \ncompared","Process-based \nmodel"))+
+  theme_light()+
+  scale_fill_discrete(breaks = unique(time_graph2$Quantile), labels = paste0(unique(time_graph2$Quantile),"\n  n = ",unique(time_graph2$Count)), name = "Years")+
+  theme(legend.key.height=unit(2,"line"))
+dev.off()
+
+time_graph2$name = factor(time_graph2$name, levels = rev(c("Uncert_yn", "Iterative_yn", "End_user_yn", "Null_yn", "Archiving_yn", "Eval_yn", "Auto_yn", "Non_ac","Multiple_approaches_yn","Proc")))
+
+jpeg("Forecasts_over_time_vertical.jpeg",width = 7, height = 5, units = "in", res = 300)
+time_graph2%>%
+  ggplot(aes(y = name, x = Percent, fill = Quantile))+
+  geom_bar(stat = "identity", position = "dodge", color = "black")+
+  xlab("Percent of papers")+
+  ylab("")+
+  scale_y_discrete(breaks = c("Uncert_yn","Iterative_yn","End_user_yn","Null_yn","Archiving_yn","Eval_yn", "Auto_yn","Non_ac","Multiple_approaches_yn","Proc"), labels = c("Data-driven \nuncertainty", "Iterative \nforecasts","End user \nspecified","Null model \ncomparison","Forecast \narchiving","Forecast \nevaluation \nin paper", "Workflow \nAutomation","Coauthor \nfrom outside \nacademia","Multiple \napproaches \ncompared","Process-based \nmodel"))+
   theme_light()+
   scale_fill_discrete(breaks = unique(time_graph2$Quantile), labels = paste0(unique(time_graph2$Quantile),"; n = ",unique(time_graph2$Count)), name = "Years")
 dev.off()
-
 #Add automation?
 #Data archiving?
   
@@ -249,18 +322,7 @@ dev.off()
 
 ```
 
-
-
-Harris best practices
-Compare multiple modeling approaches
-```{r}
-complete_forecasts%>%
-  ggplot(aes(x = Multiple_approaches_yn))+
-  geom_bar()
-
-```
-
-Use time-series data when possible
+Time-series data
 ```{r}
 complete_forecasts %>%
   mutate(Data_coverage = as.numeric(Data_coverage),
@@ -282,7 +344,7 @@ jpeg("Years_of_data.jpeg", res = 300, width = 8, height = 4, units = "in")
 complete_forecasts%>%
   mutate(Year = as.numeric(Year))%>%
   ggplot()+
-  geom_histogram(aes(x = as.numeric(Data_coverage)/365, fill = Quantile),bins = 10)+
+  geom_histogram(aes(x = as.numeric(Data_coverage)/365),bins = 10)+
   geom_vline(xintercept = c(mean_dc, median_dc), color = "white")+
   geom_text(aes(x = x,y=y,label= label), data = lines, angle = 90, nudge_x = -1.5, hjust = 0,color = "white")+
   xlab("Years of data used to create forecasting paper")+
@@ -292,7 +354,6 @@ dev.off()
 
 h = complete_forecasts%>%
   mutate(Horiz_days=as.numeric(Horiz_days))
-h$Horiz_days
 h%>%
   ggplot(aes(y = as.numeric(Data_coverage)/365, x = Ecosystem, fill = Horiz_days))+
   geom_dotplot(binaxis = "y", stackdir = "center")
@@ -308,10 +369,12 @@ complete_forecasts%>%
 
 time_bin = complete_forecasts
 time_bin$time_bin = NA
+#time_bin$Time_step_days[is.na(as.numeric(time_bin$Time_step_days))] ##Use this line to check if you have all of the complicated cases covered
 time_bin$time_bin[time_bin$Time_step_days == "1-30"] <- "1 - 30 days"
 time_bin$time_bin[time_bin$Time_step_days == "10-30"] <- "1 - 30 days"
 time_bin$time_bin[time_bin$Time_step_days == "1-2"] <- "1 - 30 days"
 time_bin$time_bin[time_bin$Time_step_days == "30-150"] <- "> 1 - 12 months"
+time_bin$time_bin[time_bin$Time_step_days == "1,7,15,30"] <- "1 - 30 days"
 time_bin = time_bin %>%
     mutate(Time_step_days = as.numeric(Time_step_days))
 
@@ -332,9 +395,15 @@ time_bin%>%
 
 
 time_bin$horiz_bin = NA
+time_bin$Horiz_days[is.na(as.numeric(time_bin$Horiz_days))]
 time_bin$horiz_bin[time_bin$Horiz_days == "1-2"] <- "2 - 7 days"
 time_bin$horiz_bin[time_bin$Horiz_days == "60, 120, and 180"] <- "> 1 month - 1 year"
 time_bin$horiz_bin[time_bin$Horiz_days == "30-150"] <- "> 1 month - 1 year"
+time_bin$horiz_bin[time_bin$Horiz_days == "1-30"] <- "8 days - 1 month"
+time_bin$horiz_bin[time_bin$Horiz_days == "10-30"] <- "8 days - 1 month"
+time_bin$horiz_bin[time_bin$Horiz_days == "30 - 335? (says \"until end of year\")"] <- "> 1 month - 1 year"
+time_bin$horiz_bin[time_bin$Horiz_days == "1-7"] <- "2 - 7 days"
+time_bin$horiz_bin[time_bin$Horiz_days == "14-77"] <- "> 1 month - 1 year"
 
 time_bin = time_bin %>%
     mutate(Horiz_days = as.numeric(Horiz_days))
@@ -361,6 +430,7 @@ time_bin%>%
   ylab("Number of papers")+
   labs(fill = "Time step")
 
+jpeg("timestep_heatmap.jpeg",res = 300,width = 7, height = 4, units = "in")
 library("RColorBrewer")
 cols <- brewer.pal(n = 9, name = "BuPu")
 time_bin%>%
@@ -372,14 +442,14 @@ time_bin%>%
   scale_x_discrete(drop  =F)+
   scale_y_discrete(drop  =F)+
   theme_light()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-time_bin[!is.na(time_bin$Time_step_days)&time_bin$Horiz_days<time_bin$Time_step_days,]
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
+dev.off()
 ```
 
 Pay attention to uncertainty 
 ```{r}
-complete_forecasts$Iterative_yn[complete_forecasts$Iterative_yn == "from the perspective of the weather forecast, not the pollen forecast - so n"] <- "0"
 complete_forecasts %>%
   ggplot(aes(x = Uncert_category, fill = Iterative_yn))+
   geom_bar()+
@@ -420,22 +490,30 @@ complete_forecasts%>%
   ggplot(aes(x=Class, fill = name))+
   geom_bar()+
   theme_bw() #This is a misleading plot because it makes it seem like we have more papers than we actually have
+
+driver_graph = complete_forecasts%>%
+  mutate(num = Met_covar_yn+Bio_covar_yn+Chem_covar_yn+Phys_covar_yn)%>%
+  group_by(num)%>%
+  summarise(Met = sum(Met_covar_yn), 
+            Bio = sum(Bio_covar_yn), 
+            Chem = sum(Chem_covar_yn), 
+            Phys = sum(Phys_covar_yn), 
+            Count = n())
+
+driver_graph%>%
+  pivot_longer(seq(2,ncol(driver_graph)-1))%>%
+  mutate(Percent = value/sum(driver_graph$Count)*100)%>%
+  ggplot(aes(x = name, y = Percent, fill = as.factor(num)))+
+  geom_bar(stat = "identity")+
+  labs(fill = "Number of \ncovariate classes")
+
+driver_graph%>%
+  pivot_longer(seq(2,ncol(driver_graph)-1))%>%
+  mutate(Percent = value/sum(driver_graph$Count)*100)%>%
+  ggplot(aes(x = as.factor(num), y = Percent, fill = name))+
+  geom_bar(stat = "identity")
 ```
 
-Address unknown or unmeasured predictors 
-```{r}
-
-```
-
-Assess how forecast accuracy changes with time-lag 
-```{r}
-
-```
-
-Include an observation model 
-```{r}
-
-```
 
 Validate using hindcasting 
 ```{r}
@@ -452,15 +530,3 @@ complete_forecasts%>%
   ggplot(aes(x = Forecast_eval, y = Horiz_days))+
   geom_point()
 ```
-
-Publicly archive forecasts 
-```{r}
-
-```
-
-Make both short-term and long-term predictions
-```{r}
-
-```
-
-

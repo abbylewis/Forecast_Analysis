@@ -199,6 +199,8 @@ search <- paste(search)
 write.table(search, "references.txt")
 ```
 
+
+Create spreadsheet for first abstract review of citing/cited papers
 ```{r}
 citing <- read_csv("papers_citing_forecasts_full.csv")
 citing_new <- citing[!citing$TI %in% second$TI,]
@@ -241,7 +243,7 @@ write.csv(cited_ing_comb_formatted, "cited_ing_comb_formatted.csv")
 ```
 
 
-
+Create matrix for second abstract review with citing/ed papers
 ```{r}
 data <- read_csv("cited_ing_comb_finished.csv")
 set.seed(47)
@@ -317,6 +319,7 @@ for(i in 1:length(reviewers)){
 
 ```
 
+Venn diagram of citing/ed papers
 ```{r}
 cited_ing_with_journal <- read_csv("cited_ing_comb_second_review_finished.csv")
 found <- read_csv("cited_ing_papers_to_find_edited.csv")
@@ -350,5 +353,32 @@ venn.plot <- venn.diagram(
 	list("Near term" = n,"Ecological" = e,"Forecast" = f), 
 	"VennDiagrams/venn_data_cited_ing.tiff", cex = 2, cat.cex = 1.5, cat.dist = c(.03,0.1,0.06), cat.pos = c(320,40,160),margin = .1
 	)
+```
+
+Adding citing/ed for the papers I found later
+```{r}
+found <- read_csv("papers_to_find_edited.csv")
+yes1 <-  found[!is.na(found$NearTerm) & found$NearTerm==1 & found$Ecological==1 & found$Forecast==1&!is.na(found$'Found?')&found$'Found?' == 1,]
+yes <- yes1[is.na(yes1$Only.Space),] ## GET RID OF THIS IF WE ARE USING SPACE
+
+search <- c(yes$TI[1])
+for( i in 2:length(yes$TI)){
+  search <- c(search, "OR", yes$TI[i])
+}
+search <- paste(search)
+
+
+refs <- read.csv("referenced_papers_all.csv")
+search <- c(refs$TI[1])
+for( i in 2:length(refs$TI)){
+  search <- c(search, "OR", refs$TI[i])
+}
+search <- paste(search)
+write.table(search, "references.txt")
+
+second <- read.csv("second_review_complete.csv")
+cited_ing_with_journal <- read_csv("cited_ing_comb_second_review_finished.csv")
+found_late <- read.csv("citing_ed_foundLate.csv")
+found_late = found_late[!found_late$Article.Title %in% c(cited_ing_with_journal$TI,second$TI)]
 ```
 
