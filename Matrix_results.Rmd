@@ -23,20 +23,25 @@ new_names <- c("PaperID", "Reviewer","Title","Authors","DOI","Journal",
                     "Scenarios_n","Forecast_eval","Forecast_eval_shown","Eval_metrics",
                     "Eval_mult_horiz_yn","Cycles_eval_n","Cycles_total_n","Forecast_horiz_null_days",
                     "Header4","Driver_lat_max_days","Driver_lat_min_days","Data_coverage",
-                    "Automated_yn","Archiving_yn","Repository","Drivers_published","Header5",
-                    "End_user_yn","End_user_partnership","Used_by_stakeholder_yn","End_user_type",
+                    "Automated_yn","Archiving_yn","Repository","Drivers_published","Header5", "End_user_yn",
+                    "End_user_partnership","Used_by_stakeholder_yn","End_user_type",
                     "Delivery_method_yn","Delivery_method","Ethical_considerations")
 
 files <- list.files("Finished matrices")
 comb <- read_csv(paste0("Finished matrices/",files[1]), col_types = paste0(rep("c",82),collapse = ""), col_names = new_names, skip = 1)
 comb$Round <- 1
-if(grepl("Second", files[1])){
+if(grepl("Second matrix analysis", files[1])){
   comb$Round <- 2
+}
+if(grepl("Second rescreening", files[1])){
+  comb$Round <- 3
 }
 for (i in 2:length(files)){
   new <- read_csv(paste0("Finished matrices/",files[i]), col_types = paste0(rep("c",82),collapse = ""), col_names = new_names, skip = 1)
-  if(grepl("Second", files[i])){
-    new$Round <- 2
+  if(grepl("Second matrix analysis", files[i])){
+  new$Round <- 2
+  } else if(grepl("Second rescreening", files[i])){
+  new$Round <- 3
   } else {new$Round <- 1}
   comb = comb%>%
     full_join(new)
@@ -70,7 +75,7 @@ dups = dups%>%
   arrange(Title)
 dups$Include_yn[is.na(dups$Include_yn)|tolower(dups$Include_yn)=="yes"]<-"1"
 dups$Include_yn[!is.na(dups$Include_yn)&!tolower(dups$Include_yn)%in%c("yes","1")]<-"0"
-dups$How_often_days[dups$How_often_days%in%c("0","never","UNK")]<-NA
+dups$How_often_days[dups$How_often_days%in%c("0","never")]<-NA
 dup2 = dups%>%
   group_by(Title)%>%
   summarize(forecast_agree = sum(length(unique(Include_yn))==1),
@@ -100,9 +105,20 @@ forecasts_agree%>%
   summarise_all(funs(mean))%>%
   select(-Title, -forecast_agree, -reviewers_diff, -PaperID, -Reviewer, -Authors, -DOI, -Journal, -Year, -FirstComment, -SecondComment, -ThirdComment, -Include_yn, -Coords, -Vars_ident, -Model_desc, -Covariate_classes, -Eval_metrics,-Round,-Author_n)
 
-for_dup_compare <- as.data.frame(t(dup_include1%>%select(-forecast_agree,-reviewers_diff,-Round,-Author_n)))
-write.csv(for_dup_compare,"for_dup_compare.csv")
+original_dups <- data.frame(t(read.csv("for_dup_compare.csv")))$X1
+new_dups <- dup_include1%>%
+  filter(!Title %in% original_dups)
+new_dups = new_dups%>%
+  rename(Spreadsheet_Name = Round)
+new_dups$Spreadsheet_Name[new_dups$Spreadsheet_Name == 1] <- "Matrix analysis"
+new_dups$Spreadsheet_Name[new_dups$Spreadsheet_Name == 2] <- "Second matrix analysis"
+new_dups$Spreadsheet_Name[new_dups$Spreadsheet_Name == 3] <- "Second rescreening"
+
+for_dup_compare <- as.data.frame(t(new_dups%>%select(-forecast_agree,-reviewers_diff,-Author_n)))
+write.csv(for_dup_compare,"for_dup_compare2.csv")
 ```
+
+
 ```{r}
 rescreen2 <- comb[!comb$Title %in% dup_include1$Title & !tolower(comb$Include_yn) %in% c("0","no"),]
 rescreen2 = rescreen2[1:9]

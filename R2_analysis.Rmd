@@ -1,0 +1,34 @@
+---
+title: "R2 analysis"
+author: "Abby Lewis"
+date: "9/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+r2 = read.csv("R2 Analysis_prelim.csv")
+
+r2%>%
+  mutate(R2_value = as.numeric(R2_value))%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))%>%
+  ggplot(aes(x = Horiz_days, y = R2_value))+
+  geom_point()+
+  xlim(0,10)
+
+r2%>%
+  mutate(R2_value = as.numeric(R2_value))%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))%>%
+  ggplot(aes(x = Class, y = R2_value))+
+  geom_boxplot()
+
+r2%>%
+  mutate(R2_value = as.numeric(R2_value))%>%
+  ggplot(aes(x = , y = R2_value))+
+  geom_boxplot()
+
+```
+
