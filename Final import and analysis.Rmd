@@ -1,0 +1,480 @@
+---
+title: "Final data ingest and analysis"
+author: "Abby Lewis"
+date: "10/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(googlesheets4)
+library(googledrive)
+library(tidyverse)
+```
+
+```{r}
+files = drive_ls(path = "My projects/Forecasting Analysis/Abstract screening and matrix analysis")
+files = files[files$name %in% c("for_dup_compare","for_dup_compare2"),]
+
+for(i in 1:nrow(files)){
+  matrix <- data.frame(t(read_sheet(files$id[i], col_types = "c")))
+  colnames(matrix)<-matrix[1,]
+  matrix <- matrix[2:nrow(matrix),]
+  write.csv(matrix, paste0("Finished_dups/",files$name[i], ".csv"))
+}
+
+new_names <- c("PaperID", "Reviewer","Title","Authors","DOI","Journal",
+                    "Year","FirstComment","SecondComment","ThirdComment","Location","Include_yn",
+                    "Header1","Coauthors_nonAc","Coauthors_gov","Spat_scale","Coords",
+                    "Ecosystem","Class","Vars_n","Vars_ident",
+                    "Header2","Model_dim","Model_type","Model_desc","Covariate_classes",
+                    "Random_effects_yn","Latent_vars_yn","Ens_within_model_yn",
+                    "Ens_members_n","Ens_of_models_yn","Models_n","Multiple_approaches_yn",
+                    "Approach_n","Null_yn","Null_n","Null_type","Horiz_days",
+                    "Time_step_days","How_often_days","Spat_step","Training_yn",
+                    "Header3","Iterative_yn","DA_type","DA_latency_days","Uncert_category",
+                    "Uncert_technique","Uncert_source","Uncert_obs_yn","Uncert_partition_yn",
+                    "Uncert_ic_yn","Uncert_driver_yn","Uncert_param_yn","Uncert_process_yn",
+                    "Uncert_other_yn","Uncert_dom","Uncert_describe","Scenarios_yn",
+                    "Scenarios_n","Forecast_eval","Forecast_eval_shown","Eval_metrics",
+                    "Eval_mult_horiz_yn","Cycles_eval_n","Cycles_total_n","Forecast_horiz_null_days",
+                    "Header4","Driver_lat_max_days","Driver_lat_min_days","Data_coverage",
+                    "Automated_yn","Archiving_yn","Repository","Drivers_published","Header5", "End_user_yn",
+                    "End_user_partnership","Used_by_stakeholder_yn",
+                    "Delivery_method_yn","Delivery_method","Ethical_considerations")
+
+files2 <- list.files("Finished_dups")
+comb <- read_csv(paste0("Finished_dups/",files2[2]), col_types = paste0(rep("c",82),collapse = ""), col_names = new_names, skip = 1)
+
+for (i in 2:length(files2)){
+  new <- read_csv(paste0("Finished_dups/",files2[i]), col_types = paste0(rep("c",82),collapse = ""), col_names = new_names, skip = 1)
+  comb = comb%>%
+    full_join(new)
+}
+
+comb = comb%>%
+  select(-Header1,-Header2,-Header3,-Header4,-Header5)
+
+comb$Author_n <- str_count(comb$Authors, pattern = ";")+1
+comb$Met_covar_yn <- grepl("meteorological", comb$Covariate_classes, ignore.case = T)*1
+comb$Phys_covar_yn <- grepl("physical", comb$Covariate_classes, ignore.case = T)*1
+comb$Bio_covar_yn <- grepl("biological", comb$Covariate_classes, ignore.case = T)*1
+comb$Chem_covar_yn <- grepl("chemical", comb$Covariate_classes, ignore.case = T)*1
+
+comb2 <- comb[!duplicated(comb$Title),]#Filtering out the second copy of each paper (should be identical)
+
+complete_forecasts <- comb2[is.na(comb2$Include_yn)|tolower(comb2$Include_yn)=="yes"|comb2$Include_yn=="1",]
+exclude <- comb2[!(is.na(comb2$Include_yn)|tolower(comb2$Include_yn)=="yes"|comb2$Include_yn=="1"),]
+complete_forecasts$Year <- as.numeric(complete_forecasts$Year)
+complete_forecasts[complete_forecasts=="n"] <- "0"
+complete_forecasts[complete_forecasts=="y"] <- "1"
+```
+
+
+```{r}
+complete_forecasts%>%
+  ggplot(aes(x = Coauthors_nonAc!=0, fill =  End_user_yn))+
+  geom_bar()+
+  theme_bw()
+
+complete_forecasts%>%
+  ggplot(aes(x = Coauthors_gov!=0, fill =  End_user_yn))+
+  geom_bar()+
+  theme_bw()
+```
+
+Journals
+```{r}
+#IMPORTANT NOTE HERE: NOT ALL FORECASTS FROM THE SECOND ROUND WERE CITING/CITED PAPERS (SOME COULDN'T BE FOUND IN THE FIRST ROUND)
+jpeg("EF_journals.jpg",res=300,width = 4, height = 12, units = "in")
+complete_forecasts%>%
+  ggplot(aes(y = Journal))+
+  geom_bar()+
+  scale_y_discrete(limits = c(rev(levels(as.factor(complete_forecasts$Journal))),NA))
+dev.off()
+
+length(unique(complete_forecasts$Journal)) #96 different journals
+```
+
+Map
+```{r}
+WorldData <- map_data('world') %>% 
+  filter(region != "Antarctica") %>% 
+  fortify
+
+for_map <- complete_forecasts
+coords <- for_map$Coords
+for(i in 1:(max(str_count(for_map$Coords, ";"), na.rm = T)+1)){
+  stops <- regexpr(pattern = ";",coords)
+  stops[stops == -1] <- 10000L
+  coords_i <- substr(coords, start = 1, stop = stops-1)
+  for_map[nchar(coords_i)>0&!is.na(coords_i), paste0("Long",i)] <- as.numeric(sub("-*[0-9]+.[0-9]+,","",coords_i))[nchar(coords_i)>0&!is.na(coords_i)]
+  for_map[nchar(coords_i)>0&!is.na(coords_i), paste0("Lat",i)] <- as.numeric(sub(", -*[0-9]+.[0-9]+","",coords_i))[nchar(coords_i)>0&!is.na(coords_i)]
+  inds <- regexpr(pattern = ";",coords)
+  inds[inds == -1]<-NA
+  coords <- substr(coords, start = inds + 2, stop = 10000L)
+}
+
+for_map2 = for_map%>%
+  pivot_longer(cols = num_range("Lat", 1:max(str_count(for_map$Coords, ";"), na.rm = T)), names_to = "Lat_num", values_to= "Lat")%>%
+  pivot_longer(cols = num_range("Long", 1:max(str_count(for_map$Coords, ";"), na.rm = T)), names_to = "Long_num", values_to = "Long")%>%
+  filter(sub("[a-z]+","",Lat_num)==sub("[a-z]+","",Long_num, ""))%>%
+  filter(Spat_scale %in% c("point","multipoint"))
+
+
+library(scales)
+colors <- hue_pal()(10)
+colors = c(colors, "#7f7f7f")
+
+map <- ggplot() +
+  geom_map(data = WorldData, map = WorldData,
+                  aes(map_id=region),
+                  fill = "white", colour = "#7f7f7f", size=0.5)+
+  coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim=c(-50, 90))+
+  geom_point(data = for_map2, aes(Long, Lat, fill = Ecosystem, shape = Spat_scale), size = 3, color = "black")+
+  theme_bw() + xlab(NULL) + ylab(NULL) +
+  scale_fill_manual(breaks = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  scale_shape_manual(values = c(21,23), breaks = c("point","multipoint"), name = "Spatial extent")+
+  theme(
+    plot.background = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    legend.position = "bottom",
+    legend.direction = "horizontal")+
+  guides(fill = F)
+  #guides(fill = guide_legend(override.aes=list(shape=21)))
+
+
+complete_forecasts$Ecosystem[is.na(complete_forecasts$Ecosystem)]<-"NA"
+complete_forecasts$Ecosystem <- factor(complete_forecasts$Ecosystem, levels = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"))
+complete_forecasts$Spat_scale<- factor(complete_forecasts$Spat_scale, levels = c("point","multipoint","national","regional","global"))
+extent <- complete_forecasts%>%
+  ggplot(aes(x = Spat_scale, fill = Ecosystem))+
+  scale_fill_manual(breaks = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  xlab("Spatial extent")+
+  geom_bar(show.legend = F)+
+  ylab("Number of papers")+
+  theme_light()
+
+class <- complete_forecasts%>%
+  ggplot(aes(x = Class, fill = Ecosystem))+
+  geom_bar()+
+  scale_fill_manual(breaks = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")
+
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+legend_fill <- g_legend(class)
+
+class <- complete_forecasts%>%
+  ggplot(aes(x = Class, fill = Ecosystem))+
+  geom_bar(show.legend = F)+
+  scale_fill_manual(breaks = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  ylab("Number of papers")+
+  theme_light()
+
+library(ggpubr)
+jpeg("Map_composite.jpeg",width = 9, height = 6, units = "in", res = 300)
+ggarrange(ggarrange(map, ggarrange(extent, class, labels = c("B","C")), nrow = 2, heights = c(5,3), labels = "A"), legend_fill, widths = c(7, 1))
+dev.off()
+```
+
+Group by year
+```{r}
+n_breaks = 2
+breaks <- quantile(as.numeric(complete_forecasts$Year), probs = seq(0,1,length.out = n_breaks+1)) 
+breaks <- floor(breaks)
+breaks[length(breaks)] <- breaks[length(breaks)]+1
+#breaks = c(1932,2000,2016,2020)
+for(i in n_breaks:1){
+  complete_forecasts$Quantile[complete_forecasts$Year <= breaks[i+1]-1] <- paste0(breaks[i], " to ", breaks[i+1]-1)
+}
+
+complete_forecasts$Automated_bin <- 0
+complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1
+
+time_graph = complete_forecasts%>%
+  group_by(Quantile)%>%
+  summarise(Uncert_yn = sum(Uncert_category %in% c("data_driven", "propagates", "assimilates")), #If you get rid of contains here there is a more obvious pattern
+            Null_yn = sum(as.numeric(Null_yn), na.rm = T),
+            Eval_yn = sum(as.numeric(Forecast_eval_shown), na.rm = T),
+            Iterative_yn = sum(as.numeric(Iterative_yn), na.rm = T),
+            Archiving_yn = sum(as.numeric(Archiving_yn), na.rm = T),
+            End_user_yn = sum(as.numeric(End_user_yn), na.rm = T),
+            Proc = sum(as.numeric(Model_type=="process-based"), na.rm = T),
+            Auto_yn = sum(Automated_bin, na.rm = T),
+            Non_ac = sum(Coauthors_nonAc>0),
+            Multiple_approaches_yn = sum(as.numeric(Multiple_approaches_yn), na.rm = T),
+            Count = n())
+
+#time_graph%>%
+#  pivot_longer(seq(2,ncol(time_graph)-1))%>%
+#  mutate(Percent = value/Count*100)%>%
+#  ggplot(aes(x = Quantile, y = Percent, fill = name))+
+#  geom_bar(stat = "identity", position = "dodge", color = "black")+
+#  theme_bw()+
+#  geom_text(aes(y = 90, label = paste0("n = ",Count)))
+
+time_graph2 = time_graph%>%
+  pivot_longer(seq(2,ncol(time_graph)-1))%>%
+  mutate(Percent = value/Count*100)
+
+time_graph2$name = factor(time_graph2$name, levels = c("Uncert_yn", "Iterative_yn", "End_user_yn", "Null_yn", "Archiving_yn", "Eval_yn", "Auto_yn", "Non_ac","Multiple_approaches_yn","Proc"))
+
+jpeg("Forecasts_over_time.jpeg",width = 10, height = 4, units = "in", res = 300)
+time_graph2%>%
+  ggplot(aes(x = name, y = Percent, fill = Quantile))+
+  geom_bar(stat = "identity", position = "dodge", color = "black")+
+  xlab("")+
+  ylab("Percent of papers")+
+  scale_x_discrete(breaks = c("Uncert_yn","Iterative_yn","End_user_yn","Null_yn","Archiving_yn","Eval_yn", "Auto_yn","Non_ac","Multiple_approaches_yn","Proc"), labels = c("Data-driven \nuncertainty", "Iterative \nforecasts","End user \nspecified","Null model \ncomparison","Forecast \narchiving","Forecast \nevaluation \nin paper", "Workflow \nAutomation","Coauthor \nfrom outside \nacademia","Multiple \napproaches \ncompared","Process-based \nmodel"))+
+  theme_light()+
+  scale_fill_discrete(breaks = unique(time_graph2$Quantile), labels = paste0(unique(time_graph2$Quantile),"\n  n = ",unique(time_graph2$Count)), name = "Years")+
+  theme(legend.key.height=unit(2,"line"))
+dev.off()
+
+time_graph2$name = factor(time_graph2$name, levels = rev(c("Uncert_yn", "Iterative_yn", "End_user_yn", "Null_yn", "Archiving_yn", "Eval_yn", "Auto_yn", "Non_ac","Multiple_approaches_yn","Proc")))
+
+jpeg("Forecasts_over_time_vertical.jpeg",width = 7, height = 5, units = "in", res = 300)
+time_graph2%>%
+  ggplot(aes(y = name, x = Percent, fill = Quantile))+
+  geom_bar(stat = "identity", position = "dodge", color = "black")+
+  xlab("Percent of papers")+
+  ylab("")+
+  scale_y_discrete(breaks = c("Uncert_yn","Iterative_yn","End_user_yn","Null_yn","Archiving_yn","Eval_yn", "Auto_yn","Non_ac","Multiple_approaches_yn","Proc"), labels = c("Data-driven \nuncertainty", "Iterative \nforecasts","End user \nspecified","Null model \ncomparison","Forecast \narchiving","Forecast \nevaluation \nin paper", "Workflow \nAutomation","Coauthor \nfrom outside \nacademia","Multiple \napproaches \ncompared","Process-based \nmodel"))+
+  theme_light()+
+  scale_fill_discrete(breaks = unique(time_graph2$Quantile), labels = paste0(unique(time_graph2$Quantile),"; n = ",unique(time_graph2$Count)), name = "Years")
+dev.off()
+#Add automation?
+#Data archiving?
+  
+  
+#Uncertainty
+#Iterative
+#Data assimilation*****
+#Identify an end user
+#Routine data collection*****
+#Manual and automated data collection*****
+#Null model comparison
+#Real-time (within 24 hours)*****
+#Forecasts are archived such that you can track improvement over time
+#FAIR, driver data and forecast output*****
+#Forecast verification
+
+```
+
+Time-series data
+```{r}
+complete_forecasts %>%
+  mutate(Data_coverage = as.numeric(Data_coverage),
+         Cycles_total_n = as.numeric(Cycles_total_n))%>%
+  ggplot(aes(x = Data_coverage, y = Cycles_total_n))+
+  geom_point()
+
+complete_forecasts%>%
+  ggplot(aes(x = as.numeric(Data_coverage)))+
+  geom_histogram(bins = 10)
+
+mean_dc<- round(mean(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1)
+median_dc <- median(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T)
+lines = data.frame(c(mean_dc, median_dc),c(2,2))
+colnames(lines) = c("x","y")
+lines$label = c(paste0("Mean = ", mean_dc, " years"), paste0("Median = ",median_dc, " years"))
+
+jpeg("Years_of_data.jpeg", res = 300, width = 8, height = 4, units = "in")
+complete_forecasts%>%
+  mutate(Year = as.numeric(Year))%>%
+  ggplot()+
+  geom_histogram(aes(x = as.numeric(Data_coverage)/365),bins = 10)+
+  geom_vline(xintercept = c(mean_dc, median_dc), color = "white")+
+  geom_text(aes(x = x,y=y,label= label), data = lines, angle = 90, nudge_x = -1.5, hjust = 0,color = "white")+
+  xlab("Years of data used to create forecasting paper")+
+  ylab("Number of papers")+
+  theme_light()
+dev.off()
+
+h = complete_forecasts%>%
+  mutate(Horiz_days=as.numeric(Horiz_days))
+h%>%
+  ggplot(aes(y = as.numeric(Data_coverage)/365, x = Ecosystem, fill = Horiz_days))+
+  geom_dotplot(binaxis = "y", stackdir = "center")
+
+complete_forecasts%>%
+  ggplot(aes(y = as.numeric(Time_step_days), x = "m"))+
+  geom_violin(binaxis = "y", stackdir = "center")
+
+complete_forecasts%>%
+  mutate(Time_step_days = as.numeric(Time_step_days))%>%
+  ggplot(aes(x = as.numeric(Time_step_days)))+
+  geom_histogram()
+
+time_bin = complete_forecasts
+time_bin$time_bin = NA
+#time_bin$Time_step_days[is.na(as.numeric(time_bin$Time_step_days))] ##Use this line to check if you have all of the complicated cases covered
+time_bin$time_bin[time_bin$Time_step_days == "1-30"] <- "1 - 30 days"
+time_bin$time_bin[time_bin$Time_step_days == "10-30"] <- "1 - 30 days"
+time_bin$time_bin[time_bin$Time_step_days == "1-2"] <- "1 - 30 days"
+time_bin$time_bin[time_bin$Time_step_days == "30-150"] <- "> 1 - 12 months"
+time_bin$time_bin[time_bin$Time_step_days == "1,7,15,30"] <- "1 - 30 days"
+time_bin = time_bin %>%
+    mutate(Time_step_days = as.numeric(Time_step_days))
+
+time_bin$time_bin[time_bin$Time_step_days < 1] <- "< 1 day"
+time_bin$time_bin[time_bin$Time_step_days == 1] <- "1 day"
+time_bin$time_bin[time_bin$Time_step_days > 1 & time_bin$Time_step_days <= 7] <- "2 - 7 days"
+time_bin$time_bin[time_bin$Time_step_days > 7 & time_bin$Time_step_days <= 31] <- "8 days - 1 month"
+time_bin$time_bin[time_bin$Time_step_days > 31 & time_bin$Time_step_days < 365] <- "> 1 month - 1 year"
+time_bin$time_bin[time_bin$Time_step_days == 365] <- "1 year"
+time_bin$time_bin[time_bin$Time_step_days > 365 & time_bin$Time_step_days >= 365*5] <- "> 1 year - 5 years"
+time_bin$time_bin[time_bin$Time_step_days > 365*5 & time_bin$Time_step_days > 365*10] <- "> 5 year - 10 years"
+time_bin$time_bin[time_bin$Time_step_days > 365*10] <- "> 10 years"
+
+time_bin$time_bin <- factor(time_bin$time_bin, levels = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years - 10 years", "> 10 years"))
+time_bin%>%
+  ggplot(aes(x = time_bin))+
+  geom_histogram(stat = "count")
+
+
+time_bin$horiz_bin = NA
+time_bin$Horiz_days[is.na(as.numeric(time_bin$Horiz_days))]
+time_bin$horiz_bin[time_bin$Horiz_days == "1-2"] <- "2 - 7 days"
+time_bin$horiz_bin[time_bin$Horiz_days == "60, 120, and 180"] <- "> 1 month - 1 year"
+time_bin$horiz_bin[time_bin$Horiz_days == "30-150"] <- "> 1 month - 1 year"
+time_bin$horiz_bin[time_bin$Horiz_days == "1-30"] <- "8 days - 1 month"
+time_bin$horiz_bin[time_bin$Horiz_days == "10-30"] <- "8 days - 1 month"
+time_bin$horiz_bin[time_bin$Horiz_days == "30 - 335? (says \"until end of year\")"] <- "> 1 month - 1 year"
+time_bin$horiz_bin[time_bin$Horiz_days == "1-7"] <- "2 - 7 days"
+time_bin$horiz_bin[time_bin$Horiz_days == "14-77"] <- "> 1 month - 1 year"
+
+time_bin = time_bin %>%
+    mutate(Horiz_days = as.numeric(Horiz_days))
+time_bin$horiz_bin[time_bin$Horiz_days < 1] <- "< 1 day"
+time_bin$horiz_bin[time_bin$Horiz_days == 1] <- "1 day"
+time_bin$horiz_bin[time_bin$Horiz_days > 1 & time_bin$Horiz_days <= 7] <- "2 - 7 days"
+time_bin$horiz_bin[time_bin$Horiz_days > 7 & time_bin$Horiz_days <= 31] <- "8 days - 1 month"
+time_bin$horiz_bin[time_bin$Horiz_days > 31 & time_bin$Horiz_days < 365] <- "> 1 month - 1 year"
+time_bin$horiz_bin[time_bin$Horiz_days == 365] <- "1 year"
+time_bin$horiz_bin[time_bin$Horiz_days > 365 & time_bin$Horiz_days <= 365*5] <- "> 1 year - 5 years"
+time_bin$horiz_bin[time_bin$Horiz_days > 365*5 & time_bin$Horiz_days <= 365*10] <- "> 5 years - 10 years"
+time_bin$horiz_bin[time_bin$Horiz_days > 365*10] <- "> 10 years"
+time_bin$horiz_bin <- factor(time_bin$horiz_bin, levels = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years - 10 years", "> 10 years"))
+
+time_bin%>%
+  ggplot(aes(x = time_bin, fill = horiz_bin))+
+  geom_histogram(stat = "count")
+
+time_bin%>%
+  ggplot(aes(x = horiz_bin, fill = time_bin))+
+  geom_bar(stat = "count")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlab("Time horizon of forecast")+
+  ylab("Number of papers")+
+  labs(fill = "Time step")
+
+jpeg("timestep_heatmap.jpeg",res = 300,width = 7, height = 4, units = "in")
+library("RColorBrewer")
+cols <- brewer.pal(n = 9, name = "BuPu")
+time_bin%>%
+  ggplot(aes(x = horiz_bin, y = time_bin), na.rm = T)+
+  geom_bin2d()+
+  xlab("Time horizon")+
+  ylab("Time step")+
+  scale_fill_gradientn(colors = cols)+
+  scale_x_discrete(drop  =F)+
+  scale_y_discrete(drop  =F)+
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
+dev.off()
+```
+
+Pay attention to uncertainty 
+```{r}
+complete_forecasts %>%
+  ggplot(aes(x = Uncert_category, fill = Iterative_yn))+
+  geom_bar()+
+  scale_x_discrete(limits = c("no","contains","data_driven","propagates","assimilates"))+
+  theme_bw()
+
+complete_forecasts %>%
+  ggplot(aes(x = Uncert_category, fill = Uncert_technique))+
+  geom_bar()+
+  scale_x_discrete(limits = c("no","contains","data_driven","propagates","assimilates"))+
+  theme_bw()
+
+complete_forecasts %>%
+  ggplot(aes(x = Uncert_category, fill = Uncert_partition_yn))+
+  geom_bar()+
+  scale_x_discrete(limits = c("no","contains","data_driven","propagates","assimilates"))+
+  theme_bw()
+
+complete_forecasts%>%
+  ggplot(aes(y = Uncert_category, x = Year))+
+  geom_point()+
+  theme_bw()
+
+complete_forecasts[complete_forecasts$Uncert_partition_yn == "1",] #Only 5 forecasts with partitioned uncertainty. Only 3 indicate the dominant source
+complete_forecasts$R2 <- as.numeric(grepl("[R,r]2",complete_forecasts$Eval_metrics))
+
+using_r2 = complete_forecasts%>%
+  filter(R2 == 1)
+write.csv(using_r2, "papers_reporting_r2.csv")
+```
+
+Use predictors related to the question 
+```{r}
+complete_forecasts%>%
+  select(Met_covar_yn,Phys_covar_yn,Bio_covar_yn,Class)%>%
+  pivot_longer(cols = 1:3)%>%
+  filter(value == 1) %>%
+  ggplot(aes(x=Class, fill = name))+
+  geom_bar()+
+  theme_bw() #This is a misleading plot because it makes it seem like we have more papers than we actually have
+
+driver_graph = complete_forecasts%>%
+  mutate(num = Met_covar_yn+Bio_covar_yn+Chem_covar_yn+Phys_covar_yn)%>%
+  group_by(num)%>%
+  summarise(Met = sum(Met_covar_yn), 
+            Bio = sum(Bio_covar_yn), 
+            Chem = sum(Chem_covar_yn), 
+            Phys = sum(Phys_covar_yn), 
+            Count = n())
+
+driver_graph%>%
+  pivot_longer(seq(2,ncol(driver_graph)-1))%>%
+  mutate(Percent = value/sum(driver_graph$Count)*100)%>%
+  ggplot(aes(x = name, y = Percent, fill = as.factor(num)))+
+  geom_bar(stat = "identity")+
+  labs(fill = "Number of \ncovariate classes")
+
+driver_graph%>%
+  pivot_longer(seq(2,ncol(driver_graph)-1))%>%
+  mutate(Percent = value/sum(driver_graph$Count)*100)%>%
+  ggplot(aes(x = as.factor(num), y = Percent, fill = name))+
+  geom_bar(stat = "identity")
+```
+
+
+Validate using hindcasting 
+```{r}
+complete_forecasts%>%
+  ggplot(aes(x = Iterative_yn, fill = Forecast_eval_shown))+
+  geom_bar()
+
+complete_forecasts%>%
+  ggplot(aes(x = Iterative_yn, fill = Forecast_eval))+
+  geom_bar()
+
+complete_forecasts%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))%>%
+  ggplot(aes(x = Forecast_eval, y = Horiz_days))+
+  geom_point()
+```
