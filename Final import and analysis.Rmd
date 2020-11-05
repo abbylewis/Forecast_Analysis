@@ -44,7 +44,7 @@ new_names <- c("PaperID", "Reviewer","Title","Authors","DOI","Journal",
                     "Delivery_method_yn","Delivery_method","Ethical_considerations")
 
 files2 <- list.files("Finished_dups")
-comb <- read_csv(paste0("Finished_dups/",files2[2]), col_types = paste0(rep("c",82),collapse = ""), col_names = new_names, skip = 1)
+comb <- read_csv(paste0("Finished_dups/",files2[1]), col_types = paste0(rep("c",82),collapse = ""), col_names = new_names, skip = 1)
 
 for (i in 2:length(files2)){
   new <- read_csv(paste0("Finished_dups/",files2[i]), col_types = paste0(rep("c",82),collapse = ""), col_names = new_names, skip = 1)
@@ -68,6 +68,41 @@ exclude <- comb2[!(is.na(comb2$Include_yn)|tolower(comb2$Include_yn)=="yes"|comb
 complete_forecasts$Year <- as.numeric(complete_forecasts$Year)
 complete_forecasts[complete_forecasts=="n"] <- "0"
 complete_forecasts[complete_forecasts=="y"] <- "1"
+
+write.csv(complete_forecasts, "complete_dataset.csv", row.names = F)
+```
+Papers per year
+```{r}
+complete_forecasts <- read.csv("complete_dataset.csv")
+eco_total <- read.csv("ecology_results.txt", sep = "\t")
+
+years <- as.data.frame(seq(min(complete_forecasts$Year, na.rm = T)-1,max(complete_forecasts$Year, na.rm = T)))
+colnames(years)<- "Year"
+for_hist1 <- complete_forecasts%>%
+  group_by(Year)%>%
+  summarize(total = n())
+for_hist <- years%>%
+  left_join(for_hist1)%>%
+  filter(Year !=2020)
+for_hist$total[is.na(for_hist$total)] <- 0
+  
+
+for_2000 <- for_hist$total[for_hist$Year == 2010]
+for_max <- max(for_hist$total)
+eco_2000 <- eco_total$records[eco_total$Publication.Years == 2010]
+eco_max = eco_2000*for_max/for_2000
+
+par(mar = c(5, 5, 3, 5))
+#hist(complete_forecasts$PY, breaks = 50, main = "",xlab = "Year", ylab = "ecological forecasts")
+plot(for_hist$Year, for_hist$total, main = "",xlab = "Year", ylab = "ecological forecasts", type = "l", ylim = c(0,for_max))
+par(new = T)
+plot(eco_total$Publication.Years[-1],eco_total$records[-1], type = "l",xaxt = "n", yaxt = "n",
+     ylab = "", xlab = "", col = "red", ylim = c(0, eco_max), xlim = range(for_hist$Year))
+axis(4)
+mtext("publications in ecology journals", side = 4, line = 3)
+legend("topleft", c("near-term ecological forecasts", "total publications"),
+       col = c("black", "red"), lty = 1)
+
 ```
 
 
@@ -85,7 +120,6 @@ complete_forecasts%>%
 
 Journals
 ```{r}
-#IMPORTANT NOTE HERE: NOT ALL FORECASTS FROM THE SECOND ROUND WERE CITING/CITED PAPERS (SOME COULDN'T BE FOUND IN THE FIRST ROUND)
 jpeg("EF_journals.jpg",res=300,width = 4, height = 12, units = "in")
 complete_forecasts%>%
   ggplot(aes(y = Journal))+
@@ -283,7 +317,7 @@ complete_forecasts%>%
   geom_histogram(bins = 10)
 
 mean_dc<- round(mean(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1)
-median_dc <- median(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T)
+median_dc <- round(median(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1)
 lines = data.frame(c(mean_dc, median_dc),c(2,2))
 colnames(lines) = c("x","y")
 lines$label = c(paste0("Mean = ", mean_dc, " years"), paste0("Median = ",median_dc, " years"))
