@@ -35,17 +35,150 @@ r2%>%
 ```{r}
 all <- read.csv("complete_dataset.csv")
 all$R2 <- as.numeric(grepl("[R,r]2",all$Eval_metrics))
+all[all$R2 == 1,]
+
+all <- read.csv("complete_dataset.csv")
+all$RMSE <- as.numeric(grepl("RMSE|rmse",all$Eval_metrics))
+all[all$RMSE == 1,]
 
 using_r2 = all%>%
   filter(R2 == 1)
-r2_found <- read.csv("R2 analysis_04Nov20.csv")%>%
-  select(Title, R2_value, Notes)
-r2_second_attempt <- left_join(using_r2, r2_found)%>%
-  arrange(is.na(R2_value))
+#r2_found <- read.csv("R2 analysis_04Nov20.csv")%>%
+#  select(Title, R2_value, Notes)
+#r2_second_attempt <- left_join(using_r2, r2_found)%>%
+#  arrange(is.na(R2_value))
 #write.csv(r2_second_attempt, "r2_second_attempt.csv", row.names = F)
-r2s <- read.csv("r2_second_attempt.csv")
+r2s <- read.csv("r2_second_attempt.csv")%>%
+  select(Title, R2_value, Notes, Site_or_year_group, Model_group, Modifications.needed, Adjusted., Var)
+incorporating_gg_changes <- left_join(using_r2, r2s)
+write.csv(incorporating_gg_changes,"r2_second_attempt.csv",row.names = F)
+
+r2s<-read.csv("r2_second_attempt.csv")
+r2s$Horiz_days[grepl("horiz",r2s$Modifications.needed, ignore.case = T)] <- as.numeric(gsub(".*horiz","",r2s$Modifications.needed[grepl("horiz",r2s$Modifications.needed, ignore.case = T)], ignore.case = T))
+r2s$Var[nchar(r2s$Var)==0]<-r2s$Vars_ident[nchar(r2s$Var)==0]
+
+
+
+#### SHOULD DIFFERENT MODELS IN THE SAME PAPER BE COUNTED AS THE SAME OR DIFFERENT
+
+
+
+r2s <- r2s%>%
+  group_by_at(setdiff(names(r2s), c("Notes","R2_value")))%>% #"Site_or_year_group","Model_group"
+  summarize(R2_value = mean(as.numeric(R2_value),na.rm = T))
+
+
+
+########
+
+
+
 r2s%>%
-  group_by_at(setdiff(names(r2s), c("Site_or_year_group","R2_value")))%>%
-  summarize(R2_value = mean(as.numeric(R2_value)))
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_point()+
+  xlim(0,7)
+
+r2s$Chla <- 0
+r2s$Chla[grepl("chl",r2s$Var, ignore.case = T)]<-1
+
+r2s$Fish <- 0
+r2s$Fish[grepl("anchovy|mackarel|sardine|walleye|tuna|bonito|hake|fish",r2s$Var, ignore.case = T)]<-1
+
+r2s$Phyto <- 0
+r2s$Phyto[grepl("cyano|oscillatoria|desmus|anabena|aphaniz|microcyst|synecho|cyclo|stephanodiscus|raciborskii|circinale",r2s$Var, ignore.case = T)]<-1
+
+r2s$Pollen <- 0
+r2s$Pollen[grepl("pollen",r2s$Var, ignore.case = T)]<-1
+
+r2s$Plants <- 0
+r2s$Plants[grepl("corn|soybeans|rice|NDVI|evapotrans",r2s$Var, ignore.case = T)]<-1
+
+r2s$Bird <- 0
+r2s$Bird[grepl("turkey|bird|grouse|capercaill|grouse",r2s$Var, ignore.case = T)]<-1
+
+r2s$OtherAnimal <- 0
+r2s$OtherAnimal[grepl("porpoise|lobster|lolignid|ommastrephids|species",r2s$Var, ignore.case = T)]<-1
+
+r2s$first <- as.numeric(as.factor(r2s$Title))
+
+r2s%>%
+  filter(Chla ==1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
+  geom_point()+
+  xlim(0,7)
+
+r2s%>%
+  filter(Phyto ==1|Chla == 1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = Met_covar_yn))+
+  geom_point()+
+  xlim(0,10)+
+  geom_smooth()
+
+r2s[r2s$Chla == 1|r2s$Phyto == 1,]
+
+r2s%>%
+  filter(Fish == 1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(Var)))+
+  geom_point()
+
+r2s%>%
+  filter(Pollen == 1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
+  geom_point()
+
+r2s%>%
+  filter(OtherAnimal == 1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
+  geom_point()
+
+r2s%>%
+  filter(Bird == 1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
+  geom_point()
+
+r2s%>%
+  filter(Plants == 1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(Var)))+
+  geom_point()+
+  xlim(0,10)
+
+
+r2s$Automated_bin <- 0
+r2s$Automated_bin[r2s$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1
+r2s$Proc_based <- 0
+r2s$Proc_based[grepl("process-based",r2s$Model_type, ignore.case = T)]<-1
+
+bar <- r2s%>%
+  ungroup()%>%
+  mutate(Uncert_yn = as.numeric(Uncert_category %in% c("data_driven", "propagates", "assimilates")),
+         Coauthors_nonAc = as.numeric(Coauthors_nonAc > 0))%>%
+    select(Uncert_yn,
+         Null_yn,
+         Forecast_eval_shown,
+         Iterative_yn,
+         Archiving_yn,
+         End_user_yn,
+         Proc_based,
+         Automated_bin,
+         Coauthors_nonAc,
+         Multiple_approaches_yn,
+         R2_value,
+         Title)
+
+bar%>%
+  pivot_longer(seq(1,ncol(bar)-2))%>%
+  group_by(name, value)%>%
+  summarize(mean = mean(R2_value, na.rm = T),
+            sd = sd(R2_value, na.rm = T),
+            n = n(),
+            n_papers = length(unique(Title)))%>%
+  ggplot(aes(x = name, y = mean, fill = as.factor(value)))+
+  geom_bar(stat = "identity", position = "dodge", show.legend = F)+
+  scale_x_discrete(breaks = c("Uncert_yn","Iterative_yn","End_user_yn","Null_yn","Archiving_yn","Forecast_eval_shown", "Automated_bin","Coauthors_nonAc","Multiple_approaches_yn","Proc_based"), labels = c("Data-driven \nuncertainty", "Iterative \nforecasts","End user \nspecified","Null model \ncomparison","Forecast \narchiving","Forecast \nevaluation \nin paper", "Workflow \nAutomation","Coauthor \nfrom outside \nacademia","Multiple \napproaches \ncompared","Process-based \nmodel"))+
+  geom_errorbar(aes(ymin = mean-sd, ymax = mean+sd, group = as.factor(value)), position = "dodge")+
+  geom_text(aes(label = n_papers), position = "dodge")
+
+anova(lm(bar$R2_value~bar$Iterative_yn+bar$Multiple_approaches_yn+bar$Coauthors_nonAc))
+
 ```
 
