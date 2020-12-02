@@ -308,6 +308,19 @@ time_graph2%>%
   theme(legend.key.height=unit(2,"line"))
 dev.off()
 
+jpeg("Forecasts_over_time_short.jpeg",width = 10, height = 4, units = "in", res = 300)
+time_graph2%>%
+  filter(!name %in% c("Non_ac","Proc"))%>%
+  ggplot(aes(x = name, y = Percent, fill = Quantile))+
+  geom_bar(stat = "identity", position = "dodge", color = "black")+
+  xlab("")+
+  ylab("Percent of papers")+
+  scale_x_discrete(breaks = c("Uncert_yn","Iterative_yn","End_user_yn","Null_yn","Archiving_yn","Eval_yn", "Auto_yn","Multiple_approaches_yn"), labels = c("Data-driven \nuncertainty", "Iterative \nforecasts","End user \nspecified","Null model \ncomparison","Forecast \narchiving","Forecast \nevaluation \nin paper", "Workflow \nAutomation","Multiple \napproaches \ncompared"))+
+  theme_light()+
+  scale_fill_discrete(breaks = unique(time_graph2$Quantile), labels = paste0(unique(time_graph2$Quantile),"\n  n = ",unique(time_graph2$Count)), name = "Years")+
+  theme(legend.key.height=unit(2,"line"))
+dev.off()
+
 time_graph2$name = factor(time_graph2$name, levels = rev(c("Uncert_yn", "Iterative_yn", "End_user_yn", "Null_yn", "Archiving_yn", "Eval_yn", "Auto_yn", "Non_ac","Multiple_approaches_yn","Proc")))
 
 jpeg("Forecasts_over_time_vertical.jpeg",width = 7, height = 5, units = "in", res = 300)
