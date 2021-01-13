@@ -31,18 +31,20 @@ r2%>%
   ggplot(aes(x = , y = R2_value))+
   geom_boxplot()
 
+hist(as.numeric(r2$R2_value))
+
 ```
 
 ```{r}
 all <- read.csv("complete_dataset.csv")
-all$R2 <- as.numeric(grepl("[R,r]2",all$Eval_metrics))
+all$R2_possible <- as.numeric(all$R2_possible)
 
 #all <- read.csv("complete_dataset.csv")
 #all$RMSE <- as.numeric(grepl("RMSE|rmse",all$Eval_metrics))
 #write.csv(all[all$RMSE == 1,],"rmse_analysis.csv",row.names = F)
 
 using_r2 = all%>%
-  filter(R2 == 1)
+  filter(R2_possible == 1)
 #r2_found <- read.csv("R2 analysis_04Nov20.csv")%>%
 #  select(Title, R2_value, Notes)
 #r2_second_attempt <- left_join(using_r2, r2_found)%>%
@@ -57,7 +59,13 @@ r2s<-read.csv("r2_second_attempt.csv")
 r2s$Horiz_days[grepl("horiz",r2s$Modifications.needed, ignore.case = T)] <- as.numeric(gsub(".*horiz","",r2s$Modifications.needed[grepl("horiz",r2s$Modifications.needed, ignore.case = T)], ignore.case = T))
 r2s$Var[nchar(r2s$Var)==0]<-r2s$Vars_ident[nchar(r2s$Var)==0]
 
-
+rmse<- read.csv("rmse_analysis.csv")
+rmse$Horiz_days[grepl("horiz",rmse$Modifications.needed, ignore.case = T)] <- as.numeric(gsub(".*horiz","",rmse$Modifications.needed[grepl("horiz",rmse$Modifications.needed, ignore.case = T)], ignore.case = T))
+rmse$Var[nchar(rmse$Var)==0]<-rmse$Vars_ident[nchar(rmse$Var)==0]
+chl_rmse = rmse[grepl("chl-a", rmse$Var, ignore.case  =T),]
+chl_rmse%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = RMSE_value))+
+  geom_point()
 
 #### SHOULD DIFFERENT MODELS IN THE SAME PAPER BE COUNTED AS THE SAME OR DIFFERENT
 
@@ -82,7 +90,7 @@ r2s$Chla <- 0
 r2s$Chla[grepl("chl",r2s$Var, ignore.case = T)]<-1
 
 r2s$Fish <- 0
-r2s$Fish[grepl("anchovy|mackarel|sardine|walleye|tuna|bonito|hake|fish",r2s$Var, ignore.case = T)]<-1
+r2s$Fish[grepl("anchovy|mackarel|sardine|bonito|hake|fish",r2s$Var, ignore.case = T)]<-1
 
 r2s$Phyto <- 0
 r2s$Phyto[grepl("cyano|oscillatoria|desmus|anabena|aphaniz|microcyst|synecho|cyclo|stephanodiscus|raciborskii|circinale",r2s$Var, ignore.case = T)]<-1
@@ -92,6 +100,9 @@ r2s$Pollen[grepl("pollen",r2s$Var, ignore.case = T)]<-1
 
 r2s$Plants <- 0
 r2s$Plants[grepl("corn|soybeans|rice|NDVI|evapotrans",r2s$Var, ignore.case = T)]<-1
+
+r2s$ET <- 0
+r2s$ET[grepl("evapotrans",r2s$Var, ignore.case = T)]<-1
 
 r2s$Bird <- 0
 r2s$Bird[grepl("turkey|bird|grouse|capercaill|grouse",r2s$Var, ignore.case = T)]<-1
@@ -108,7 +119,8 @@ r2s%>%
   xlim(0,7)+
   xlab("Horiz (days)")+
   ylab("R2 value")+
-  labs(color = "Paper ID")
+  labs(color = "Paper ID")+
+  ggtitle("Chlorophyll forecast performance")
 
 
 r2s%>%
@@ -119,35 +131,53 @@ r2s%>%
   geom_smooth()+
   xlab("Horiz (days)")+
   ylab("R2 value")+
-  labs(color = "Meteorological \ncovariates")
+  labs(color = "Meteorological \ncovariates")+
+  ggtitle("Phytoplankton forecast performance")
+  
 
 r2s[r2s$Chla == 1|r2s$Phyto == 1,]
 
 r2s%>%
   filter(Fish == 1)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(Var)))+
-  geom_point()
+  geom_point()+
+  ggtitle("Fish")
 
 r2s%>%
   filter(Pollen == 1)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
-  geom_point()
+  geom_point()+
+  ggtitle("Pollen")
+
+r2s%>%
+  filter(ET == 1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
+  geom_point()+
+  xlim(0,7)+
+  ggtitle("Evapotranspiration")+
+  ylab("R2")+
+  xlab("Horizon (days)")
+
+p =r2s%>%
+  filter(Plants == 1)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(Var)))+
+  geom_point()+
+  xlim(0,7)+
+  ggtitle("Plants")
+library(plotly)
+ggplotly(p)
 
 r2s%>%
   filter(OtherAnimal == 1)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
-  geom_point()
+  geom_point()+
+  ggtitle("Other animals")
 
 r2s%>%
   filter(Bird == 1)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
-  geom_point()
-
-r2s%>%
-  filter(Plants == 1)%>%
-  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(Var)))+
-  geom_point()#+
-  #xlim(0,10)
+  geom_point()+
+  ggtitle("Birds")
 
 
 r2s$Automated_bin <- 0
@@ -186,6 +216,6 @@ bar%>%
   geom_text(aes(label = n_papers, y = 0), position = position_dodge(0.9), vjust = -0.5)
 
 anova(lm(bar$R2_value~bar$Iterative_yn+bar$Multiple_approaches_yn+bar$Coauthors_nonAc))
-
+r2s[r2s$first == "24",]
 ```
 
