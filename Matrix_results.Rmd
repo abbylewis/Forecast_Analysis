@@ -3,6 +3,19 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+
+
+
+24 Jan 2021: This is an old version. Do not use.
+
+
+
+
+
+
+
+
+
 To update files: run Save individual matrix results.R first!
 ```{r}
 library(tidyverse)
@@ -67,7 +80,7 @@ complete_forecasts[complete_forecasts=="n"] <- "0"
 complete_forecasts[complete_forecasts=="y"] <- "1"
 ```
 
-
+Calculate dup agreement, create new dup compare spreadsheet
 ```{r}
 dups <- comb[comb$Title %in% comb$Title[duplicated(comb$Title)],]
 
@@ -118,7 +131,7 @@ for_dup_compare <- as.data.frame(t(new_dups%>%select(-forecast_agree,-reviewers_
 write.csv(for_dup_compare,"for_dup_compare2.csv")
 ```
 
-
+Assign dups
 ```{r}
 rescreen2 <- comb[!comb$Title %in% dup_include1$Title & !tolower(comb$Include_yn) %in% c("0","no"),]
 rescreen2 = rescreen2[1:9]
@@ -136,6 +149,22 @@ rescreen <- rescreen%>%
 rescreen_final <- as.data.frame(t(rescreen))
 #write.csv(rescreen_final, "second_rescreening.csv")
 ```
+
+
+
+
+
+
+
+
+Everything below has a more recent version in "Final import and analysis.Rmd"
+
+
+
+
+
+
+
 
 
 ```{r}

@@ -8,39 +8,22 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(plotly)
+library(ggpubr)
 ```
 
-```{r}
-r2 = read.csv("R2 Analysis_prelim.csv")
-
-r2%>%
-  mutate(R2_value = as.numeric(R2_value))%>%
-  mutate(Horiz_days = as.numeric(Horiz_days))%>%
-  ggplot(aes(x = Horiz_days, y = R2_value))+
-  geom_point()+
-  xlim(0,10)
-
-r2%>%
-  mutate(R2_value = as.numeric(R2_value))%>%
-  mutate(Horiz_days = as.numeric(Horiz_days))%>%
-  ggplot(aes(x = Class, y = R2_value))+
-  geom_boxplot()
-
-r2%>%
-  mutate(R2_value = as.numeric(R2_value))%>%
-  ggplot(aes(x = , y = R2_value))+
-  geom_boxplot()
-
-hist(as.numeric(r2$R2_value))
-
-```
-
+Load/prepare data
 ```{r}
 all <- read.csv("complete_dataset.csv")
 all$R2_possible <- as.numeric(all$R2_possible)
 
-#all <- read.csv("complete_dataset.csv")
-#all$RMSE <- as.numeric(grepl("RMSE|rmse",all$Eval_metrics))
+all <- read.csv("complete_dataset.csv")
+all$RMSE <- as.numeric(grepl("rmse|root mean squared error|root mean square error",tolower(all$Eval_metrics)))
+sum(all$RMSE)
+all$CRPS <- as.numeric(grepl("crps|continuous ranked probability score",tolower(all$Eval_metrics)))
+sum(all$CRPS)
+all$MAE <- as.numeric(grepl("mae|mean absolute error",tolower(all$Eval_metrics)))
+sum(all$MAE)
 #write.csv(all[all$RMSE == 1,],"rmse_analysis.csv",row.names = F)
 
 using_r2 = all%>%
@@ -51,49 +34,38 @@ using_r2 = all%>%
 #  arrange(is.na(R2_value))
 #write.csv(r2_second_attempt, "r2_second_attempt.csv", row.names = F)
 r2s <- read.csv("r2_second_attempt.csv")%>%
-  select(Title, R2_value, Notes, Site_or_year_group, Model_group, Modifications.needed, Adjusted., Var)
+  select(Title, R2_value, Notes, Site_or_year_group, Model_group, Modifications.needed, Var)
 incorporating_gg_changes <- left_join(using_r2, r2s)
 write.csv(incorporating_gg_changes,"r2_second_attempt.csv",row.names = F)
 
 r2s<-read.csv("r2_second_attempt.csv")
 r2s$Horiz_days[grepl("horiz",r2s$Modifications.needed, ignore.case = T)] <- as.numeric(gsub(".*horiz","",r2s$Modifications.needed[grepl("horiz",r2s$Modifications.needed, ignore.case = T)], ignore.case = T))
-r2s$Var[nchar(r2s$Var)==0]<-r2s$Vars_ident[nchar(r2s$Var)==0]
+r2s$Var[is.na(r2s$Var)|nchar(r2s$Var)==0]<-r2s$Vars_ident[is.na(r2s$Var)|nchar(r2s$Var)==0]
 
-rmse<- read.csv("rmse_analysis.csv")
-rmse$Horiz_days[grepl("horiz",rmse$Modifications.needed, ignore.case = T)] <- as.numeric(gsub(".*horiz","",rmse$Modifications.needed[grepl("horiz",rmse$Modifications.needed, ignore.case = T)], ignore.case = T))
-rmse$Var[nchar(rmse$Var)==0]<-rmse$Vars_ident[nchar(rmse$Var)==0]
-chl_rmse = rmse[grepl("chl-a", rmse$Var, ignore.case  =T),]
-chl_rmse%>%
-  ggplot(aes(x = as.numeric(Horiz_days), y = RMSE_value))+
-  geom_point()
+#rmse<- read.csv("rmse_analysis.csv")
+#rmse$Horiz_days[grepl("horiz",rmse$Modifications.needed, ignore.case = T)] <- as.numeric(gsub(".*horiz","",rmse$Modifications.needed[grepl("horiz",rmse$Modifications.needed, ignore.case = T)], ignore.case = T))
+#rmse$Var[nchar(rmse$Var)==0]<-rmse$Vars_ident[nchar(rmse$Var)==0]
+#chl_rmse = rmse[grepl("chl-a", rmse$Var, ignore.case  =T),]
+#chl_rmse%>%
+#  ggplot(aes(x = as.numeric(Horiz_days), y = RMSE_value))+
+#  geom_point()
 
 #### SHOULD DIFFERENT MODELS IN THE SAME PAPER BE COUNTED AS THE SAME OR DIFFERENT
 
 
-
 r2s <- r2s%>%
   group_by_at(setdiff(names(r2s), c("Notes","R2_value")))%>% #"Site_or_year_group","Model_group"
-  summarize(R2_value = mean(as.numeric(R2_value),na.rm = T))
-
-
-
-########
-
-
-
-r2s%>%
-  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
-  geom_point()+
-  xlim(0,7)
+  summarize(R2_value = mean(as.numeric(R2_value),na.rm = T))%>%
+  filter(!is.na(as.numeric(R2_value)))
 
 r2s$Chla <- 0
 r2s$Chla[grepl("chl",r2s$Var, ignore.case = T)]<-1
 
 r2s$Fish <- 0
-r2s$Fish[grepl("anchovy|mackarel|sardine|bonito|hake|fish",r2s$Var, ignore.case = T)]<-1
+r2s$Fish[grepl("anchovy|mackarel|sardine|bonito|hake|fish|bluefin",r2s$Var, ignore.case = T)]<-1
 
 r2s$Phyto <- 0
-r2s$Phyto[grepl("cyano|oscillatoria|desmus|anabena|aphaniz|microcyst|synecho|cyclo|stephanodiscus|raciborskii|circinale",r2s$Var, ignore.case = T)]<-1
+r2s$Phyto[grepl("cyano|oscillatoria|asterionella|desmus|anabena|aphaniz|microcyst|synecho|cyclo|stephanodiscus|raciborskii|circinale",r2s$Var, ignore.case = T)]<-1
 
 r2s$Pollen <- 0
 r2s$Pollen[grepl("pollen",r2s$Var, ignore.case = T)]<-1
@@ -112,16 +84,117 @@ r2s$OtherAnimal[grepl("porpoise|lobster|lolignid|ommastrephids|species",r2s$Var,
 
 r2s$first <- as.numeric(as.factor(r2s$Title))
 
-r2s%>%
-  filter(Chla ==1)%>%
-  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
-  geom_point()+
-  xlim(0,7)+
+test = r2s%>%
+  mutate(R2_value = as.numeric(R2_value))%>%
+  filter(!is.na(R2_value))
+length(unique(test$Title))
+length(unique(all$Title[all$Forecast_eval_shown == "1"]))
+56/135
+46/135
+27/135
+```
+
+Figure for paper
+```{r}
+r2s = r2s%>%
+  filter(!is.na(as.numeric(Horiz_days)))
+
+c = r2s%>%
+  filter(Chla ==1,
+         as.numeric(Horiz_days) <8)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
+  geom_jitter(aes(color = as.factor(first)),width = 0.1,size = 0.9)+
   xlab("Horiz (days)")+
   ylab("R2 value")+
-  labs(color = "Paper ID")+
-  ggtitle("Chlorophyll forecast performance")
+  labs(color = "ID")+
+  labs(title = "Chlorophyll", subtitle = "(n = 8)")+
+  ylim(0,1)+
+  theme_light()+
+  theme(legend.position = "none")
+  
+p = r2s%>%
+  filter(Pollen == 1,
+         as.numeric(Horiz_days) <8)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
+  geom_jitter(aes(color = as.factor(first)),width = 0.1, size = 0.9)+
+  labs(title = "Pollen", subtitle = "(n = 3)")+
+  xlab("Horiz (days)")+
+  labs(color = "ID")+
+  ylim(0,1)+
+  theme_light()+
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none")
 
+e = r2s%>%
+  filter(ET == 1,
+         as.numeric(Horiz_days) <8)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
+  geom_jitter(aes(color = as.factor(first)),width = 0.1, size = 0.9)+
+  labs(title = "Evapotranspiration", subtitle = "(n = 10)")+
+  ylab("R2")+
+  xlab("Horiz (days)")+
+  labs(color = "ID")+
+  ylim(0,1)+
+  theme_light()+
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none")
+
+phy = r2s%>%
+  filter(Phyto ==1,
+         as.numeric(Horiz_days) <8)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
+  geom_jitter(aes(color = as.factor(first)),width = 0.1,size = 0.9)+
+  xlab("Horiz (days)")+
+  ylab("R2 value")+
+  labs(color = "ID")+
+  labs(title = "Phytoplankton", subtitle = "(n = 8)")+
+  ylim(0,1)+
+  theme_light()+
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none")
+
+ggarrange(c,phy,p,e, nrow = 1, widths = c(1.2,1,1,1))
+jpeg("R2_compare.jpg",width = 8,height = 4,units = "in",res = 300)
+ggarrange(c,phy,p,e, nrow = 1, widths = c(1.2,1,1,1))
+dev.off()
+
+#Tried to do breakpoint analysis but there is not enough data
+
+stats = r2s%>%
+  pivot_longer(c(Chla,Phyto,ET,Pollen))%>%
+  filter(name %in% c("Chla","Phyto","ET","Pollen"),
+         value == 1,
+         Horiz_days<8)%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))
+
+stats2 = r2s%>%
+  filter(Horiz_days<8,
+         Chla ==1|Phyto==1|ET==1|Pollen==1)%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))
+summary(stats2)
+
+
+#an = aov(lm(R2_value~name*Horiz_days, data = stats))
+#The anova above works fine but it certainly does not meet the assumption of equal variances. Also you can't do a tukey post hoc test because there is a categroical independent variable
+```
+
+Other visualizations
+```{r}
+r2_plot = r2s%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_point()+
+  xlim(0,7)
+ggplotly(r2_plot)
 
 r2s%>%
   filter(Phyto ==1|Chla == 1)%>%
@@ -133,13 +206,10 @@ r2s%>%
   ylab("R2 value")+
   labs(color = "Meteorological \ncovariates")+
   ggtitle("Phytoplankton forecast performance")
-  
-
-r2s[r2s$Chla == 1|r2s$Phyto == 1,]
 
 r2s%>%
   filter(Fish == 1)%>%
-  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(Var)))+
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
   geom_point()+
   ggtitle("Fish")
 
@@ -149,23 +219,14 @@ r2s%>%
   geom_point()+
   ggtitle("Pollen")
 
-r2s%>%
-  filter(ET == 1)%>%
-  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(first)))+
-  geom_point()+
-  xlim(0,7)+
-  ggtitle("Evapotranspiration")+
-  ylab("R2")+
-  xlab("Horizon (days)")
 
-p =r2s%>%
+plants =r2s%>%
   filter(Plants == 1)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value), color = as.factor(Var)))+
   geom_point()+
   xlim(0,7)+
   ggtitle("Plants")
-library(plotly)
-ggplotly(p)
+ggplotly(plants)
 
 r2s%>%
   filter(OtherAnimal == 1)%>%
@@ -216,6 +277,30 @@ bar%>%
   geom_text(aes(label = n_papers, y = 0), position = position_dodge(0.9), vjust = -0.5)
 
 anova(lm(bar$R2_value~bar$Iterative_yn+bar$Multiple_approaches_yn+bar$Coauthors_nonAc))
-r2s[r2s$first == "24",]
+
 ```
 
+```{r}
+r2 = read.csv("R2 Analysis_prelim.csv")
+
+r2%>%
+  mutate(R2_value = as.numeric(R2_value))%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))%>%
+  ggplot(aes(x = Horiz_days, y = R2_value))+
+  geom_point()+
+  xlim(0,10)
+
+r2%>%
+  mutate(R2_value = as.numeric(R2_value))%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))%>%
+  ggplot(aes(x = Class, y = R2_value))+
+  geom_boxplot()
+
+r2%>%
+  mutate(R2_value = as.numeric(R2_value))%>%
+  ggplot(aes(x = , y = R2_value))+
+  geom_boxplot()
+
+hist(as.numeric(r2$R2_value))
+
+```
