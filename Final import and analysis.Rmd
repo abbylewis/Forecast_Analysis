@@ -85,6 +85,26 @@ for_hist <- years%>%
   left_join(for_hist1)%>%
   filter(Year !=2020)
 for_hist$total[is.na(for_hist$total)] <- 0
+
+text = data.frame(text = c("First\nhalf\n(n = 82)","Second\nhalf\n(n = 96)"),x = c(2012,2015),y = c(23.5,23.5))
+
+jpeg("Pubs_year_noEco.jpeg", width = 7, height = 6, units = "in",res = 300)
+complete_forecasts%>%
+  ggplot()+
+  geom_histogram(aes(x = Year),binwidth = 1)+
+  xlim(1930,2020)+
+  theme_bw()+
+  geom_vline(aes(xintercept=2013.5))+
+  xlab("")+
+  ylab("Near-term ecological forecasts")+
+  geom_text(aes(x = x, y=y,label=text),text, hjust = c("right","left"),lineheight = .9)+
+  ylim(0,25)
+dev.off()
+
+eco_total%>%
+  ggplot(aes(x=as.numeric(Publication.Years), y = records))+
+  geom_line()+
+  xlim(1930,2019)
   
 
 for_2000 <- for_hist$total[for_hist$Year == 2010]
@@ -96,15 +116,25 @@ options(scipen=5)
 jpeg("Pubs_year.jpeg", width = 7, height = 6, units = "in",res = 300)
 par(mar = c(5, 5, 3, 5))
 #hist(complete_forecasts$PY, breaks = 50, main = "",xlab = "Year", ylab = "ecological forecasts")
-plot(for_hist$Year, for_hist$total, main = "",xlab = "Year", ylab = "Near-term ecological forecasts", type = "l", ylim = c(0,for_max))
+plot(eco_total$Publication.Years[-1],eco_total$records[-1], type = "l",xaxt = "n", yaxt = "n",ylab = "", xlab = "", col = "red", ylim = c(0, eco_max), xlim = range(for_hist$Year))
+axis(2, col.ticks = "red",col.axis = "red")
 par(new = T)
-plot(eco_total$Publication.Years[-1],eco_total$records[-1], type = "l",xaxt = "n", yaxt = "n",
-     ylab = "", xlab = "", col = "red", ylim = c(0, eco_max), xlim = range(for_hist$Year))
+plot(for_hist$Year, for_hist$total, main = "",yaxt = "n",ylab = "",xlab = "Year", type = "l", ylim = c(0,for_max))
 axis(4)
-mtext("Publications in ecology journals", side = 4, line = 3)
 legend("topleft", c("Near-term ecological forecasts", "Publications in ecology journals"),
        col = c("black", "red"), lty = 1)
+mtext("Publications in ecology journals", side = 2, line = 3, col = "red")
+mtext("Near-term ecological forecasts", side = 4, line = 3)
 dev.off()
+
+for_hist%>%
+  left_join(eco_total[-1,]%>%mutate(Publication.Years = as.numeric(Publication.Years)), by = c("Year"="Publication.Years"))%>%
+  select(-X..of.573171)%>%
+  filter(Year>1950)%>%
+  mutate(Percent = total/records*100)%>%
+  ggplot(aes(x = Year, y = Percent))+
+  ylab("NEF papers as a percentage of ecological papers")+
+  geom_line()
 ```
 
 
@@ -228,6 +258,19 @@ for_map2%>%
 
 Group by year
 ```{r}
+#Tried to get more specific dates but one of the papers is published in a book that literally doesn't have a month so...
+#dates = read.csv("savedrecs_1001_1500.csv")%>%
+#  select(TI,PD,PY)
+#dates$PD2 = substr(gsub("[0-9]+","",gsub("-","",dates$PD)),1,3)
+#dates$PD2[nchar(dates$PD2)==0]<-NA
+#dates$Date <- as.Date(NA)
+#dates$Date[!is.na(dates$PD2)] = as.Date(tolower(paste("01",dates$PD2[!is.na(dates$PD2)],dates$PY[!is.na(dates$PD2)])), format = "%d %B %Y")
+#
+#complete_forecasts%>%
+#  left_join(dates,by = c("Title"="TI"))%>%
+#  filter(Year==2014)
+
+library(lubridate)
 n_breaks = 2
 breaks <- quantile(as.numeric(complete_forecasts$Year), probs = seq(0,1,length.out = n_breaks+1)) 
 breaks <- floor(breaks)
@@ -339,6 +382,7 @@ dev.off()
 #Data archiving?
 ```
 
+
 Time-series data
 ```{r}
 mean_dc<- round(mean(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1)
@@ -403,12 +447,11 @@ time_bin$horiz_bin[time_bin$Horiz_days > 365*5 & time_bin$Horiz_days <= 365*10] 
 time_bin$horiz_bin[time_bin$Horiz_days > 365*10] <- "> 10 years"
 time_bin$horiz_bin <- factor(time_bin$horiz_bin, levels = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years - 10 years", "> 10 years"))
 
+time_bin$time_bin <- factor(time_bin$time_bin, levels = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years"))
+
 time_bin_plot = time_bin%>%
   filter(!is.na(horiz_bin),
          !is.na(time_bin))
-
-time_bin_plot%>%
-  filter(horiz_bin == "> 10 years")
 
 jpeg("timestep_heatmap.jpeg",res = 300,width = 7, height = 4, units = "in")
 library("RColorBrewer")
