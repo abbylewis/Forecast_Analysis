@@ -40,7 +40,9 @@ venn.plot <- venn.diagram(
 	"VennDiagrams/venn_data.tiff", cex = 2, cat.cex = 1.5, cat.dist = c(.03,0.1,0.06), cat.pos = c(320,40,160),margin = .1
 	)
 
-
+summary(as.factor(data$Reviewer))
+summary(as.factor(data$SecondReviewer))
+data[data$Reviewer == "",]
 #data[!is.na(data$Only.Space)&data$Only.Space==1,]
 ```
 

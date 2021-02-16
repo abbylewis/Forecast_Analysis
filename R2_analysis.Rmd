@@ -54,7 +54,7 @@ r2s$Var[is.na(r2s$Var)|nchar(r2s$Var)==0]<-r2s$Vars_ident[is.na(r2s$Var)|nchar(r
 
 
 r2s <- r2s%>%
-  group_by_at(setdiff(names(r2s), c("Notes","R2_value")))%>% #"Site_or_year_group","Model_group"
+  group_by_at(setdiff(names(r2s), c("Notes","R2_value","Site_or_year_group")))%>% #"Site_or_year_group","Model_group"
   summarize(R2_value = mean(as.numeric(R2_value),na.rm = T))%>%
   filter(!is.na(as.numeric(R2_value)))
 
@@ -183,7 +183,7 @@ stats2 = r2s%>%
   mutate(Horiz_days = as.numeric(Horiz_days))
 summary(stats2)
 
-stats = r2s%>%
+medians = r2s%>%
   mutate(Horiz_days = as.numeric(Horiz_days))%>%
   pivot_longer(c(Chla,Phyto,ET,Pollen))%>%
   filter(name %in% c("Chla","Phyto","ET","Pollen"),
@@ -192,7 +192,7 @@ stats = r2s%>%
   group_by(name,Horiz_days)%>%
   summarize(median = median(R2_value))
 
-all = stats%>%
+all = medians%>%
   ggplot(aes(x=Horiz_days,y=median, color = name))+
   geom_line()+
   theme_light()+
@@ -213,7 +213,39 @@ dev.off()
 ggarrange(c,phy,p,e,all, nrow = 1, widths = c(1.2,1,1,1,1.2))
 
 #an = aov(lm(R2_value~name*Horiz_days, data = stats))
-#The anova above works fine but it certainly does not meet the assumption of equal variances. Also you can't do a tukey post hoc test because there is a categroical independent variable
+library(quantreg)
+stats = stats%>%
+  filter(Horiz_days<=7)
+model = rq(R2_value~name*Horiz_days, data = stats, tau = 0.5)
+summary(model, se = "boot", bsmethod= "wild") #Can also try xy, but "wild" is justified by heteroskedasticity of chla
+
+#summary(lm(R2_value~name+name:Horiz_days, data = stats))
+#summary(lm(R2_value~name*Horiz_days, data = stats))
+#model = lm(R2_value~name*Horiz_days, data = stats)
+et = predict(model,data.frame(name=rep("ET",7),Horiz_days = 1:7))
+chla = predict(model,data.frame(name=rep("Chla",7),Horiz_days = 1:7))
+phyto = predict(model,data.frame(name=rep("Phyto",7),Horiz_days = 1:7))
+pollen = predict(model,data.frame(name=rep("Pollen",7),Horiz_days = 1:7))
+
+all2 = data.frame(horiz = 1:7,ET = et,Chl = chla,Phyto = phyto,Pollen = pollen)%>%
+  pivot_longer(2:5)%>%
+  ggplot(aes(x = horiz, y = value, color = name))+
+  geom_line()+
+  theme_light()+
+  xlab("Horiz (days")+
+  ylim(0,1)+
+  ylab("Median R2")+
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank())+
+  guides(col = guide_legend(ncol = 2,keyheight = .9))+
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        legend.margin = margin(-1,-3,-3,-3,unit = "pt"))
+jpeg("R2_with_indicators.jpg",res = 300, width = 9, height = 4, units = "in")
+ggarrange(c,phy,p,e,all2, nrow = 1, widths = c(1.25,1,1,1,1))
+dev.off()
+ggarrange(c,phy,p,e,all2, nrow = 1, widths = c(1.25,1,1,1,1))
 ```
 
 Other visualizations
