@@ -1,0 +1,100 @@
+---
+title: "Load data from google sheets"
+author: "Abby Lewis"
+date: "3/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+files = drive_ls(path = "My projects/Forecasting Analysis/Abstract screening and matrix analysis")
+files = files[files$name %in% c("for_dup_compare","for_dup_compare2"),]
+
+for(i in 1:nrow(files)){
+  matrix <- data.frame(t(read_sheet(files$id[i], col_types = "c")))
+  colnames(matrix)<-matrix[1,]
+  matrix <- matrix[2:nrow(matrix),]
+  write.csv(matrix, paste0("../Data/Finished_dups/",files$name[i], ".csv"))
+}
+
+new_names <- c("PaperID", "Reviewer","Title","Authors","DOI","Journal",
+                    "Year","FirstComment","SecondComment","ThirdComment","Location","Include_yn",
+                    "Header1","Coauthors_nonAc","Coauthors_gov","Spat_scale","Coords",
+                    "Ecosystem","Class","Vars_n","Vars_ident",
+                    "Header2","Model_dim","Model_type","Model_desc","Covariate_classes",
+                    "Random_effects_yn","Latent_vars_yn","Ens_within_model_yn",
+                    "Ens_members_n","Ens_of_models_yn","Models_n","Multiple_approaches_yn",
+                    "Approach_n","Null_yn","Null_n","Null_type","Horiz_days",
+                    "Time_step_days","How_often_days","Spat_step","Training_yn",
+                    "Header3","Iterative_yn","DA_type","DA_latency_days","Uncert_category",
+                    "Uncert_technique","Uncert_source","Uncert_obs_yn","Uncert_partition_yn",
+                    "Uncert_ic_yn","Uncert_driver_yn","Uncert_param_yn","Uncert_process_yn",
+                    "Uncert_other_yn","Uncert_dom","Uncert_describe","Scenarios_yn",
+                    "Scenarios_n","Forecast_eval","Forecast_eval_shown","Eval_metrics","R2_possible",
+                    "Eval_mult_horiz_yn","Cycles_eval_n","Cycles_total_n","Forecast_horiz_null_days",
+                    "Header4","Driver_lat_max_days","Driver_lat_min_days","Data_coverage",
+                    "Automated_yn","Archiving_yn","Repository","Drivers_published","Header5", "End_user_yn",
+                    "End_user_partnership","Used_by_stakeholder_yn",
+                    "Delivery_method_yn","Delivery_method","Ethical_considerations")
+
+files2 <- list.files("../Data/Finished_dups")
+comb <- read_csv(paste0("../Data/Finished_dups/",files2[1]), col_types = paste0(rep("c",83),collapse = ""), col_names = new_names, skip = 1)
+
+for (i in 2:length(files2)){
+  new <- read_csv(paste0("../Data/Finished_dups/",files2[i]), col_types = paste0(rep("c",83),collapse = ""), col_names = new_names, skip = 1)
+  comb = comb%>%
+    full_join(new)
+}
+
+comb = comb%>%
+  select(-Header1,-Header2,-Header3,-Header4,-Header5)
+
+comb$Author_n <- str_count(comb$Authors, pattern = ";")+1
+comb$Met_covar_yn <- grepl("meteorological", comb$Covariate_classes, ignore.case = T)*1
+comb$Phys_covar_yn <- grepl("physical", comb$Covariate_classes, ignore.case = T)*1
+comb$Bio_covar_yn <- grepl("biological", comb$Covariate_classes, ignore.case = T)*1
+comb$Chem_covar_yn <- grepl("chemical", comb$Covariate_classes, ignore.case = T)*1
+
+comb2 <- comb[!duplicated(comb$Title),]#Filtering out the second copy of each paper (should be identical)
+
+complete_forecasts <- comb2[is.na(comb2$Include_yn)|tolower(comb2$Include_yn)=="yes"|comb2$Include_yn=="1",]
+exclude <- comb2[!(is.na(comb2$Include_yn)|tolower(comb2$Include_yn)=="yes"|comb2$Include_yn=="1"),]
+complete_forecasts$Year <- as.numeric(complete_forecasts$Year)
+complete_forecasts[complete_forecasts=="n"] <- "0"
+complete_forecasts[complete_forecasts=="y"] <- "1"
+
+write.csv(complete_forecasts, "complete_dataset.csv", row.names = F)
+
+data1 <- read_csv("../Data/savedrecs_001_500.csv") #Load full data
+data2 <- read_csv("../Data/savedrecs_501_1000.csv")
+data3 <- read_csv("../Data/savedrecs_1001_1500.csv")
+data4 <- read_csv("../Data/savedrecs_1501_2000.csv")
+data5 <- read_csv("../Data/savedrecs_2001_2500.csv")
+data6 <- read_csv("../Data/savedrecs_2501_2956.csv")
+data7 <- read_csv("../Data/papers_citing_forecasts_full.csv")
+data8 <- read_csv("../Data/referenced_papers_forecasts.csv")
+data9 <- read_csv("../Data/citing_ed_foundLate.csv")%>%
+  rename(TI="Article Title",
+         SO = "Source Title",
+         LA = "Language")
+
+data_full <- data1%>% select(TI, SO)%>%
+  full_join(data2%>%  select(TI, SO))%>%
+  full_join(data3%>%  select(TI, SO))%>%
+  full_join(data4%>%  select(TI, SO))%>%
+  full_join(data5%>%  select(TI, SO))%>%
+  full_join(data6%>%  select(TI, SO))%>%
+  full_join(data7%>%  select(TI, SO))%>%
+  full_join(data8%>%  select(TI, SO))%>%
+  full_join(data9%>%  select(TI, SO))%>%
+  rename(Source = SO)
+
+journals = complete_forecasts%>%
+  left_join(data_full, by = c("Title"="TI"))
+
+write.csv(journals, "../Data/complete_dataset_with_source.csv", row.names = F)
+```
+

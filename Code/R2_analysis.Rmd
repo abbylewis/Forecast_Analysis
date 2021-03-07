@@ -14,16 +14,16 @@ library(ggpubr)
 
 Load/prepare data
 ```{r}
-all <- read.csv("complete_dataset.csv")
+all <- read.csv("../Data/complete_dataset.csv")
 all$R2_possible <- as.numeric(all$R2_possible)
 
-all <- read.csv("complete_dataset.csv")
-all$RMSE <- as.numeric(grepl("rmse|root mean squared error|root mean square error",tolower(all$Eval_metrics)))
-sum(all$RMSE)
-all$CRPS <- as.numeric(grepl("crps|continuous ranked probability score",tolower(all$Eval_metrics)))
-sum(all$CRPS)
-all$MAE <- as.numeric(grepl("mae|mean absolute error",tolower(all$Eval_metrics)))
-sum(all$MAE)
+#all <- read.csv("../Data/complete_dataset.csv")
+#all$RMSE <- as.numeric(grepl("rmse|root mean squared error|root mean square error",tolower(all$Eval_metrics)))
+#sum(all$RMSE)
+#all$CRPS <- as.numeric(grepl("crps|continuous ranked probability score",tolower(all$Eval_metrics)))
+#sum(all$CRPS)
+#all$MAE <- as.numeric(grepl("mae|mean absolute error",tolower(all$Eval_metrics)))
+#sum(all$MAE)
 #write.csv(all[all$RMSE == 1,],"rmse_analysis.csv",row.names = F)
 
 using_r2 = all%>%
@@ -33,12 +33,12 @@ using_r2 = all%>%
 #r2_second_attempt <- left_join(using_r2, r2_found)%>%
 #  arrange(is.na(R2_value))
 #write.csv(r2_second_attempt, "r2_second_attempt.csv", row.names = F)
-r2s <- read.csv("r2_second_attempt.csv")%>%
+r2s <- read.csv("../Data/r2_second_attempt.csv")%>%
   select(Title, R2_value, Notes, Site_or_year_group, Model_group, Modifications.needed, Var)
 incorporating_gg_changes <- left_join(using_r2, r2s)
-write.csv(incorporating_gg_changes,"r2_second_attempt.csv",row.names = F)
+write.csv(incorporating_gg_changes,"../Data/r2_second_attempt.csv",row.names = F)
 
-r2s<-read.csv("r2_second_attempt.csv")
+r2s<-read.csv("../Data/r2_second_attempt.csv")
 r2s$Horiz_days[grepl("horiz",r2s$Modifications.needed, ignore.case = T)] <- as.numeric(gsub(".*horiz","",r2s$Modifications.needed[grepl("horiz",r2s$Modifications.needed, ignore.case = T)], ignore.case = T))
 r2s$Var[is.na(r2s$Var)|nchar(r2s$Var)==0]<-r2s$Vars_ident[is.na(r2s$Var)|nchar(r2s$Var)==0]
 
@@ -84,18 +84,11 @@ r2s$OtherAnimal[grepl("porpoise|lobster|lolignid|ommastrephids|species",r2s$Var,
 
 r2s$first <- as.numeric(as.factor(r2s$Title))
 
-test = r2s%>%
-  mutate(R2_value = as.numeric(R2_value))%>%
-  filter(!is.na(R2_value))
-length(unique(test$Title))
-length(unique(all$Title[all$Forecast_eval_shown == "1"]))
-56/135
-46/135
-27/135
 ```
 
 Figure for paper
 ```{r}
+safe_colorblind_palette <- c("#661100", "#AA4499", "#DDCC77", "#117733","#44AA99","#999933","#332288", "#88CCEE", "#CC6677","#888888")
 r2s = r2s%>%
   filter(!is.na(as.numeric(Horiz_days)))
 
@@ -104,13 +97,15 @@ c = r2s%>%
          as.numeric(Horiz_days) <8)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
   geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
-  geom_jitter(aes(color = as.factor(first)),width = 0.1,size = 0.9)+
+  geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15,size = 0.9)+
   xlab("Horiz (days)")+
   ylab("R2 value")+
   labs(color = "ID")+
   labs(title = "Chlorophyll", subtitle = "(n = 8)")+
   ylim(0,1)+
   theme_light()+
+  scale_color_manual(values = safe_colorblind_palette)+
+  scale_shape_manual(values = c(16,17,15,1,2,0,3,7,8,4))+
   theme(legend.position = "none")
   
 p = r2s%>%
@@ -118,12 +113,14 @@ p = r2s%>%
          as.numeric(Horiz_days) <8)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
   geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
-  geom_jitter(aes(color = as.factor(first)),width = 0.1, size = 0.9)+
+  geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15, size = 0.9)+
   labs(title = "Pollen", subtitle = "(n = 3)")+
   xlab("Horiz (days)")+
   labs(color = "ID")+
   ylim(0,1)+
   theme_light()+
+  scale_color_manual(values = safe_colorblind_palette)+
+  scale_shape_manual(values = c(16,17,15,1,2,0,3,7,8,4))+
   theme(axis.text.y = element_blank(),
         axis.title.y = element_blank(),
         axis.ticks.y = element_blank(),
@@ -134,13 +131,15 @@ e = r2s%>%
          as.numeric(Horiz_days) <8)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
   geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
-  geom_jitter(aes(color = as.factor(first)),width = 0.1, size = 0.9)+
+  geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15, size = 0.9)+
   labs(title = "Evapotranspiration", subtitle = "(n = 10)")+
   ylab("R2")+
   xlab("Horiz (days)")+
   labs(color = "ID")+
   ylim(0,1)+
   theme_light()+
+  scale_color_manual(values = safe_colorblind_palette)+
+  scale_shape_manual(values = c(16,17,15,1,2,0,3,7,8,4))+
   theme(axis.text.y = element_blank(),
         axis.title.y = element_blank(),
         axis.ticks.y = element_blank(),
@@ -151,13 +150,15 @@ phy = r2s%>%
          as.numeric(Horiz_days) <8)%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
   geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
-  geom_jitter(aes(color = as.factor(first)),width = 0.1,size = 0.9)+
+  geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15,size = 0.9)+
   xlab("Horiz (days)")+
   ylab("R2 value")+
   labs(color = "ID")+
   labs(title = "Phytoplankton", subtitle = "(n = 8)")+
   ylim(0,1)+
   theme_light()+
+  scale_color_manual(values = safe_colorblind_palette)+
+  scale_shape_manual(values = c(16,17,15,1,2,0,3,7,8,4))+
   theme(axis.text.y = element_blank(),
         axis.title.y = element_blank(),
         axis.ticks.y = element_blank(),
@@ -207,7 +208,7 @@ all = medians%>%
         legend.title = element_blank(),
         legend.margin = margin(-1,-3,-3,-3,unit = "pt"))
 
-jpeg("R2_compare2.jpg",width = 9,height = 4,units = "in",res = 300)
+jpeg("../Figures/R2_compare2.jpg",width = 9,height = 4,units = "in",res = 300)
 ggarrange(c,phy,p,e,all, nrow = 1, widths = c(1.25,1,1,1,1))
 dev.off()
 ggarrange(c,phy,p,e,all, nrow = 1, widths = c(1.2,1,1,1,1.2))
@@ -217,6 +218,7 @@ library(quantreg)
 stats = stats%>%
   filter(Horiz_days<=7)
 model = rq(R2_value~name*Horiz_days, data = stats, tau = 0.5)
+set.seed(47)
 summary(model, se = "boot", bsmethod= "wild") #Can also try xy, but "wild" is justified by heteroskedasticity of chla
 
 #summary(lm(R2_value~name+name:Horiz_days, data = stats))
@@ -226,6 +228,8 @@ et = predict(model,data.frame(name=rep("ET",7),Horiz_days = 1:7))
 chla = predict(model,data.frame(name=rep("Chla",7),Horiz_days = 1:7))
 phyto = predict(model,data.frame(name=rep("Phyto",7),Horiz_days = 1:7))
 pollen = predict(model,data.frame(name=rep("Pollen",7),Horiz_days = 1:7))
+
+indicator_cols <- c("#000000","#003ba8","#b7ed66","#009922")
 
 all2 = data.frame(horiz = 1:7,ET = et,Chl = chla,Phyto = phyto,Pollen = pollen)%>%
   pivot_longer(2:5)%>%
@@ -238,11 +242,12 @@ all2 = data.frame(horiz = 1:7,ET = et,Chl = chla,Phyto = phyto,Pollen = pollen)%
   theme(axis.text.y = element_blank(),
         axis.title.y = element_blank(),
         axis.ticks.y = element_blank())+
+  scale_color_manual(breaks = c("Chl","Phyto","Pollen","ET"), values = indicator_cols)+
   guides(col = guide_legend(ncol = 2,keyheight = .9))+
   theme(legend.position = "top",
         legend.title = element_blank(),
         legend.margin = margin(-1,-3,-3,-3,unit = "pt"))
-jpeg("R2_with_indicators.jpg",res = 300, width = 9, height = 4, units = "in")
+jpeg("../Figures/R2_with_indicators.jpg",res = 300, width = 9, height = 4, units = "in")
 ggarrange(c,phy,p,e,all2, nrow = 1, widths = c(1.25,1,1,1,1))
 dev.off()
 ggarrange(c,phy,p,e,all2, nrow = 1, widths = c(1.25,1,1,1,1))
@@ -341,7 +346,7 @@ anova(lm(bar$R2_value~bar$Iterative_yn+bar$Multiple_approaches_yn+bar$Coauthors_
 ```
 
 ```{r}
-r2 = read.csv("R2 Analysis_prelim.csv")
+r2 = read.csv("../Data/R2 Analysis_prelim.csv")
 
 r2%>%
   mutate(R2_value = as.numeric(R2_value))%>%

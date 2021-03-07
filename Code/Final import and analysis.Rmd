@@ -11,7 +11,15 @@ library(googlesheets4)
 library(googledrive)
 library(tidyverse)
 library(lubridate)
+library(colorspace)
 ```
+
+
+
+7 Mar 2021: This is an old file- do not use
+
+
+
 
 ```{r}
 files = drive_ls(path = "My projects/Forecasting Analysis/Abstract screening and matrix analysis")
@@ -21,7 +29,7 @@ for(i in 1:nrow(files)){
   matrix <- data.frame(t(read_sheet(files$id[i], col_types = "c")))
   colnames(matrix)<-matrix[1,]
   matrix <- matrix[2:nrow(matrix),]
-  write.csv(matrix, paste0("Finished_dups/",files$name[i], ".csv"))
+  write.csv(matrix, paste0("../Data/Finished_dups/",files$name[i], ".csv"))
 }
 
 new_names <- c("PaperID", "Reviewer","Title","Authors","DOI","Journal",
@@ -44,11 +52,11 @@ new_names <- c("PaperID", "Reviewer","Title","Authors","DOI","Journal",
                     "End_user_partnership","Used_by_stakeholder_yn",
                     "Delivery_method_yn","Delivery_method","Ethical_considerations")
 
-files2 <- list.files("Finished_dups")
-comb <- read_csv(paste0("Finished_dups/",files2[1]), col_types = paste0(rep("c",83),collapse = ""), col_names = new_names, skip = 1)
+files2 <- list.files("../Data/Finished_dups")
+comb <- read_csv(paste0("../Data/Finished_dups/",files2[1]), col_types = paste0(rep("c",83),collapse = ""), col_names = new_names, skip = 1)
 
 for (i in 2:length(files2)){
-  new <- read_csv(paste0("Finished_dups/",files2[i]), col_types = paste0(rep("c",83),collapse = ""), col_names = new_names, skip = 1)
+  new <- read_csv(paste0("../Data/Finished_dups/",files2[i]), col_types = paste0(rep("c",83),collapse = ""), col_names = new_names, skip = 1)
   comb = comb%>%
     full_join(new)
 }
@@ -70,15 +78,18 @@ complete_forecasts$Year <- as.numeric(complete_forecasts$Year)
 complete_forecasts[complete_forecasts=="n"] <- "0"
 complete_forecasts[complete_forecasts=="y"] <- "1"
 
-write.csv(complete_forecasts, "complete_dataset.csv", row.names = F)
+write.csv(complete_forecasts, "../Data/complete_dataset.csv", row.names = F)
+
+complete_forecasts$Null_type[complete_forecasts$Null_yn==1]
+10/21
 ```
 
 
 
 Papers per year
 ```{r}
-complete_forecasts <- read.csv("complete_dataset.csv")
-eco_total <- read.csv("ecology_results.txt", sep = "\t")
+complete_forecasts <- read.csv("../Data/complete_dataset.csv")
+eco_total <- read.csv("../Data/ecology_results.txt", sep = "\t")
 
 years <- as.data.frame(seq(min(complete_forecasts$Year, na.rm = T)-1,max(complete_forecasts$Year, na.rm = T)))
 colnames(years)<- "Year"
@@ -92,7 +103,7 @@ for_hist$total[is.na(for_hist$total)] <- 0
 
 text = data.frame(text = c("First\nhalf\n(n = 82)","Second\nhalf\n(n = 96)"),x = c(2012,2015),y = c(23.5,23.5))
 
-jpeg("Pubs_year_noEco.jpeg", width = 7, height = 6, units = "in",res = 300)
+jpeg("../Figures/Pubs_year_noEco.jpeg", width = 7, height = 6, units = "in",res = 300)
 complete_forecasts%>%
   ggplot()+
   geom_histogram(aes(x = Year),binwidth = 1)+
@@ -117,7 +128,7 @@ eco_2000 <- eco_total$records[eco_total$Publication.Years == 2010]
 eco_max = eco_2000*for_max/for_2000
 
 options(scipen=5)
-jpeg("Pubs_year.jpeg", width = 7, height = 6, units = "in",res = 300)
+jpeg("../Figures/Pubs_year.jpeg", width = 7, height = 6, units = "in",res = 300)
 par(mar = c(5, 5, 3, 5))
 #hist(complete_forecasts$PY, breaks = 50, main = "",xlab = "Year", ylab = "ecological forecasts")
 plot(eco_total$Publication.Years[-1],eco_total$records[-1], type = "l",xaxt = "n", yaxt = "n",ylab = "", xlab = "", col = "red", ylim = c(0, eco_max), xlim = range(for_hist$Year))
@@ -156,7 +167,15 @@ complete_forecasts%>%
             ic = sum(IC)/n(),
             obs = sum(Obs)/n())
 
-complete_forecasts$Vars_ident
+complete_forecasts$Vars_ident[grepl("ET |evap",complete_forecasts$Vars_ident,ignore.case = T)]
+complete_forecasts$Vars_ident[grepl("pollen",complete_forecasts$Vars_ident,ignore.case = T)]
+complete_forecasts$Vars_ident[grepl("diatom|cyano|oscillatoria|asterionella|desmus|anab|aphaniz|synecho|cyclo|stephanodiscus|raciborskii|circinale",complete_forecasts$Vars_ident, ignore.case = T)]
+complete_forecasts$Vars_ident[grepl("chl",complete_forecasts$Vars_ident, ignore.case = T)]
+complete_forecasts$Vars_ident[grepl("alg|hab |phyto",complete_forecasts$Vars_ident, ignore.case = T)]
+complete_forecasts$Vars_ident[!grepl("yield",complete_forecasts$Vars_ident, ignore.case = T)]
+complete_forecasts$Vars_ident[grepl("catch|fish|pollock|salmon|anchovy|walleye|herring|trout|carp",complete_forecasts$Vars_ident, ignore.case = T)] #except not lobster catch, shellfish harvesting, rusty crayfish distribution
+
+(14+14+10)/178
 ```
 
 
@@ -174,32 +193,34 @@ complete_forecasts%>%
 
 Journals
 ```{r}
-data1 <- read_csv("savedrecs_001_500.csv")
-data2 <- read_csv("savedrecs_501_1000.csv")
-data3 <- read_csv("savedrecs_1001_1500.csv")
-data4 <- read_csv("savedrecs_1501_2000.csv")
-data5 <- read_csv("savedrecs_2001_2500.csv")
-data6 <- read_csv("savedrecs_2501_2956.csv")
-data7 <- read_csv("papers_citing_forecasts_full.csv")
-data8 <- read_csv("referenced_papers_forecasts.csv")
-data9 <- read_csv("citing_ed_foundLate.csv")%>%
+data1 <- read_csv("../Data/savedrecs_001_500.csv")
+data2 <- read_csv("../Data/savedrecs_501_1000.csv")
+data3 <- read_csv("../Data/savedrecs_1001_1500.csv")
+data4 <- read_csv("../Data/savedrecs_1501_2000.csv")
+data5 <- read_csv("../Data/savedrecs_2001_2500.csv")
+data6 <- read_csv("../Data/savedrecs_2501_2956.csv")
+data7 <- read_csv("../Data/papers_citing_forecasts_full.csv")
+data8 <- read_csv("../Data/referenced_papers_forecasts.csv")
+data9 <- read_csv("../Data/citing_ed_foundLate.csv")%>%
   rename(TI="Article Title",
-         SO = "Source Title")
-data_full <- data1%>% select(TI, SO)%>%
-  full_join(data2%>%  select(TI, SO))%>%
-  full_join(data3%>%  select(TI, SO))%>%
-  full_join(data4%>%  select(TI, SO))%>%
-  full_join(data5%>%  select(TI, SO))%>%
-  full_join(data6%>%  select(TI, SO))%>%
-  full_join(data7%>%  select(TI, SO))%>%
-  full_join(data8%>%  select(TI, SO))%>%
-  full_join(data9%>%  select(TI, SO))
+         SO = "Source Title",
+         LA = "Language")
+data_full <- data1%>% select(TI, SO, LA)%>%
+  full_join(data2%>%  select(TI, SO, LA))%>%
+  full_join(data3%>%  select(TI, SO, LA))%>%
+  full_join(data4%>%  select(TI, SO, LA))%>%
+  full_join(data5%>%  select(TI, SO, LA))%>%
+  full_join(data6%>%  select(TI, SO, LA))%>%
+  full_join(data7%>%  select(TI, SO, LA))%>%
+  full_join(data8%>%  select(TI, SO, LA))%>%
+  full_join(data9%>%  select(TI, SO, LA))
 
+summary(as.factor(data_full$LA))/nrow(data_full)
 
 journals = complete_forecasts%>%
   left_join(data_full, by = c("Title"="TI"))
 
-jpeg("EF_journals.jpg",res=300,width = 20, height = 12, units = "in")
+jpeg("../Figures/EF_journals.jpg",res=300,width = 20, height = 12, units = "in")
 journals%>%
   ggplot(aes(y = SO))+
   geom_bar()+
@@ -212,9 +233,11 @@ nrow(complete_forecasts)
 
 Map
 ```{r}
-complete_forecasts <- read.csv("complete_dataset.csv")
+complete_forecasts <- read.csv("../Data/complete_dataset.csv")
 WorldData <- map_data('world') %>% 
   fortify()
+safe_colorblind_palette <- c("#661100", "#AA4499", "#DDCC77", "#117733","#44AA99","#999933","#332288", "#88CCEE", "#CC6677","#888888")
+
 
 for_map <- complete_forecasts
 coords <- for_map$Coords
@@ -230,16 +253,21 @@ for(i in 1:(max(str_count(for_map$Coords, ";"), na.rm = T)+1)){
 }
 
 for_map2 = for_map%>%
-  pivot_longer(cols = num_range("Lat", 1:max(str_count(for_map$Coords, ";"), na.rm = T)), names_to = "Lat_num", values_to= "Lat")%>%
-  pivot_longer(cols = num_range("Long", 1:max(str_count(for_map$Coords, ";"), na.rm = T)), names_to = "Long_num", values_to = "Long")%>%
+  pivot_longer(cols = num_range("Lat", 1:max(str_count(for_map$Coords, ";")+1, na.rm = T)), names_to = "Lat_num", values_to= "Lat")%>%
+  pivot_longer(cols = num_range("Long", 1:max(str_count(for_map$Coords, ";")+1, na.rm = T)), names_to = "Long_num", values_to = "Long")%>%
   filter(sub("[a-z]+","",Lat_num)==sub("[a-z]+","",Long_num, ""))%>%
   filter(!Spat_scale == "global")
 
-complete_forecasts[complete_forecasts$Ecosystem == "NA",]
+north_analysis <- for_map2$Lat[!is.na(for_map2$Lat)]
+sum(north_analysis>0)/length(north_analysis)
+sum(complete_forecasts$Spat_scale=="regional")/nrow(complete_forecasts)
+sum(complete_forecasts$Class=="organismal"|complete_forecasts$Class=="both")/nrow(complete_forecasts)
+sum(complete_forecasts$Ecosystem=="agricultural")/nrow(complete_forecasts)
 
-library(scales)
-colors <- hue_pal()(10)
-colors = c(colors, "#7f7f7f")
+#library(scales)
+#colors <- hue_pal()(10)
+#colors = c(colors, "#7f7f7f")
+colors = lighten(safe_colorblind_palette, amount = .2)
 
 for_map2$Region <- NA
 for_map2$Region[for_map2$Spat_scale %in% c("regional","national")] <- 1
@@ -250,10 +278,10 @@ map <- ggplot() +
                   aes(map_id=region),
                   fill = "white", colour = "#7f7f7f", size=0.5)+
   coord_map("rectangular", lat0=0, xlim=c(-180,180))+
-  geom_point(data = for_map2%>%filter(Region == 1), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "black", show.legend = F, size = 5, alpha  =.3)+
-  geom_point(data = for_map2%>%filter(Region == 0), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "black", show.legend = F, size = 3, alpha  =1)+
+  geom_point(data = for_map2%>%filter(Region == 1), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", show.legend = F, size = 8, alpha  =.3, stroke = .5)+
+  geom_point(data = for_map2%>%filter(Region == 0), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", show.legend = F, size = 4, alpha  =1, stroke = .5)+
   theme_bw() + xlab(NULL) + ylab(NULL) +
-  scale_fill_manual(breaks = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
   #scale_shape_manual(values = c(21,23), breaks = c("point","multipoint"), name = "Spatial extent")+
   theme(
     plot.background = element_blank(),
@@ -266,7 +294,6 @@ map <- ggplot() +
     legend.position = "bottom",
     legend.direction = "horizontal")+
   guides(fill = F)
-library(ggthemes)
   #guides(fill = guide_legend(override.aes=list(shape=21)))
 
 
@@ -275,7 +302,7 @@ complete_forecasts$Ecosystem <- factor(complete_forecasts$Ecosystem, levels = c(
 complete_forecasts$Spat_scale<- factor(complete_forecasts$Spat_scale, levels = c("point","multipoint","regional","national","global"))
 extent <- complete_forecasts%>%
   ggplot(aes(x = Spat_scale, fill = Ecosystem))+
-  scale_fill_manual(breaks = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
   xlab("Spatial extent")+
   geom_bar(show.legend = F)+
   ylab("Number of papers")+
@@ -284,7 +311,7 @@ extent <- complete_forecasts%>%
 class <- complete_forecasts%>%
   ggplot(aes(x = Class, fill = Ecosystem))+
   geom_bar()+
-  scale_fill_manual(breaks = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem",guide = guide_legend(ncol = 2))
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem",guide = guide_legend(ncol = 2))
 
 g_legend<-function(a.gplot){
   tmp <- ggplot_gtable(ggplot_build(a.gplot))
@@ -297,18 +324,21 @@ legend_fill <- g_legend(class)
 class <- complete_forecasts%>%
   ggplot(aes(x = Class, fill = Ecosystem))+
   geom_bar(show.legend = F)+
-  scale_fill_manual(breaks = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
   ylab("Number of papers")+
   theme_light()
 
 library(ggpubr)
-jpeg("Map_composite.jpeg",width = 9, height = 6, units = "in", res = 300)
+jpeg("../Figures/Map_composite.jpeg",width = 9, height = 6, units = "in", res = 300)
 ggarrange(map, ggarrange(extent, class, legend_fill, labels = c("B","C"), label.y = c(1.2,1.2), nrow = 1, widths = c(1,1,.7)),nrow = 2, heights = c(6,3), labels = "A")
 dev.off()
 
 for_map2%>%
   filter(!is.na(Lat))
 
+map
+light
+none
 ```
 
 Group by year
@@ -328,7 +358,7 @@ Group by year
 n_breaks = 2
 breaks <- quantile(as.numeric(complete_forecasts$Year), probs = seq(0,1,length.out = n_breaks+1)) 
 breaks <- floor(breaks)
-#breaks = c(1932,2001,2021)
+#breaks = c(1932,2016,2021)
 breaks[length(breaks)] <- breaks[length(breaks)]+1
 for(i in n_breaks:1){
   complete_forecasts$Quantile[complete_forecasts$Year <= breaks[i+1]-1] <- paste0(breaks[i], " to ", breaks[i+1]-1)
@@ -386,7 +416,7 @@ time_graph2$Tier[time_graph2$name %in% c("End_user_yn", "Iterative_yn", "Auto_yn
 time_graph2$Tier[time_graph2$name %in% c("Data_yn", "Archiving_yn","Null_yn", "Partition_yn")] <- "Science"
 
 
-jpeg("Forecasts_over_time.jpeg",width = 10, height = 4, units = "in", res = 300)
+jpeg("../Figures/Forecasts_over_time.jpeg",width = 10, height = 4, units = "in", res = 300)
 time_graph2%>%
   ggplot(aes(x = name, y = Percent, fill = Quantile))+
   geom_bar(stat = "identity", position = "dodge", color = "black")+
@@ -405,7 +435,7 @@ dev.off()
 time_graph2$name = factor(time_graph2$name, levels = rev(c("Uncert_yn", "Eval_yn", "End_user_yn", "Iterative_yn", "Auto_yn", "Data_yn", "Archiving_yn","Null_yn", "Partition_yn")))
 time_graph2$Quantile = factor(time_graph2$Quantile, levels = rev(unique(time_graph2$Quantile)))
 
-jpeg("Forecasts_over_time_vertical.jpeg",width = 5, height = 7, units = "in", res = 300)
+jpeg("../Figures/Forecasts_over_time_vertical.jpeg",width = 5, height = 7, units = "in", res = 300)
 time_graph2%>%
   ggplot(aes(y = name, x = Percent, fill = Quantile))+
   geom_bar(stat = "identity", position = "dodge", color = "black")+
@@ -498,8 +528,10 @@ moving_average_graph%>%
 ```
 Logistic regression
 ```{r}
-complete_forecasts <- read.csv("complete_dataset.csv")
-
+complete_forecasts <- read.csv("../Data/complete_dataset.csv")
+complete_forecasts$it_no_update_ic <- complete_forecasts$Iterative_yn==1&!complete_forecasts$DA_type%in%c("update IC","autoregressive, so new observed data become predictors for the next timestep","UNK","NA","autoregressive, uses previous observations to predict value at next timestep","previous ten days of driver data used as predictor in model, so it is updating iteratively")
+#complete_forecasts$Iterative_yn<-complete_forecasts$it_no_update_ic
+complete_forecasts$DA_type[complete_forecasts$it_no_update_ic]
 complete_forecasts$Automated_bin <- 0
 complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1
 complete_forecasts$Uncert_yn <- 0
@@ -518,7 +550,23 @@ complete_forecasts%>%
             dat = sum(Drivers_published)/n(),
             nul = sum(Null_yn)/n(),
             prt = sum(Uncert_partition_yn)/n())
-  
+
+total = complete_forecasts%>%
+  group_by(Title)%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            eva = sum(Forecast_eval_shown)/n(),
+            unc = sum(Uncert_yn)/n(),
+            ite = sum(Iterative_yn)/n(),
+            arc = sum(Archiving_yn)/n(),
+            use = sum(End_user_yn)/n(),
+            dat = sum(Drivers_published)/n(),
+            nul = sum(Null_yn)/n(),
+            prt = sum(Uncert_partition_yn)/n(),
+            Total = sum(aut,eva,unc,ite,arc,use,dat,nul,prt))
+hist(total$Total, breaks = 8)
+summary(as.factor(total$Total))
+mean(total$Total)
+median(total$Total)
 
 complete_forecasts = complete_forecasts%>%
   filter(Year>1932)
@@ -533,7 +581,7 @@ dat = glm(Drivers_published~Year, data = complete_forecasts, family = "binomial"
 nul = glm(Null_yn~Year, data = complete_forecasts, family = "binomial")
 prt = glm(Uncert_partition_yn~Year, data = complete_forecasts, family = "binomial")
 results = data.frame(var2 = "Include data driven uncertainty")%>%
-  full_join(data.frame(summary(unc)$coefficients, var2 = NA))%>%
+  full_join(data.frame(summary(unc)$coefficients, var2 = NA)%>% mutate(var = "Include data driven uncertainty"))%>%
   full_join(data.frame(var2 = "Assess and report forecast skill"))%>%
   full_join(data.frame(summary(eva)$coefficients) %>% mutate(var = "Assess and report forecast skill"))%>%
   full_join(data.frame(var2 = "Identify an end user"))%>%
@@ -551,11 +599,11 @@ results = data.frame(var2 = "Include data driven uncertainty")%>%
   full_join(data.frame(var2 = "Partition uncertainty"))%>%
   full_join(data.frame(summary(prt)$coefficients) %>% mutate(var = "Partition uncertainty"))%>%
   mutate(param = rep(c(NA,"Intercept","Year"),9))%>%
-  select(var2, param, Estimate, Std..Error, z.value, Pr...z..)
-results[-c(1,2)] = round(results[-c(1,2)], 3)
+  select(var, var2, param, Estimate, Std..Error, z.value, Pr...z..)
+results[-c(1,2,3)] = round(results[-c(1,2,3)], 3)
 results$param[is.na(results$param)]<-results$var2[is.na(results$param)]
 results%>%
-  select(-var2)
+  select(-var2, -var)
 
 x = 1980:2020
 probs = predict(aut, list(Year = x), type = "response")
@@ -587,10 +635,22 @@ labs = c("Develop automated forecasting workflows","Assess and report forecast s
 names(labs) = real_name
 prob_df$var = factor(prob_df$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
 cf$var = factor(cf$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
-jpeg("best_practices)regression.jpg",res = 300,width = 8, height = 6, units = "in")
+data_frame(var = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"), )
+results = results%>%
+  filter(param == "Year")%>%
+  select(-var2)%>%
+  mutate(sig = "")
+results$sig[results$Pr...z..<0.05] <- "*"
+results$sig[results$Pr...z..<0.01] <- "**"
+results$sig[results$Pr...z..<0.001] <- "***"
+results$var <- c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn")
+results$var = factor(results$var)
+
+jpeg("../Figures/best_practices)regression.jpg",res = 300,width = 8, height = 6, units = "in")
 plot = prob_df%>%
   ggplot(aes(x = x, y = probs))+
   geom_point(aes(y = value), data = cf, alpha = .15, color = "blue")+
+  geom_text(aes(x = 2000, y = .85, label = sig), data = results, size = 6)+
   geom_line()+
   ylim(0,1)+
   facet_wrap(~var, labeller = labeller(var = labs))+
@@ -600,33 +660,43 @@ plot = prob_df%>%
 plot
 dev.off()
 plot
+
+complete_forecasts$Horiz_days
+34/44
+
+complete_forecasts[complete_forecasts$Uncert_partition_yn==1,]
 ```
 
 
 Time-series data
 ```{r}
+complete_forecasts <- read.csv("../Data/complete_dataset.csv")
 mean_dc<- round(mean(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1)
-min(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T)
+min(as.numeric(complete_forecasts$Data_coverage), na.rm = T)
+max(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T)
 median_dc <- round(median(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1)
 lines = data.frame(c(mean_dc, median_dc),c(2,2))
 colnames(lines) = c("x","y")
 lines$label = c(paste0("Mean = ", mean_dc, " years"), paste0("Median = ",median_dc, " years"))
 
-jpeg("Years_of_data.jpeg", res = 300, width = 8, height = 4, units = "in")
+jpeg("../Figures/Years_of_data.jpeg", res = 300, width = 8, height = 4, units = "in")
 complete_forecasts%>%
   mutate(Year = as.numeric(Year))%>%
   ggplot()+
   geom_histogram(aes(x = as.numeric(Data_coverage)/365),bins = 10)+
   geom_vline(xintercept = c(mean_dc, median_dc), color = "white")+
-  geom_text(aes(x = x,y=y,label= label), data = lines, angle = 90, nudge_x = -1.5, hjust = 0,color = "white")+
+  geom_text(aes(x = x,y=y,label= label), data = lines, angle = 90, nudge_x = -2, hjust = 0,color = "white")+
   xlab("Years of data used to create forecasting paper")+
   ylab("Number of papers")+
   theme_light()
 dev.off()
+
+sum(as.numeric(complete_forecasts$Data_coverage)>(10*365), na.rm = T)/nrow(complete_forecasts)
+complete_forecasts[as.numeric(complete_forecasts$Data_coverage)>100*365,]
 ```
 
 ```{r}
-complete_forecasts <- read.csv("complete_dataset.csv")
+complete_forecasts <- read.csv("../Data/complete_dataset.csv")
 time_bin = complete_forecasts
 time_bin$time_bin = NA
 time_bin$Time_step_days[is.na(as.numeric(time_bin$Time_step_days))] ##Use this line to check if you have all of the complicated cases covered
@@ -682,7 +752,7 @@ n = time_bin_plot%>%
   summarise(ns = n())%>%
   mutate(color = ns>20)
 
-jpeg("timestep_heatmap.jpeg",res = 300,width = 7, height = 4, units = "in")
+jpeg("../Figures/timestep_heatmap.jpeg",res = 300,width = 7, height = 4, units = "in")
 library("RColorBrewer")
 cols <- brewer.pal(n = 9, name = "BuPu")
 time_bin_plot%>%
@@ -700,14 +770,10 @@ time_bin_plot%>%
         panel.grid.minor = element_blank())+
   scale_color_manual(values = c("gray40","gray90"))
 dev.off()
-
-nrow(time_bin%>%filter(Horiz_days<=365))/nrow(time_bin%>%filter(!is.na(Horiz_days)))*100
-
-nrow(time_bin%>%filter(Horiz_days<=7, Horiz_days>1, Time_step_days == 1))/nrow(time_bin%>%filter(!is.na(Horiz_days)))*100
-
-nrow(time_bin%>%filter(Horiz_days==365, Time_step_days == 365))/nrow(time_bin%>%filter(!is.na(Horiz_days)))*100
-
-time_bin%>%filter(is.na(time_bin)|is.na(horiz_bin))
+time_bin$horiz_bin
+nrow(time_bin%>%filter(horiz_bin %in% c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
+nrow(time_bin%>%filter(horiz_bin %in% c("2 - 7 days"),time_bin %in% c("1 day")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
+nrow(time_bin%>%filter(horiz_bin %in% c("1 year"),time_bin %in% c("1 year")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
 ```
 
 Pay attention to uncertainty 
@@ -740,7 +806,7 @@ complete_forecasts$R2 <- as.numeric(grepl("[R,r]2",complete_forecasts$Eval_metri
 
 using_r2 = complete_forecasts%>%
   filter(R2 == 1)
-write.csv(using_r2, "papers_reporting_r2.csv")
+write.csv(using_r2, "../Data/papers_reporting_r2.csv")
 ```
 
 Use predictors related to the question 
