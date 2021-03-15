@@ -1,0 +1,2 @@
+geographicDescription	northBoundingCoordinate	eastBoundingCoordinate	southBoundingCoordinate	westBoundingCoordinate
+"Global"

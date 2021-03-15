@@ -1,0 +1,44 @@
+---
+title: "MakeEMLCTD"
+author: "Abby Lewis"
+date: "12/16/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+files = list.files()
+if("abstract_review_all_papers_EDI.csv"%in% files){
+  file.rename("abstract_review_all_papers_EDI.csv", "initial_review_all_papers_EDI.csv")
+}
+# Install and load devtools
+install.packages("devtools")
+library(devtools)
+
+# Install and load EMLassemblyline
+install_github("EDIorg/EMLassemblyline")
+library(EMLassemblyline)
+
+# Make the EML for EDI ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+make_eml(path = getwd(),
+         dataset.title = "Systematic review and meta-analysis of near-term ecological forecasting literature, including forecast performance data. Search conducted May 2020",
+         data.table = c("initial_review_all_papers_EDI.csv", "R2_dataset_for_EDI.csv"),
+         data.table.name = c("Dataset 1: Abstract review", "Dataset 3: R2 values"),
+         data.table.description = c("Dataset 1: Abstract review", "Dataset 3: R2 values"),
+         data.table.quote.character = c('"','"'),
+         other.entity = c("Final import and analysis - for EDI.Rmd","R2_analysis_EDI.Rmd"),
+         other.entity.name = c("General data analysis","R2 analysis"),
+         other.entity.description = c("General data analysis","R2 analysis"),
+         temporal.coverage = c("1932-11-01", "2020-05-18"),
+         maintenance.description = "complete",
+         user.domain = "EDI",
+         user.id = "ccarey",
+         package.id = "edi.183.1")
+
+view_unit_dictionary()
+```
+

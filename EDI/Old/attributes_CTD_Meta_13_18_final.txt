@@ -1,0 +1,25 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+Reservoir	Three-letter code corresponding to sampled reservoir	categorical				
+Site	Sampling site within each reservoir	numeric	dimensionless			
+Date	"Date and time of sampling. All data were collected in the eastern time zone of the U.S.A., with daylight savings time observed"	Date		YYYY-MM-DD hh:mm:ss		
+Depth_m	Water depth where the sample was collected or sensor reading was measured 	numeric	meter		NA	No data
+Temp_C	Water temperature	numeric	celsius		NA	No data
+DO_mgL	Dissolved oxygen (DO) concentration	numeric	milligramsPerLiter		NA	No data
+Cond_uScm	Conductivity	numeric	microSiemenPerCentimeter		NA	No data
+Spec_Cond_uScm	Specific conductance; conductivity normalized to 20 degrees celsius	numeric	microSiemenPerCentimeter		NA	No data
+Chla_ugL	Chlorophyll a	numeric	microgramsPerLiter		NA	No data
+Turb_NTU	Turbidity	numeric	dimensionless		NA	No data
+pH	Water pH	numeric	dimensionless		NA	No data
+ORP_mV	Reduction potential	numeric	millivolt		NA	No data
+PAR_umolm2s	Photosynthetically active radiation	numeric	micromolePerMeterSquaredPerSecond		NA	No data
+Desc_rate	Descent rate	numeric	metersPerSecond		NA	No data
+Flag_Temp	"Data flag for temperature; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_DO	"Data flag for dissolved oxygen (DO) concentration; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_Cond	"Data flag for conductivity; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_SpecCond	"Data flag for specific conductivity; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_Chla	"Data flag for chlorophyll a0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_Turb	"Data flag for turbidity; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_pH	"Data flag for pH; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_ORP	"Data flag for ORP; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_PAR	"Data flag for photosynthetically active radiation (PAR); 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			
+Flag_DescRate 	"Data flag for descent rate; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD"	numeric	dimensionless			

@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.1" packageId="edi.200.7" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1  http://nis.lternet.edu/schemas/EML/eml-2.1.1/eml.xsd" system="edi">
+  <access authSystem="https://pasta.edirepository.org/authentication" order="allowFirst" scope="document">
+    <allow>
+      <principal>uid=ccarey,o=EDI,dc=edirepository,dc=org</principal>
+      <permission>all</permission>
+    </allow>
+    <allow>
+      <principal>public</principal>
+      <permission>read</permission>
+    </allow>
+  </access>
+  <dataset>
+    <title>Time series of high-frequency profiles of depth, temperature, dissolved oxygen, conductivity, specific conductivity, chlorophyll a, turbidity, pH, oxidation-reduction potential, photosynthetic active radiation, and descent rate for Beaverdam Reservoir, Carvins Cove Reservoir, Falling Creek Reservoir, Gatewood Reservoir, and Spring Hollow Reservoir in Southwestern Virginia, USA 2013-2018</title>
+    <creator>
+      <individualName>
+        <givenName>Cayelan</givenName>
+        <givenName>C.</givenName>
+        <surName>Carey</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Ryan</givenName>
+        <givenName>P.</givenName>
+        <surName>McClure</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>ryan333@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-6370-3852</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Alexandra</givenName>
+        <givenName>B.</givenName>
+        <surName>Gerling</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>alexg13@vt.edu</electronicMailAddress>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Jonathan</givenName>
+        <givenName>P.</givenName>
+        <surName>Doubek</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>jpdoubek@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0003-2651-4715</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Shengyang</givenName>
+        <surName>Chen</surName>
+      </individualName>
+      <organizationName>University of Sydney</organizationName>
+      <electronicMailAddress>shengyang.chen@sydney.edu.au</electronicMailAddress>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Mary</givenName>
+        <givenName>E.</givenName>
+        <surName>Lofton</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>melofton@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0003-3270-1330</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Kathleen</givenName>
+        <givenName>D.</givenName>
+        <surName>Hamre</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>kdhamre@vt.edu</electronicMailAddress>
+    </creator>
+    <pubDate>2019-10-21</pubDate>
+    <abstract>
+      <para>
+  Depth profiles of depth, temperature, dissolved oxygen, conductivity,
+  specific conductivity, chlorophyll a, turbidity were collected with a
+  CTD (Conductivity, Temperature, and Depth) profiler fitted with a SBE
+  43 Dissolved Oxygen sensor and an ECO Triplet Fluorometer and
+  Backscattering Sensor from 2013 to 2017. In 2017, pH and
+  oxidation-reduction potential (ORP) were also collected with a SBE 27
+  pH and O.R.P. (redox) sensor. CTD profiles were collected in five
+  drinking water reservoirs in southwestern Virginia, USA. All variables
+  are measured every 0.25 seconds, resulting in depth profiles at
+  approximately ten centimeter resolution. The five reservoirs are:
+  Beaverdam Reservoir (Vinton, Virginia), Carvins Cove Reservoir
+  (Roanoke, Virginia), Falling Creek Reservoir (Vinton, Virginia),
+  Gatewood Reservoir (Pulaski, Virginia), and Spring Hollow Reservoir
+  (Salem, Virginia). Beaverdam, Carvins Cove, Falling Creek, and Spring
+  Hollow Reservoirs are owned and operated by the Western Virginia Water
+  Authority as primary or secondary drinking water sources for Roanoke,
+  Virginia, and Gatewood Reservoir is a drinking water source for the
+  Town of Pulaski, Virginia. The dataset consists of CTD depth profiles
+  measured at the deepest site of each reservoir adjacent to the dam as
+  well as other reservoir sites on a transect upstream in Carvins Cove
+  Reservoir and Falling Creek Reservoir. The profiles were collected
+  approximately fortnightly in the spring months, weekly in the summer
+  and early autumn, and monthly in the late autumn and winter.
+</para>
+    </abstract>
+    <keywordSet>
+      <keyword>Carey Lab</keyword>
+      <keyword>Virginia Tech</keyword>
+      <keyword>Lake</keyword>
+      <keyword>Reservoir</keyword>
+      <keyword>High-frequency Sensors</keyword>
+      <keyword>Temperature, sensor</keyword>
+      <keyword>Oxygen, Dissolved</keyword>
+      <keyword>Conductivity</keyword>
+      <keyword>Specific conductivity</keyword>
+      <keyword>Photosynthetic active radiation</keyword>
+      <keyword>Chlorophyll a</keyword>
+      <keyword>Turbidity</keyword>
+      <keyword>pH</keyword>
+      <keyword>Reduction Potential</keyword>
+      <keyword>Western Virginia Water Authority</keyword>
+      <keyword>Falling Creek Reservoir</keyword>
+    </keywordSet>
+    <intellectualRights>
+      <para>
+  This information is released under the Creative Commons license -
+  Attribution - CC BY (https://creativecommons.org/licenses/by/4.0/).
+  The consumer of these data ("Data User" herein) is required
+  to cite it appropriately in any publication that results from its use.
+  The Data User should realize that these data may be actively used by
+  others for ongoing research and that coordination may be necessary to
+  prevent duplicate publication. The Data User is urged to contact the
+  authors of these data if any questions about methodology or results
+  occur. Where appropriate, the Data User is encouraged to consider
+  collaboration or co-authorship with the authors. The Data User should
+  realize that misinterpretation of data may occur if used out of
+  context of the original study. While substantial efforts are made to
+  ensure the accuracy of data and associated documentation, complete
+  accuracy of data sets cannot be guaranteed. All data are made
+  available "as is." The Data User should be aware, however,
+  that data are updated periodically and it is the responsibility of the
+  Data User to check for new versions of the data. The data authors and
+  the repository where these data were obtained shall not be liable for
+  damages resulting from any use or misinterpretation of the data. Thank
+  you.
+</para>
+    </intellectualRights>
+    <coverage>
+      <geographicCoverage>
+        <geographicDescription>Beaverdam Reservoir</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>37.311961</westBoundingCoordinate>
+          <eastBoundingCoordinate>37.322865</eastBoundingCoordinate>
+          <northBoundingCoordinate>-79.824834</northBoundingCoordinate>
+          <southBoundingCoordinate>-79.813848</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <geographicCoverage>
+        <geographicDescription>Carvins Cove Reservoir</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>37.365345</westBoundingCoordinate>
+          <eastBoundingCoordinate>37.409127</eastBoundingCoordinate>
+          <northBoundingCoordinate>-79.978642</northBoundingCoordinate>
+          <southBoundingCoordinate>-79.944052</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <geographicCoverage>
+        <geographicDescription>Falling Creek Reservoir</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>37.30266</westBoundingCoordinate>
+          <eastBoundingCoordinate>37.309589</eastBoundingCoordinate>
+          <northBoundingCoordinate>-79.839249</northBoundingCoordinate>
+          <southBoundingCoordinate>-79.836009</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <geographicCoverage>
+        <geographicDescription>Gatewood Reservoir</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>37.03819</westBoundingCoordinate>
+          <eastBoundingCoordinate>37.054358</eastBoundingCoordinate>
+          <northBoundingCoordinate>-80.89188</northBoundingCoordinate>
+          <southBoundingCoordinate>-80.858492</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <geographicCoverage>
+        <geographicDescription>Spring Hollow Reservoir</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>37.217594</westBoundingCoordinate>
+          <eastBoundingCoordinate>37.231092</eastBoundingCoordinate>
+          <northBoundingCoordinate>-80.179076</northBoundingCoordinate>
+          <southBoundingCoordinate>-80.170407</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <temporalCoverage>
+        <rangeOfDates>
+          <beginDate>
+            <calendarDate>2013-03-07</calendarDate>
+          </beginDate>
+          <endDate>
+            <calendarDate>2018-12-17</calendarDate>
+          </endDate>
+        </rangeOfDates>
+      </temporalCoverage>
+    </coverage>
+    <maintenance>
+      <description>ongoing</description>
+    </maintenance>
+    <contact>
+      <individualName>
+        <givenName>Cayelan</givenName>
+        <givenName>C.</givenName>
+        <surName>Carey</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+    </contact>
+    <methods>
+      <methodStep>
+        <description>
+          <para>
+  Depth profiles of multiple water-quality variables were collected from
+  2013 through 2018 using a Conductivity, Temperature and Depth (CTD)
+  profiler from SeaBird Electronics (SBE, Bellevue Washington, USA).
+  Profiles were collected, at minimum, monthly between May to October
+  (usually weekly or subweekly), and bimonthly between November to
+  April. Most CTD casts were collected from 9:00 to 15:00, however, some
+  CTD casts were collected at night.
+</para>
+          <para>
+  The CTD was calibrated by the manufacturer yearly (usually in
+  December-February) according to the standards and practices of SBE and
+  the companies with secondary sensors coupled to the instrument.
+</para>
+          <para>
+  Instruments, manual, and serial numbers used between 2013 - 2018
+  Multiple sensors and instruments were added over time; below we note
+  changes in the CTD software, sensor versions, and provide links to the
+  accompanying instrument manuals.
+</para>
+          <para>
+  Seacat 19Plus V 1.6 SERIAL NO. 4397 2013 - 2016
+  http://www.seabird.com/sites/default/files/documents/19plus_018_0.pdf
+  For CTD processing, refer to the SeaBird Data processing manual.
+  http://www.seabird.com/sites/default/files/documents/SBEDataProcessing_7.26.7.pdf
+</para>
+          <para>
+  SBE 43 Dissolved Oxygen Sensor SERIAL NO. 0434 2013 - 2018
+  http://www.seabird.com/sites/default/files/documents/appnote64Jun13.pdf
+</para>
+          <para>
+  FluoroWetlabECO_AFL_FL_Sensor SERIAL NO. 2496 2013 - 2018 Turbidity
+  Meter WET Labs ECO-NTU SERIAL NO. 2496 2013 - 2018
+  http://www.seabird.com/sites/default/files/documents/manual-ECOMasterben.pdf
+</para>
+          <para>
+  OxidationReductionPotentialSensor SensorID = 41 SERIAL NO. 0363 2017
+  http://www.seabird.com/sites/default/files/documents/appnote18-1Sep14.pdf
+</para>
+          <para>
+  Photosynthetically Active Radiation (PAR) Sensor SERIAL NO. 1122 2017
+  - 2018
+  https://www.seabird.com/product.detail-print.version.jsa?id=54627923891
+</para>
+          <para>
+  Sea-Bird SBE19plus V2 SERIAL NO. 7809 2017 - 2018
+  http://www.seabird.com/sites/default/files/documents/19plusV2_015.pdf
+</para>
+          <para>
+  For CTD processing refer to the SeaBird Data processing manual.
+  http://www.seabird.com/sites/default/files/documents/SBEDataProcessing_7.26.7.pdf
+</para>
+          <para>
+  From 2013 to 2018, multiple whole-ecosystem manipulations were
+  conducted at Falling Creek Reservoir. These manipulations include
+  intermittent operation of hypolimnetic oxygenation and pulsed
+  epilimnetic mixing engineering systems. For a detailed description of
+  the hypolimnetic oxygenation engineered system, see Gerling et al.
+  (2014) and for a detailed description of the epilimnetic mixing
+  engineered system, see Chen et al. (2017). These systems were operated
+  over time following Table 1 in Gerling et al. (2016), Table 1 in
+  Munger et al. (2016), and Table 2 in McClure et al. (2018).
+</para>
+          <para>
+  Chen, S., C. Lei, C.C. Carey, and J.C. Little. 2016. Modelling the
+  effect of artificial mixing on thermal stability and substance
+  transport in a drinking-water reservoir using a 3D hydrodynamic model.
+  Proceedings of the 20th Australasian Fluid Mechanics Conference.
+  Perth, Australia, 5-8 December 2016.
+</para>
+          <para>
+  Chen, S., C. Lei, C.C. Carey, P.A. Gantzer, and J.C. Little. 2017.
+  Predicting hypolimnetic oxygenation and epilimnetic mixing in a
+  shallow eutrophic reservoir using a coupled three-dimensional
+  hydrodynamic model. Water Resources Research. 53: 470-484. DOI:
+  10.1002/2016WR019279
+</para>
+          <para>
+  Gerling, A.B., Browne, R.G., Gantzer, P.A., Mobley, M.H., Little,
+  J.C., and C.C. Carey. 2014. First report of the successful operation
+  of a side stream supersaturation hypolimnetic oxygenation system in a
+  eutrophic, shallow reservoir. Water Research. 67: 129-143. doi:
+  10.1016/j.watres.2014.09.002
+</para>
+          <para>
+  Gerling, A.B., Z.W. Munger, J.P. Doubek, K.D. Hamre, P.A. Gantzer,
+  J.C. Little, and C.C. Carey. 2016. Whole-catchment manipulations of
+  internal and external loading reveal the sensitivity of a century-old
+  reservoir to hypoxia. Ecosystems. 19:555-571. DOI:
+  10.1007/s10021-015-9951-0
+</para>
+          <para>
+  McClure, R.P., K.D. Hamre, B.R. Niederlehner, Z.W. Munger, S. Chen,
+  M.E. Lofton, M.E. Schreiber, and C.C. Carey. 2018 Metalimnetic oxygen
+  minima alter the vertical profiles of carbon dioxide and methane in a
+  managed freshwater reservoir. Science of the Total Environment 636:
+  610-620. DOI: 10.1016/j.scitotenv.2018.04.255
+</para>
+          <para>
+  Munger, Z.W., C.C. Carey, A.B. Gerling, K.D. Hamre, J.P. Doubek, S.D.
+  Klepatzki, R.P. McClure, and M.E. Schreiber. 2016. Effectiveness of
+  hypolimnetic oxygenation for preventing accumulation of Fe and Mn in a
+  drinking water reservoir. Water Research. 106: 1-14. DOI:
+  10.1016/j.watres.2016.09.038.
+</para>
+        </description>
+      </methodStep>
+    </methods>
+    <project>
+      <title>No project title to report</title>
+      <personnel>
+        <individualName>
+          <givenName>Cayelan</givenName>
+          <givenName>C.</givenName>
+          <surName>Carey</surName>
+        </individualName>
+        <organizationName>Virginia Tech</organizationName>
+        <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+        <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+        <role>Principal Investigator</role>
+      </personnel>
+      <funding/>
+      <relatedProject>
+        <title>Dynamics of coupled P-Fe-Mn cycling in drinking water reservoirs and implications for water quality</title>
+        <personnel>
+          <individualName>
+            <givenName>Cayelan</givenName>
+            <givenName>C.</givenName>
+            <surName>Carey</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>Institute of Critical Technology and Applied Science</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>No project title to report</title>
+        <personnel>
+          <individualName>
+            <givenName>Cayelan</givenName>
+            <givenName>C.</givenName>
+            <surName>Carey</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>Virginia Tech Global Change Center</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>No project title to report</title>
+        <personnel>
+          <individualName>
+            <givenName>Cayelan</givenName>
+            <givenName>C.</givenName>
+            <surName>Carey</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>Fralin Life Sciences Institute</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>SCC-IRG Track 2: Resilient Water Systems: Integrating Environmental Sensor Networks and Real-Time Forecasting to Adaptively Manage Drinking Water Quality and Build Social Trust</title>
+        <personnel>
+          <individualName>
+            <givenName>Cayelan</givenName>
+            <givenName>C.</givenName>
+            <surName>Carey</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>National Science Foundation: 1737424</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>Collaborative Research: Consequences of changing oxygen availability for carbon cycling in freshwater ecosystems</title>
+        <personnel>
+          <individualName>
+            <givenName>Cayelan</givenName>
+            <givenName>C.</givenName>
+            <surName>Carey</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>National Science Foundation: 1753639</funding>
+      </relatedProject>
+    </project>
+    <dataTable>
+      <entityName>Reservoir CTD dataset</entityName>
+      <entityDescription>Reservoir CTD dataset</entityDescription>
+      <physical>
+        <objectName>CTD_Meta_13_18_final.csv</objectName>
+        <size unit="bytes">65192609</size>
+        <authentication method="MD5">91aa02dfd36c0f7ac873a4b0a62cc74a</authentication>
+        <dataFormat>
+          <textFormat>
+            <numHeaderLines>1</numHeaderLines>
+            <recordDelimiter>\r\n</recordDelimiter>
+            <attributeOrientation>column</attributeOrientation>
+            <simpleDelimited>
+              <fieldDelimiter>,</fieldDelimiter>
+              <quoteCharacter>"</quoteCharacter>
+            </simpleDelimited>
+          </textFormat>
+        </dataFormat>
+      </physical>
+      <attributeList>
+        <attribute>
+          <attributeName>Reservoir</attributeName>
+          <attributeDefinition>Three-letter code corresponding to sampled reservoir</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>BVR</code>
+                    <definition>Beaverdam Reservoir</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>CCR</code>
+                    <definition>Carvins Cove Reservoir</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>FCR</code>
+                    <definition>Falling Creek Reservoir</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>GWR</code>
+                    <definition>Gatewood Reservoir</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>SHR</code>
+                    <definition>Spring Hollow Reservoir</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Site</attributeName>
+          <attributeDefinition>Sampling site within each reservoir</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">10</minimum>
+                  <maximum exclusive="false">50</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Date</attributeName>
+          <attributeDefinition>Date and time of sampling. All data were collected in the eastern time zone of the U.S.A., with daylight savings time observed</attributeDefinition>
+          <storageType>date</storageType>
+          <measurementScale>
+            <dateTime>
+              <formatString>YYYY-MM-DD hh:mm:ss</formatString>
+              <dateTimeDomain/>
+            </dateTime>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Depth_m</attributeName>
+          <attributeDefinition>Water depth where the sample was collected or sensor reading was measured</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>meter</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">-0.14</minimum>
+                  <maximum exclusive="false">63.8</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Temp_C</attributeName>
+          <attributeDefinition>Water temperature</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>celsius</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">3.36</minimum>
+                  <maximum exclusive="false">30.16</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>DO_mgL</attributeName>
+          <attributeDefinition>Dissolved oxygen (DO) concentration</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>milligramsPerLiter</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">-1.52</minimum>
+                  <maximum exclusive="false">18.57</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Cond_uScm</attributeName>
+          <attributeDefinition>Conductivity</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <customUnit>microSiemenPerCentimeter</customUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">-61.4</minimum>
+                  <maximum exclusive="false">658.93</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Spec_Cond_uScm</attributeName>
+          <attributeDefinition>Specific conductance; conductivity normalized to 20 degrees celsius</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <customUnit>microSiemenPerCentimeter</customUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">4.77</minimum>
+                  <maximum exclusive="false">366.72</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Chla_ugL</attributeName>
+          <attributeDefinition>Chlorophyll a</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>microgramsPerLiter</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">258.13</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Turb_NTU</attributeName>
+          <attributeDefinition>Turbidity</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">-2.91</minimum>
+                  <maximum exclusive="false">1093.38</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>pH</attributeName>
+          <attributeDefinition>Water pH</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">5.97</minimum>
+                  <maximum exclusive="false">9.84</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>ORP_mV</attributeName>
+          <attributeDefinition>Reduction potential</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>millivolt</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">-80.46</minimum>
+                  <maximum exclusive="false">390.39</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>PAR_umolm2s</attributeName>
+          <attributeDefinition>Photosynthetically active radiation</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <customUnit>micromolePerMeterSquaredPerSecond</customUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">-36.38</minimum>
+                  <maximum exclusive="false">3995</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Desc_rate</attributeName>
+          <attributeDefinition>Descent rate</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>metersPerSecond</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">-0.14</minimum>
+                  <maximum exclusive="false">0.72</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_Temp</attributeName>
+          <attributeDefinition>Data flag for temperature; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">0</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_DO</attributeName>
+          <attributeDefinition>Data flag for dissolved oxygen (DO) concentration; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_Cond</attributeName>
+          <attributeDefinition>Data flag for conductivity; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">0</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_SpecCond</attributeName>
+          <attributeDefinition>Data flag for specific conductivity; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_Chla</attributeName>
+          <attributeDefinition>Data flag for chlorophyll a0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_Turb</attributeName>
+          <attributeDefinition>Data flag for turbidity; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_pH</attributeName>
+          <attributeDefinition>Data flag for pH; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">5</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_ORP</attributeName>
+          <attributeDefinition>Data flag for ORP; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">5</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_PAR</attributeName>
+          <attributeDefinition>Data flag for photosynthetically active radiation (PAR); 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">5</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>Flag_DescRate</attributeName>
+          <attributeDefinition>Data flag for descent rate; 0=Not suspect, 1=Sample not taken, 2=Instrument malfunction, 3=Sample below detection,4=Negative value set to 0,5=No sensor on CTD</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">5</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+      </attributeList>
+      <numberOfRecords>586700</numberOfRecords>
+    </dataTable>
+  </dataset>
+  <additionalMetadata>
+    <metadata>
+      <unitList>
+        <unit id="microSiemenPerCentimeter" multiplierToSI="1.00E-04" name="microSiemenPerCentimeter" parentSI="siemenPerMeter" unitType="conductance">
+          <description>microSiemenPerCentimeter</description>
+        </unit>
+        <unit id="micromolePerMeterSquaredPerSecond" multiplierToSI="0.0864" name="micromolePerMeterSquaredPerSecond" parentSI="molePerMeterSquaredPerDay" unitType="arealMassDensityRate">
+          <description>micromole per meter squared per second</description>
+        </unit>
+      </unitList>
+    </metadata>
+  </additionalMetadata>
+</eml:eml>

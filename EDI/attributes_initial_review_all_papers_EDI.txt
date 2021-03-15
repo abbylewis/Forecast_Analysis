@@ -1,0 +1,9 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+Title	Paper title	character			NA	No data
+doi	doi from Web of Science	character			NA	No data
+Authors	Author list	character			NA	No data
+Year	Year of publication	numeric	nominalYear		NA	No data
+Round	"We performed our literature search process in two steps. Round 1 = Web of Science search, round 2 = search of citing and cited papers"	numeric	dimensionless		NA	No data
+NearTerm	"Paper predicts ≤ 10 years into the future from the forecast date. 1 = yes, 0 = no. Marked NA when the paper does not include a forecast"	numeric	dimensionless		NA	No data
+Ecological	"Focal variable is ecological (organismal or biogeochemical). 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
+Forecast	"Paper includes at least one prediction of future conditions from the perspective of the model; forecasts could be developed retroactively (i.e., “hindcasts”) but could only use driver data that was available before the forecast date (e.g., forecasted or time-lagged driver variables). 1 = yes, 0 = no"	numeric	dimensionless		NA	No data

@@ -1,0 +1,11 @@
+attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
+Title	Paper title	character			NA	No data
+doi	doi from Web of Science	character			NA	No data
+Authors	Author list	character			NA	No data
+Year	Year of publication	numeric	nominalYear		NA	No data
+Horiz_days	Number of days into the future forecasted	numeric	dimensionless		NA	No data
+Var	Variable forecasted	character			NA	No data
+Notes	Notes about the R2 values reported	character			NA	No data
+R2_value	Value of R2	numeric	dimensionless		NA	No data
+Model_group	Integer values to separate different models within a paper	numeric	dimensionless		NA	No data
+Site_or_year_group	Integer values to identify forecasts at distinct sites or for distinct years within one paper	numeric	dimensionless		NA	No data
