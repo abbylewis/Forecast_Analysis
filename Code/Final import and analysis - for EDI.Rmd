@@ -21,17 +21,23 @@ TO DO:
 Papers per year
 ```{r}
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv") #Load data
+sum(complete_forecasts$Ethical_considerations ==1, na.rm = T)/nrow(complete_forecasts)
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1,na.rm = T)
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$End_user_partnership==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1,na.rm = T)
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1&complete_forecasts$Ethical_considerations==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1&complete_forecasts$Ethical_considerations==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)
 
 #Plot the number of papers published per year
-jpeg("../Figures/Pubs_year_noEco.jpeg", width = 7, height = 6, units = "in",res = 300)
+jpeg("../Figures/Pubs_year_noEco.jpeg", width = 3, height = 3, units = "in",res = 600)
 complete_forecasts%>%
   ggplot()+
   geom_histogram(aes(x = Year),binwidth = 1)+
-  xlim(1930,2020)+
   theme_bw()+
   xlab("Year")+
-  ylab("Number of near-term ecological forecasts")+
-  ylim(0,25)
+  ylab("Near-term ecological forecasts")+
+  ylim(0,25)+
+  scale_x_continuous(limits = c(1930,2020), expand = c(0,0))+
+  theme(text=element_text(size=10,  family="Helvetica"))
 dev.off()
 ```
 
@@ -107,9 +113,9 @@ map <- ggplot() +
   geom_map(data = WorldData, map = WorldData,
                   aes(map_id=region),
                   fill = "white", colour = "#7f7f7f", size=0.5)+
-  coord_map("rectangular", lat0=0, xlim=c(-180,180))+
-  geom_point(data = for_map2%>%filter(Region == 1), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", show.legend = F, size = 8, alpha  =.3, stroke = .5)+
-  geom_point(data = for_map2%>%filter(Region == 0), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", show.legend = F, size = 4, alpha  =1, stroke = .5)+
+  coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim = c(-90,90))+
+  geom_point(data = for_map2%>%filter(Region == 1), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", show.legend = F, size = 6, alpha  =.3, stroke = .5)+
+  geom_point(data = for_map2%>%filter(Region == 0), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", show.legend = F, size = 3, alpha  =1, stroke = .5)+
   theme_bw() + xlab(NULL) + ylab(NULL) +
   scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
   theme(
@@ -122,7 +128,9 @@ map <- ggplot() +
     axis.text.y = element_blank(),
     legend.position = "bottom",
     legend.direction = "horizontal")+
-  guides(fill = F)
+  guides(fill = F)+
+  theme(text=element_text(size=10,  family="Helvetica"),
+        plot.margin = margin(0, 0, 0, 0, "cm"))
 
 
 complete_forecasts$Ecosystem[is.na(complete_forecasts$Ecosystem)]<-"NA"
@@ -134,12 +142,14 @@ extent <- complete_forecasts%>%
   xlab("Spatial extent")+
   geom_bar(show.legend = F)+
   ylab("Number of papers")+
-  theme_light()
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"))
 
 class <- complete_forecasts%>%
   ggplot(aes(x = Class, fill = Ecosystem))+
   geom_bar()+
-  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem",guide = guide_legend(ncol = 2))
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem",guide = guide_legend(position = "bottom", nrow = 2))+
+  theme(text=element_text(size=10,  family="Helvetica"))
 
 g_legend<-function(a.gplot){
   tmp <- ggplot_gtable(ggplot_build(a.gplot))
@@ -154,11 +164,12 @@ class <- complete_forecasts%>%
   geom_bar(show.legend = F)+
   scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
   ylab("Number of papers")+
-  theme_light()
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"))
 
 library(ggpubr)
-jpeg("../Figures/Map_composite.jpeg",width = 9, height = 6, units = "in", res = 300)
-ggarrange(map, ggarrange(extent, class, legend_fill, labels = c("B","C"), label.y = c(1.2,1.2), nrow = 1, widths = c(1,1,.7)),nrow = 2, heights = c(6,3), labels = "A")
+jpeg("../Figures/Map_composite.jpeg",width = 6, height = 5.5, units = "in", res = 600)
+ggarrange(map, ggarrange(extent, class, labels = c("B","C"), label.y = c(1.2,1.2), nrow = 1, widths = c(1.4,1)), legend_fill, nrow = 3, heights = c(6.2,3,1.5), labels = "A", align = "h")
 dev.off()
 
 ### Summary statistics
@@ -177,10 +188,12 @@ complete_forecasts$it_no_update_ic <- complete_forecasts$Iterative_yn==1&!comple
 complete_forecasts$DA_type[complete_forecasts$it_no_update_ic]
 complete_forecasts$Automated_bin <- 0
 complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1
-complete_forecasts$Uncert_yn <- 0
-complete_forecasts$Uncert_yn <- as.numeric(complete_forecasts$Uncert_category %in% c("data_driven", "propagates", "assimilates"))
-sum(complete_forecasts$Uncert_category == "contains")/nrow(complete_forecasts)
-sum(complete_forecasts$Uncert_category == "contains")/sum(!complete_forecasts$Uncert_category %in% c("data_driven", "propagates", "assimilates"))
+complete_forecasts$Uncert_yn <- as.numeric(!complete_forecasts$Uncert_category == "no")
+#complete_forecasts$Uncert_yn <- as.numeric(complete_forecasts$Uncert_category %in% c("data_driven", "propagates", "assimilates"))
+sum(complete_forecasts$Uncert_category == "contains")/sum(complete_forecasts$Uncert_yn)
+sum(complete_forecasts$Uncert_yn)/nrow(complete_forecasts)
+
+sum(as.numeric(complete_forecasts$Uncert_obs_yn==1))/sum(complete_forecasts$Uncert_yn)
 
 complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
 complete_forecasts%>%
@@ -274,7 +287,7 @@ unique(cf$var)
 #prob_df$Tier[prob_df$var %in% c("End_user_yn", "Iterative_yn", "Automated_bin")] <- "Decision Support"
 #prob_df$Tier[prob_df$var %in% c("Drivers_published", "Archiving_yn","Null_yn", "Uncert_partition_yn")] <- "Science"
 
-labs = c("Develop automated forecasting workflows","Assess and report forecast skill", "Include data driven uncertainty","Make iterative forecasts","Archive forecasts", "Identify an end user","Make data available", "Use null model comparisons", "Partition uncertainty")
+labs = c("Automate forecasting workflows","Assess and report forecast skill", "Include uncertainty","Make iterative forecasts","Archive forecasts", "Identify an end user","Make data available", "Use null model comparisons", "Partition uncertainty")
 names(labs) = real_name
 prob_df$var = factor(prob_df$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
 cf$var = factor(cf$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
@@ -289,7 +302,7 @@ results$sig[results$Pr...z..<0.001] <- "***"
 results$var <- c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn")
 results$var = factor(results$var)
 
-jpeg("../Figures/best_practices_regression.jpg",res = 300,width = 8, height = 6, units = "in")
+jpeg("../Figures/best_practices_regression.jpg",res = 600,width = 6, height = 5, units = "in")
 plot = prob_df%>%
   ggplot(aes(x = x, y = probs))+
   geom_point(aes(y = value), data = cf, alpha = .15, color = "blue")+
@@ -299,7 +312,8 @@ plot = prob_df%>%
   facet_wrap(~var, labeller = labeller(var = labs))+
   theme_bw()+
   ylab("Probability")+
-  xlab("Year")
+  xlab("Year")+
+  theme(text=element_text(size=10,  family="Helvetica"))
 plot
 dev.off()
 plot
@@ -313,20 +327,22 @@ mean_dc<- round(mean(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T
 min(as.numeric(complete_forecasts$Data_coverage), na.rm = T)
 max(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T)
 median_dc <- round(median(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1)
-lines = data.frame(c(mean_dc, median_dc),c(2,2))
+lines = data.frame(c(mean_dc),c(38))
 colnames(lines) = c("x","y")
-lines$label = c(paste0("Mean = ", mean_dc, " years"), paste0("Median = ",median_dc, " years"))
+lines$label = c(paste0("Median = ",median_dc, " years \nMean = ", mean_dc, " years"))
 
-jpeg("../Figures/Years_of_data.jpeg", res = 300, width = 8, height = 4, units = "in")
+jpeg("../Figures/Years_of_data.jpeg", res = 600, width = 3, height = 3, units = "in")
 complete_forecasts%>%
   mutate(Year = as.numeric(Year))%>%
   ggplot()+
-  geom_histogram(aes(x = as.numeric(Data_coverage)/365),bins = 10)+
-  geom_vline(xintercept = c(mean_dc, median_dc), color = "white")+
-  geom_text(aes(x = x,y=y,label= label), data = lines, angle = 90, nudge_x = -2, hjust = 0,color = "white")+
-  xlab("Years of data used to create forecasting paper")+
+  geom_histogram(aes(x = as.numeric(Data_coverage)/365),bins = 20)+
+  geom_vline(xintercept = c(mean_dc, median_dc), color = "black")+
+  geom_text(aes(x = x,y=y,label= label), data = lines, nudge_x = 3, hjust = 0,vjust = 0,color = "grey20", size = 2.9)+
+  xlab("Years of data used to \ncreate forecasting paper")+
   ylab("Number of papers")+
-  theme_light()
+  scale_y_continuous(limits = c(0,46), expand = c(0, 0))+
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"))
 dev.off()
 
 ### Statistics
@@ -391,7 +407,7 @@ n = time_bin_plot%>%
   summarise(ns = n())%>%
   mutate(color = ns>20)
 
-jpeg("../Figures/timestep_heatmap.jpeg",res = 300,width = 7, height = 4, units = "in")
+jpeg("../Figures/timestep_heatmap.jpeg",res = 600,width = 6, height = 4, units = "in")
 library("RColorBrewer")
 cols <- brewer.pal(n = 9, name = "BuPu")
 time_bin_plot%>%
@@ -409,6 +425,31 @@ time_bin_plot%>%
         panel.grid.minor = element_blank())+
   scale_color_manual(values = c("gray40","gray90"))
 dev.off()
+
+jpeg("../Figures/timestep_heatmap_small.jpeg",res = 600,width = 3, height = 4, units = "in")
+library("RColorBrewer")
+cols <- brewer.pal(n = 9, name = "BuPu")
+time_bin_plot%>%
+  ggplot(aes(x = horiz_bin, y = time_bin), na.rm = T)+
+  geom_bin2d()+
+  xlab("Time horizon")+
+  ylab("Time step")+
+  scale_fill_gradientn(colors = cols)+
+  scale_x_discrete(drop  =F)+
+  scale_y_discrete(breaks = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years"), labels = c("< 1 day", "1 day","2 - 7 days","8 days\n- 1 month","> 1 month\n- 1 year","1 year","> 1 year\n- 5 years"),drop  =F)+
+  geom_text(aes(label = ns, color = color), data = n, show.legend = F, size = 3)+ #Can get rid of this by commenting out
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = "none")+ #c(0.05,1),
+        #legend.direction = "vertical",
+        #legend.justification = c("left","top"),
+        #legend.background = element_blank())+
+  scale_color_manual(values = c("gray40","gray90"))
+dev.off()
+
+
 time_bin$horiz_bin
 nrow(time_bin%>%filter(horiz_bin %in% c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
 nrow(time_bin%>%filter(horiz_bin %in% c("2 - 7 days"),time_bin %in% c("1 day")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100

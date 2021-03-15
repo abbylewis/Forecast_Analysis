@@ -11,7 +11,7 @@ library(readxl)
 data<-read.csv("../Data/second_review_complete.csv", row.names = NULL)
 data$Forecast[data$Forecast == "0?"]<-0
 class(data$Forecast)<-"numeric"
-found <- read.csv("papers_to_find_edited.csv")
+found <- read.csv("../Data/papers_to_find_edited.csv")
 data2 <- data%>%
   full_join(found, by = c("TI", "DI","AB","AU","PY","DT","Reviewer", "Comment","SecondReviewer"))
 data2[!is.na(data2$Found.)& data2$Found. == 1,c("NearTerm.x","Ecological.x","Forecast.x")]<-data2[!is.na(data2$Found.)& data2$Found. == 1,c("NearTerm.y","Ecological.y","Forecast.y")]
@@ -20,10 +20,8 @@ data <- data2%>%
 data$Forecast[!is.na(data$Only.Space.x)]<-0 #Change if we are keeping spatial forecasts
 to_venn <- data%>%
   filter(nchar(PaperUnavailable.x) == 0|Found. == 1)%>%
-  #filter(is.na(LA))%>%
   select(NearTerm,Ecological,Forecast)
 to_venn$NearTerm[to_venn$Forecast != 1] <- 0
-#to_venn[!is.na(to_venn$Reviewer) & to_venn$Reviewer != "mary lofton",]<-"z"
 to_venn[is.na(to_venn)]<-"z"
 to_venn[to_venn!=1]<-"z"
 
@@ -37,13 +35,12 @@ f <- to_venn$Forecast[to_venn$Forecast != "z"]
 
 venn.plot <- venn.diagram(
 	list("Near term" = n,"Ecological" = e,"Forecast" = f), 
-	"VennDiagrams/venn_data.tiff", cex = 2, cat.cex = 1.5, cat.dist = c(.03,0.1,0.06), cat.pos = c(320,40,160),margin = .1
+	"../Figures/VennDiagrams/venn_data.tiff", cex = 2, cat.cex = 1.5, cat.dist = c(.03,0.1,0.06), cat.pos = c(320,40,160),margin = .1
 	)
 
 summary(as.factor(data$Reviewer))
 summary(as.factor(data$SecondReviewer))
 data[data$Reviewer == "",]
-#data[!is.na(data$Only.Space)&data$Only.Space==1,]
 ```
 
 Creating spreadsheet for second round of review
@@ -205,11 +202,11 @@ write.table(search, "../Data/references.txt")
 Create spreadsheet for first abstract review of citing/cited papers
 ```{r}
 citing <- read_csv("../Data/papers_citing_forecasts_full.csv")
-citing_new <- citing[!citing$TI %in% second$TI,]
-citing_new <- citing_new %>%
+citing_new <- citing %>%
   filter(DT %in% c("Article", "Article; Book Chapter", "Article; Proceedings Paper","Article; Early Access","Article; Proceedings Paper","Proceedings Paper"))
+citing_new <- citing_new[!citing_new$TI %in% second$TI,]
 
-cited<- read_csv("referenced_papers_forecasts.csv")
+cited<- read_csv("../Data/referenced_papers_forecasts.csv")
 cited_new <- cited[!cited$TI %in% second$TI,]
 cited_new <- cited_new %>%
   filter(DT %in% c("Article", "Article; Proceedings Paper","Proceedings Paper"))
