@@ -6,7 +6,7 @@ output: html_document
 ---
 Creator: ASL
 
-Purpose: Process matrix analysis results. Create five figures: (1) the number of near-term ecological forecasts published per year, (2) a general description of ecological forecasting papers identified in this study, (3) the relationship between time step and time horizon of forecasting papers, (4) the total number of years of data used to develop each forecasting paper, (5) best practice adoption over time. Perform relevant calculations for matrix analysis results. Every code chunk cn be rund individually to perform the specified task.
+Purpose: Process matrix analysis results. Create five figures: (1) the number of near-term ecological forecasts published per year, (2) a general description of ecological forecasting papers identified in this study, (3) the relationship between time step and time horizon of forecasting papers, (4) the total number of years of data used to develop each forecasting paper, (5) best practice adoption over time. Perform relevant calculations for matrix analysis results. Every code chunk can be rund individually to perform the specified task.
 
 Section 1: Set up. Load required packages
 ```{r setup, include=FALSE}
@@ -350,6 +350,12 @@ nrow(time_bin%>%filter(horiz_bin %in% c("2 - 7 days"),time_bin %in% c("1 day")))
 # Number and percentage of papers that predicted one year into the future on a yearly timestep
 nrow(time_bin%>%filter(horiz_bin %in% c("1 year"),time_bin %in% c("1 year"))) #number
 nrow(time_bin%>%filter(horiz_bin %in% c("1 year"),time_bin %in% c("1 year")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100 #percentage
+
+#Percentage of papers that predict at a horizon of at least one year in the dataset as a whole
+sum(time_bin$horiz_bin %in% c("1 year","> 1 year - 5 years","> 5 years"))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
+#Percentage of papers that do not evaluate forecasts that predict at a horizon of at least one year
+time_bin$Forecast_eval_shown[time_bin$Forecast_eval == 0] <- 0
+sum(time_bin$horiz_bin %in% c("1 year","> 1 year - 5 years","> 5 years")&time_bin$Forecast_eval_shown==0)/nrow(time_bin%>%filter(!is.na(horiz_bin),Forecast_eval_shown==0))*100
 ```
 
 Section 6: Plot and calculate summary statistics for the temporal duration of data used to create a forecasting paper (summed over model development, training, evaluation, etc.) 
@@ -604,57 +610,96 @@ complete_forecasts$Uncert_yn <- as.numeric(!complete_forecasts$Uncert_category =
 sum(complete_forecasts$Uncert_dd)/nrow(complete_forecasts%>%filter(Uncert_yn == 1))*100 #Percentage of papers that report uncertainty that use data-driven sources
 ```
 
-Section 10: Forecast evaluation statistics
-
-Over 75% of forecasts that did not report forecast evaluation in the text predicted at forecast horizons of at least one year; in comparison, 52% predicted at forecast horizons of at least one year in the dataset as a whole. As noted in the Methods, the most commonly reported metric of forecast performance was R2.
+Section 10: Forecast evaluation statistics. Note: the percentage of papers that do not evaluate forecasts that predict at a horizon of at least one year is presented in section 5 above
 
 ```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
 
+#If the forecast is not evaluated, sometimes Forecast_eval_shown is set to NA. Here, we change those NAs to 0
+complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
+
+#Create a variable indicating whether RMSE was reported
+complete_forecasts$RMSE <- as.numeric(grepl("rmse|root mean squared error|root mean square error",tolower(complete_forecasts$Eval_metrics)))
+#Calculate the percent of papers that reported RMSE
+sum(complete_forecasts$RMSE)/sum(complete_forecasts$Forecast_eval_shown)*100
+
+#Create a variable indicating whether MAE was reported
+complete_forecasts$MAE <- as.numeric(grepl("mae|mean absolute error",tolower(complete_forecasts$Eval_metrics)))
+#Calculate the percent of papers that reported MAE
+sum(complete_forecasts$MAE)/sum(complete_forecasts$Forecast_eval_shown)*100
+
+#Statistics for the percent of papers that use R2 are in the R2 analysis code file
 ```
-
-Of the papers that mentioned a specific end user (n = 35), 31% mentioned that the end user aided in forecast development and 46% mentioned that forecasts were in use by the end user. 
-
-However, it is rare for a paper to include any explicit mention of ethical considerations made in designing the forecast (5% of papers overall; 25% of forecasts that are in use by an end user)
 
 Section 11: End user statistics and ethical considerations
 ```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Percentage of forecasts that mention a specific end user that say the end user aided in forecast development
 sum(complete_forecasts$End_user_yn==1&complete_forecasts$End_user_partnership==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1,na.rm = T)
+#Percentage of forecasts that mention a specific end user that say forecasts are in use by the end user
 sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1,na.rm = T)
+#Percentage of papers that mention ethical considerations made in designing the forecast
 sum(complete_forecasts$Ethical_considerations ==1, na.rm = T)/nrow(complete_forecasts)
+#Percentage of forecasts that are in use by an end user that mention ethical considerations made in designing the forecast
 sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1&complete_forecasts$Ethical_considerations==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)
 ```
-
-Data assimilation for iterative forecasts most often updated initial conditions but not parameters of the model (65% of iterative forecasts only updated initial conditions). 
 
 Section 12: Data assimilation statistics
 ```{r}
 #Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
 
+complete_forecasts$it_ic <- complete_forecasts$Iterative_yn==1&complete_forecasts$DA_type%in%c("update IC","autoregressive, so new observed data become predictors for the next timestep","UNK","NA","autoregressive, uses previous observations to predict value at next timestep","previous ten days of driver data used as predictor in model, so it is updating iteratively") #Set up a variable for iterative workflows that do more than just update initial conditions
+
+#Percent of iterative workflows that only updated initial conditions of the model
+sum(complete_forecasts$it_ic)/sum(complete_forecasts$Iterative_yn)*100
 ```
 
 Section 13: Uncertainty partitioning statistics
-
-all three papers that partitioned uncertainty were published in or after 2014
-All of the papers that partitioned uncertainty (n = 3) quantified the influence of process, initial condition, and parameter uncertainty, and only one partitioned driver uncertainty. Process uncertainty dominated total uncertainty for two papers, while initial condition uncertainty dominated in the third paper. 
 ```{r}
 #Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
 
+#Year that papers partitioning uncertainty were published
+complete_forecasts$Year[complete_forecasts$Uncert_partition_yn==1]
+#Number of papers that partition initial condition uncertainty
+sum(complete_forecasts$Uncert_ic_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition parameter uncertainty
+sum(complete_forecasts$Uncert_param_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition process uncertainty
+sum(complete_forecasts$Uncert_process_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition driver uncertainty
+sum(complete_forecasts$Uncert_driver_yn[complete_forecasts$Uncert_partition_yn==1])
+#Dominant source of uncertainty for papers that partition uncertainty
+complete_forecasts$Uncert_dom[complete_forecasts$Uncert_partition_yn==1]
 ```
 
 Section 14: Forecast archiving statistics
-For papers that described forecast archiving (n = 15), the most common repository for archived forecasts was Zenodo (used in 20% of papers that archive forecasts); other papers used websites specific to the forecasting project to archive their forecasts. 
 ```{r}
 #Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
 
+#Number of papers that archive forecasts
+sum(complete_forecasts$Archiving_yn==1)
+#Percentage of papers that archive forecasts on Zenodo
+sum(grepl("zenodo",complete_forecasts$Repository[complete_forecasts$Archiving_yn==1],ignore.case = T))/sum(complete_forecasts$Archiving_yn==1)*100
 ```
 
 Section 15: Null model statistics
-Of the papers that used null models in this study (n = 21), 62% used persistence null models and 48% used climatology null models. Two papers used both persistence and climatology null models. 
 ```{r}
 #Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
 
+#Number of papers that use a null model
+sum(complete_forecasts$Null_yn)
+
+#Percentage of papers that use a persistence null model
+sum(grepl("persistence",complete_forecasts$Null_type, ignore.case = T))/sum(complete_forecasts$Null_yn)
+#Percentage of papers that use a climatology null model
+sum(grepl("climatology",complete_forecasts$Null_type, ignore.case = T))/sum(complete_forecasts$Null_yn)
+#Number of papers that use both persistence and climatology null models
+sum(grepl("persistence",complete_forecasts$Null_type[grepl("climatology",complete_forecasts$Null_type, ignore.case = T)], ignore.case = T))
 ```

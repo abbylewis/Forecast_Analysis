@@ -42,6 +42,11 @@ write.csv(r2s, "../Data/R2_dataset_for_EDI.csv", row.names = F)
 Load and format data
 ```{r}
 r2s = read.csv("../Data/R2_dataset_for_EDI.csv")
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+#If the forecast is not evaluated, sometimes Forecast_eval_shown is set to NA. Here, we change those NAs to 0
+complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
+length(unique(r2s$Title[!is.na(r2s$R2_value)]))
+length(unique(r2s$Title[!is.na(r2s$R2_value)]))/sum(complete_forecasts$Forecast_eval_shown)*100
 
 # number of papers with 1 <- 7 day horizons
 length(unique(r2s$Title))
