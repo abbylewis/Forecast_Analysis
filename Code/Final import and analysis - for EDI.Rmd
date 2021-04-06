@@ -4,29 +4,23 @@ author: "Abby Lewis"
 date: "10/29/2020"
 output: html_document
 ---
+Creator: ASL
 
+Purpose: Process matrix analysis results. Create five figures: (1) the number of near-term ecological forecasts published per year, (2) a general description of ecological forecasting papers identified in this study, (3) the relationship between time step and time horizon of forecasting papers, (4) the total number of years of data used to develop each forecasting paper, (5) best practice adoption over time. Perform relevant calculations for matrix analysis results. Every code chunk cn be rund individually to perform the specified task.
+
+Section 1: Set up. Load required packages
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(googlesheets4)
-library(googledrive)
+#Load required packages
 library(tidyverse)
 library(lubridate)
 library(colorspace)
 ```
 
-TO DO:
-- Add journal to complete_dataset file
-- Delete the section that loads and formats data
-
-Papers per year
+Section 2: Plot the number of near-term ecological forecasting papers published per year from 1932-2019
 ```{r}
+#Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv") #Load data
-sum(complete_forecasts$Ethical_considerations ==1, na.rm = T)/nrow(complete_forecasts)
-sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1,na.rm = T)
-sum(complete_forecasts$End_user_yn==1&complete_forecasts$End_user_partnership==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1,na.rm = T)
-sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1&complete_forecasts$Ethical_considerations==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)
-sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1&complete_forecasts$Ethical_considerations==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)
-
 #Plot the number of papers published per year
 jpeg("../Figures/Pubs_year_noEco.jpeg", width = 3, height = 3, units = "in",res = 600)
 complete_forecasts%>%
@@ -39,6 +33,138 @@ complete_forecasts%>%
   scale_x_continuous(limits = c(1930,2020), expand = c(0,0))+
   theme(text=element_text(size=10,  family="Helvetica"))
 dev.off()
+```
+
+Section 3: Plot the distribution of forecast sites worldwide, across scales, and across variable types
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+
+###
+# Panel A: Map
+###
+
+#Gather background map data
+WorldData <- map_data('world') %>% 
+  fortify()
+
+#Load colorblind-friendly palette
+safe_colorblind_palette <- c("#661100", "#AA4499", "#DDCC77", "#117733","#44AA99","#999933","#332288", "#88CCEE", "#CC6677","#888888")
+colors = lighten(safe_colorblind_palette, amount = .2) #Lighten the colors of the colorblind-friendly palette
+
+#Create separate dataframe for mapping
+for_map <- complete_forecasts
+#Create a vector of coordinates 
+coords <- for_map$Coords
+#Problem this loop solves: multipoint forecasts have multiple coordinate pairs separated by a semicolon. Here, we add columns to the for_map dataframe separating out all coordinates for a given paper
+for(i in 1:(max(str_count(for_map$Coords, ";"), na.rm = T)+1)){
+  stops <- regexpr(pattern = ";",coords)
+  stops[stops == -1] <- 10000L
+  coords_i <- substr(coords, start = 1, stop = stops-1)
+  for_map[nchar(coords_i)>0&!is.na(coords_i), paste0("Long",i)] <- as.numeric(sub("-*[0-9]+.[0-9]+,","",coords_i))[nchar(coords_i)>0&!is.na(coords_i)]
+  for_map[nchar(coords_i)>0&!is.na(coords_i), paste0("Lat",i)] <- as.numeric(sub(", -*[0-9]+.[0-9]+","",coords_i))[nchar(coords_i)>0&!is.na(coords_i)]
+  inds <- regexpr(pattern = ";",coords)
+  inds[inds == -1]<-NA
+  coords <- substr(coords, start = inds + 2, stop = 10000L)
+}
+#The previous loop added numerous columns of latitude and longitude to the for_map dataframe. Here we gather all of those columns into one column for latitude and one column for longitude, creating a longer dataframe
+for_map2 = for_map%>%
+  pivot_longer(cols = num_range("Lat", 1:max(str_count(for_map$Coords, ";")+1, na.rm = T)), names_to = "Lat_num", values_to= "Lat")%>%
+  pivot_longer(cols = num_range("Long", 1:max(str_count(for_map$Coords, ";")+1, na.rm = T)), names_to = "Long_num", values_to = "Long")%>%
+  filter(sub("[a-z]+","",Lat_num)==sub("[a-z]+","",Long_num, ""))%>%
+  filter(!Spat_scale == "global")
+
+#We want to plot a different symbol for regional and national forecasts than for point and multipoint forecasts. Here, we create a grouping variable that specifies whether (1) or not (0) the forecast scale is regional/national 
+for_map2$Region <- NA
+for_map2$Region[for_map2$Spat_scale %in% c("regional","national")] <- 1
+for_map2$Region[for_map2$Spat_scale %in% c("point","multipoint")]<-0
+
+#Create a world map of the forecast sites in this analysis
+map <- ggplot() +
+  geom_map(data = WorldData, map = WorldData,
+                  aes(map_id=region),
+                  fill = "white", colour = "#7f7f7f", size=0.5)+
+  coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim = c(-90,90))+
+  geom_point(data = for_map2%>%filter(Region == 1), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", size = 6, alpha  =.3, stroke = .5, show.legend = F)+
+  geom_point(data = for_map2%>%filter(Region == 0), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", size = 2.5, alpha  =1, stroke = .5, show.legend = F)+
+  geom_point(aes(x = c(-300,-300), y=c(-300,-300),size = c("point or multipoint","regional or national"), alpha = c("point or multipoint","regional or national")), shape = 21, color = "white",fill = "grey20")+
+  xlab(NULL) + ylab(NULL) +
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  theme_void()+
+  theme(legend.title = element_blank(), 
+    legend.position = c(.15,.4),
+    text=element_text(size=10,  family="Helvetica"),
+    plot.margin = margin(0, 0, 0, 0, "cm"),
+    legend.box.background = element_rect(fill = "white", color = "white"))+
+  guides(size = guide_legend(override.aes = list(size = c(3,6))),alpha = guide_legend(override.aes = list(alpha = c(1,.3))))
+
+
+###
+# Panel B: Spatial scale barplot
+###
+
+#Make "ecosystem" a factor, enabling us to order the levels as we choose
+complete_forecasts$Ecosystem <- factor(complete_forecasts$Ecosystem, levels = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other"))
+#Make "Spat_scale" (the spatial scale of the forecast) a factor, enabling us to order the levels as we choose
+complete_forecasts$Spat_scale<- factor(complete_forecasts$Spat_scale, levels = c("point","multipoint","regional","national","global"))
+#Plot the distribution of papers across spatial scales, with colors indicating ecosystem type
+extent <- complete_forecasts%>%
+  ggplot(aes(x = Spat_scale, fill = Ecosystem))+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  xlab("Spatial extent")+
+  geom_bar(show.legend = F)+
+  ylab("Papers (n)")+
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"))
+
+
+###
+# Generate legend for combined plot
+###
+
+# To generate the legend for the combined plot with the correct formatting, we create a "dummy" plot that will not be included and extract the legend from this plot
+
+#Function to extract legend
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+#"Dummy" plot from which the legend will be extracted
+class <- complete_forecasts%>%
+  ggplot(aes(x = Class, fill = Ecosystem))+
+  geom_bar()+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem",guide = guide_legend(position = "bottom", nrow = 2))+
+  theme(text=element_text(size=10,  family="Helvetica"))
+#The extracted legend is saved as "legend_fill"
+legend_fill <- g_legend(class)
+
+
+###
+# Panel C: Forecast variable class barplot
+###
+
+#Plot the distribution of forecasts across "class" (i.e., biogeochemical, organismal, or both)
+class <- complete_forecasts%>%
+  ggplot(aes(x = Class, fill = Ecosystem))+
+  geom_bar(show.legend = F)+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  ylab("Papers (n)")+
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"))
+
+library(ggpubr)
+jpeg("../Figures/Map_composite.jpeg",width = 6, height = 5.5, units = "in", res = 600)
+ggarrange(map, ggarrange(extent, class, labels = c("B","C"), label.y = c(1.2,1.2), nrow = 1, widths = c(1.4,1)), legend_fill, nrow = 3, heights = c(6.2,3,1.5), labels = "A", align = "h")
+dev.off()
+
+### Summary statistics
+north_analysis <- for_map2$Lat[!is.na(for_map2$Lat)]
+sum(north_analysis>0)/length(north_analysis)
+sum(complete_forecasts$Spat_scale=="regional")/nrow(complete_forecasts)
+sum(complete_forecasts$Class=="organismal"|complete_forecasts$Class=="both")/nrow(complete_forecasts)
+sum(complete_forecasts$Ecosystem=="agricultural")/nrow(complete_forecasts)
 ```
 
 Uncertainty type statistics
@@ -76,119 +202,17 @@ Journals and languages represented
 length(unique(journals$Source)) #114 different journals
 ```
 
-Map
-```{r}
-complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
-WorldData <- map_data('world') %>% 
-  fortify()
-safe_colorblind_palette <- c("#661100", "#AA4499", "#DDCC77", "#117733","#44AA99","#999933","#332288", "#88CCEE", "#CC6677","#888888")
 
-
-for_map <- complete_forecasts
-coords <- for_map$Coords
-for(i in 1:(max(str_count(for_map$Coords, ";"), na.rm = T)+1)){
-  stops <- regexpr(pattern = ";",coords)
-  stops[stops == -1] <- 10000L
-  coords_i <- substr(coords, start = 1, stop = stops-1)
-  for_map[nchar(coords_i)>0&!is.na(coords_i), paste0("Long",i)] <- as.numeric(sub("-*[0-9]+.[0-9]+,","",coords_i))[nchar(coords_i)>0&!is.na(coords_i)]
-  for_map[nchar(coords_i)>0&!is.na(coords_i), paste0("Lat",i)] <- as.numeric(sub(", -*[0-9]+.[0-9]+","",coords_i))[nchar(coords_i)>0&!is.na(coords_i)]
-  inds <- regexpr(pattern = ";",coords)
-  inds[inds == -1]<-NA
-  coords <- substr(coords, start = inds + 2, stop = 10000L)
-}
-
-for_map2 = for_map%>%
-  pivot_longer(cols = num_range("Lat", 1:max(str_count(for_map$Coords, ";")+1, na.rm = T)), names_to = "Lat_num", values_to= "Lat")%>%
-  pivot_longer(cols = num_range("Long", 1:max(str_count(for_map$Coords, ";")+1, na.rm = T)), names_to = "Long_num", values_to = "Long")%>%
-  filter(sub("[a-z]+","",Lat_num)==sub("[a-z]+","",Long_num, ""))%>%
-  filter(!Spat_scale == "global")
-
-colors = lighten(safe_colorblind_palette, amount = .2)
-
-for_map2$Region <- NA
-for_map2$Region[for_map2$Spat_scale %in% c("regional","national")] <- 1
-for_map2$Region[for_map2$Spat_scale %in% c("point","multipoint")]<-0
-
-map <- ggplot() +
-  geom_map(data = WorldData, map = WorldData,
-                  aes(map_id=region),
-                  fill = "white", colour = "#7f7f7f", size=0.5)+
-  coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim = c(-90,90))+
-  geom_point(data = for_map2%>%filter(Region == 1), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", show.legend = F, size = 6, alpha  =.3, stroke = .5)+
-  geom_point(data = for_map2%>%filter(Region == 0), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", show.legend = F, size = 3, alpha  =1, stroke = .5)+
-  theme_bw() + xlab(NULL) + ylab(NULL) +
-  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
-  theme(
-    plot.background = element_blank(),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.border = element_blank(),
-    axis.ticks = element_blank(),
-    axis.text.x = element_blank(),
-    axis.text.y = element_blank(),
-    legend.position = "bottom",
-    legend.direction = "horizontal")+
-  guides(fill = F)+
-  theme(text=element_text(size=10,  family="Helvetica"),
-        plot.margin = margin(0, 0, 0, 0, "cm"))
-
-
-complete_forecasts$Ecosystem[is.na(complete_forecasts$Ecosystem)]<-"NA"
-complete_forecasts$Ecosystem <- factor(complete_forecasts$Ecosystem, levels = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other","NA"))
-complete_forecasts$Spat_scale<- factor(complete_forecasts$Spat_scale, levels = c("point","multipoint","regional","national","global"))
-extent <- complete_forecasts%>%
-  ggplot(aes(x = Spat_scale, fill = Ecosystem))+
-  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
-  xlab("Spatial extent")+
-  geom_bar(show.legend = F)+
-  ylab("Number of papers")+
-  theme_light()+
-  theme(text=element_text(size=10,  family="Helvetica"))
-
-class <- complete_forecasts%>%
-  ggplot(aes(x = Class, fill = Ecosystem))+
-  geom_bar()+
-  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem",guide = guide_legend(position = "bottom", nrow = 2))+
-  theme(text=element_text(size=10,  family="Helvetica"))
-
-g_legend<-function(a.gplot){
-  tmp <- ggplot_gtable(ggplot_build(a.gplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)}
-
-legend_fill <- g_legend(class)
-
-class <- complete_forecasts%>%
-  ggplot(aes(x = Class, fill = Ecosystem))+
-  geom_bar(show.legend = F)+
-  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
-  ylab("Number of papers")+
-  theme_light()+
-  theme(text=element_text(size=10,  family="Helvetica"))
-
-library(ggpubr)
-jpeg("../Figures/Map_composite.jpeg",width = 6, height = 5.5, units = "in", res = 600)
-ggarrange(map, ggarrange(extent, class, labels = c("B","C"), label.y = c(1.2,1.2), nrow = 1, widths = c(1.4,1)), legend_fill, nrow = 3, heights = c(6.2,3,1.5), labels = "A", align = "h")
-dev.off()
-
-### Summary statistics
-north_analysis <- for_map2$Lat[!is.na(for_map2$Lat)]
-sum(north_analysis>0)/length(north_analysis)
-sum(complete_forecasts$Spat_scale=="regional")/nrow(complete_forecasts)
-sum(complete_forecasts$Class=="organismal"|complete_forecasts$Class=="both")/nrow(complete_forecasts)
-sum(complete_forecasts$Ecosystem=="agricultural")/nrow(complete_forecasts)
-```
 
 Logistic regression
 ```{r}
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
 complete_forecasts$it_no_update_ic <- complete_forecasts$Iterative_yn==1&!complete_forecasts$DA_type%in%c("update IC","autoregressive, so new observed data become predictors for the next timestep","UNK","NA","autoregressive, uses previous observations to predict value at next timestep","previous ten days of driver data used as predictor in model, so it is updating iteratively")
 #complete_forecasts$Iterative_yn<-complete_forecasts$it_no_update_ic
-complete_forecasts$DA_type[complete_forecasts$it_no_update_ic]
 complete_forecasts$Automated_bin <- 0
 complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1
 complete_forecasts$Uncert_yn <- as.numeric(!complete_forecasts$Uncert_category == "no")
+
 #complete_forecasts$Uncert_yn <- as.numeric(complete_forecasts$Uncert_category %in% c("data_driven", "propagates", "assimilates"))
 sum(complete_forecasts$Uncert_category == "contains")/sum(complete_forecasts$Uncert_yn)
 sum(complete_forecasts$Uncert_yn)/nrow(complete_forecasts)
@@ -198,14 +222,23 @@ sum(as.numeric(complete_forecasts$Uncert_obs_yn==1))/sum(complete_forecasts$Unce
 complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
 complete_forecasts%>%
   summarize(aut = sum(Automated_bin)/n(),
+            aut_n = sum(Automated_bin),
             eva = sum(Forecast_eval_shown)/n(),
+            eva_n = sum(Forecast_eval_shown),
             unc = sum(Uncert_yn)/n(),
+            unc_n = sum(Uncert_yn),
             ite = sum(Iterative_yn)/n(),
+            ite_n = sum(Iterative_yn),
             arc = sum(Archiving_yn)/n(),
+            arc_n = sum(Archiving_yn),
             use = sum(End_user_yn)/n(),
+            use_n = sum(End_user_yn),
             dat = sum(Drivers_published)/n(),
+            dat_n = sum(Drivers_published),
             nul = sum(Null_yn)/n(),
-            prt = sum(Uncert_partition_yn)/n())
+            nul_n = sum(Null_yn),
+            prt = sum(Uncert_partition_yn)/n(),
+            prt_n = sum(Uncert_partition_yn))
 
 total = complete_forecasts%>%
   group_by(Title)%>%
@@ -219,7 +252,6 @@ total = complete_forecasts%>%
             nul = sum(Null_yn)/n(),
             prt = sum(Uncert_partition_yn)/n(),
             Total = sum(aut,eva,unc,ite,arc,use,dat,nul,prt))
-hist(total$Total, breaks = 8)
 summary(as.factor(total$Total))
 mean(total$Total)
 median(total$Total)
@@ -316,7 +348,6 @@ plot = prob_df%>%
   theme(text=element_text(size=10,  family="Helvetica"))
 plot
 dev.off()
-plot
 ```
 
 
@@ -390,16 +421,16 @@ time_bin$horiz_bin[time_bin$Horiz_days > 31 & time_bin$Horiz_days < 365] <- "> 1
 time_bin$horiz_bin[time_bin$Horiz_days == 365] <- "1 year"
 time_bin$horiz_bin[time_bin$Horiz_days > 365 & time_bin$Horiz_days <= 365*5] <- "> 1 year - 5 years"
 time_bin$horiz_bin[time_bin$Horiz_days > 365*5] <- "> 5 years"
-time_bin$horiz_bin <- factor(time_bin$horiz_bin, levels = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years"))
+time_bin$horiz_bin <- factor(time_bin$horiz_bin, levels = c( "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years"))
 
-time_bin$time_bin <- factor(time_bin$time_bin, levels = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years"))
+time_bin$time_bin <- factor(time_bin$time_bin, levels = c("< 1 day","1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years"))
 
 time_bin_plot = time_bin%>%
   filter(!is.na(horiz_bin),
          !is.na(time_bin))
 
 times = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years")
-horiz = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years")
+horiz = c("1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years")
 fix = data.frame(horiz_bin = rep(times, length(horiz)), time_bin = rep(horiz, each = length(times)))
 
 n = time_bin_plot%>%
@@ -426,32 +457,39 @@ time_bin_plot%>%
   scale_color_manual(values = c("gray40","gray90"))
 dev.off()
 
-jpeg("../Figures/timestep_heatmap_small.jpeg",res = 600,width = 3, height = 4, units = "in")
+jpeg("../Figures/timestep_heatmap_small.jpeg",res = 600,width = 3, height = 3, units = "in")
 library("RColorBrewer")
 cols <- brewer.pal(n = 9, name = "BuPu")
 time_bin_plot%>%
   ggplot(aes(x = horiz_bin, y = time_bin), na.rm = T)+
   geom_bin2d()+
-  xlab("Time horizon")+
-  ylab("Time step")+
+  xlab("Time horizon (days)")+
+  ylab("Time step (days)")+
   scale_fill_gradientn(colors = cols)+
-  scale_x_discrete(drop  =F)+
-  scale_y_discrete(breaks = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years"), labels = c("< 1 day", "1 day","2 - 7 days","8 days\n- 1 month","> 1 month\n- 1 year","1 year","> 1 year\n- 5 years"),drop  =F)+
+  scale_x_discrete(breaks = c( "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years","> 5 years"), labels = c("1","2 - 7","8 - 31 ","32 - 365","365","366 - 1825", ">1825"),drop  =F)+
+  scale_y_discrete(breaks = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years"), labels = c("< 1", "1","2 - 7","8 - 31 ","32 - 365","365","366 - 1825"),drop  =F)+
   geom_text(aes(label = ns, color = color), data = n, show.legend = F, size = 3)+ #Can get rid of this by commenting out
   theme_light()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
-        legend.position = "none")+ #c(0.05,1),
-        #legend.direction = "vertical",
-        #legend.justification = c("left","top"),
-        #legend.background = element_blank())+
-  scale_color_manual(values = c("gray40","gray90"))
+        legend.position = "none")+
+  scale_color_manual(values = c("gray40","gray100"))
 dev.off()
 
 
-time_bin$horiz_bin
 nrow(time_bin%>%filter(horiz_bin %in% c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
 nrow(time_bin%>%filter(horiz_bin %in% c("2 - 7 days"),time_bin %in% c("1 day")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
 nrow(time_bin%>%filter(horiz_bin %in% c("1 year"),time_bin %in% c("1 year")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
+
+summary(time_bin_plot$horiz_bin)
+```
+
+
+```{r}
+sum(complete_forecasts$Ethical_considerations ==1, na.rm = T)/nrow(complete_forecasts)
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1,na.rm = T)
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$End_user_partnership==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1,na.rm = T)
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1&complete_forecasts$Ethical_considerations==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1&complete_forecasts$Ethical_considerations==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)
 ```

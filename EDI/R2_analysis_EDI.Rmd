@@ -33,9 +33,7 @@ r2s$Horiz_days[grepl("horiz",r2s$Modifications.needed, ignore.case = T)] <- as.n
 r2s$Var[is.na(r2s$Var)|nchar(r2s$Var)==0]<-r2s$Vars_ident[is.na(r2s$Var)|nchar(r2s$Var)==0]
 
 r2s = r2s%>%
-  select(Title, DOI, Authors, Year, Horiz_days, Var, Notes, R2_value, Model_group, Site_or_year_group)%>%
-  rename(doi = DOI)
-r2s$Horiz_days[r2s$Horiz_days=="UNK"] <- NA
+  select(Title, DOI, Authors, Year, Horiz_days, Var, Notes, R2_value, Model_group, Site_or_year_group)
 r2s = r2s[!grepl("not actually reported",r2s$Notes),]
 write.csv(r2s, "../Data/R2_dataset_for_EDI.csv", row.names = F)
 
@@ -43,7 +41,12 @@ write.csv(r2s, "../Data/R2_dataset_for_EDI.csv", row.names = F)
 
 Load and format data
 ```{r}
-r2s = read.csv("../Data/R2_dataset_for_EDI.txt", sep = "\t")
+r2s = read.csv("../Data/R2_dataset_for_EDI.csv")
+
+# number of papers with 1 <- 7 day horizons
+unique(r2s$Title)
+unique(r2s$Title[as.numeric(r2s$Horiz_days)<8])
+
 r2s <- r2s%>%
   group_by_at(setdiff(names(r2s), c("Notes","R2_value","Site_or_year_group")))%>% #"Site_or_year_group","Model_group"
   summarize(R2_value = mean(as.numeric(R2_value),na.rm = T))%>%
@@ -191,7 +194,7 @@ all = medians%>%
   ggplot(aes(x=Horiz_days,y=median, color = name))+
   geom_line()+
   theme_light()+
-  xlab("Horiz (days")+
+  xlab("Horiz (days)")+
   ylim(0,1)+
   ylab("Median R2")+
   theme(axis.text.y = element_blank(),
@@ -209,6 +212,8 @@ ggarrange(c,phy,p,e,all, nrow = 1, widths = c(1.2,1,1,1,1.2))
 
 stats = stats%>%
   filter(Horiz_days<=7)
+#stats$name<-factor(stats$name, levels = c("ET","Pollen","Phyto","Chla"))
+summary(stats$name)
 model = rq(R2_value~name*Horiz_days, data = stats, tau = 0.5)
 set.seed(47)
 summary(model, se = "boot", bsmethod= "wild") #Can also try xy, but "wild" is justified by heteroskedasticity of chla
@@ -228,7 +233,7 @@ all2 = data.frame(horiz = 1:7,ET = et,Chl = chla,Phyto = phyto,Pollen = pollen)%
   ggplot(aes(x = horiz, y = value, color = name))+
   geom_line()+
   theme_light()+
-  xlab("Horiz (days")+
+  xlab("Horiz (days)")+
   ylim(0,1)+
   ylab("Median R2")+
   theme(axis.text.y = element_blank(),

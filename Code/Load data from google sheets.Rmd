@@ -7,6 +7,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(googlesheets4)
+library(googledrive)
+library(tidyverse)
 ```
 
 ```{r}
@@ -93,7 +96,20 @@ data_full <- data1%>% select(TI, SO)%>%
   rename(Source = SO)
 
 journals = complete_forecasts%>%
-  left_join(data_full, by = c("Title"="TI"))
+  left_join(data_full, by = c("Title"="TI"))%>%
+  select(Title, DOI, Authors, Year, Source, Coauthors_nonAc, Coauthors_gov, Spat_scale, Coords, Ecosystem, Class, Vars_n, Vars_ident, Model_dim, Model_type, Model_desc, Met_covar_yn, Phys_covar_yn, Bio_covar_yn, Chem_covar_yn, Random_effects_yn, Latent_vars_yn, Ens_within_model_yn, Ens_members_n, Ens_of_models_yn, Models_n, Multiple_approaches_yn, Approach_n, Null_yn, Null_n, Null_type, Horiz_days, Time_step_days, How_often_days, Spat_step, Training_yn, Iterative_yn, DA_type, DA_latency_days, Uncert_category, Uncert_technique, Uncert_source, Uncert_obs_yn, Uncert_partition_yn, Uncert_ic_yn, Uncert_driver_yn, Uncert_param_yn, Uncert_process_yn, Uncert_other_yn, Uncert_dom, Uncert_describe, Scenarios_yn, Scenarios_n, Forecast_eval, Forecast_eval_shown, Eval_metrics, Eval_mult_horiz_yn, Cycles_eval_n, Cycles_total_n, Forecast_horiz_null_days, Driver_lat_max_days, Driver_lat_min_days, Data_coverage, Automated_yn, Archiving_yn, Repository, Drivers_published, End_user_yn, End_user_partnership, Used_by_stakeholder_yn, Delivery_method_yn, Delivery_method, Ethical_considerations)%>%
+  rename(doi = DOI)
+complete_forecasts$End_user_partnership[complete_forecasts$End_user_yn ==0]<-NA
+
+write.csv(journals, "../Data/complete_dataset_with_source_full.csv", row.names = F)
+
+journals = journals%>%
+  select(-Coauthors_nonAc, -Coauthors_gov, -Vars_n, -Random_effects_yn, -Latent_vars_yn, -How_often_days, -Spat_step, -Training_yn, -DA_latency_days, -Uncert_technique, -Scenarios_yn, -Scenarios_n, -Cycles_eval_n, -Cycles_total_n, -Driver_lat_max_days, -Driver_lat_min_days)
+
+journals$Ens_of_models_yn[journals$Ens_of_models_yn == "UNK"] <- NA
+journals$Models_n[journals$Models_n == "UNK"] <- NA
+journals$Forecast_horiz_null_days[journals$Forecast_horiz_null_days == "UNK"] <- NA
+journals$Data_coverage[journals$Data_coverage=="UNK"]<-NA
 
 write.csv(journals, "../Data/complete_dataset_with_source.csv", row.names = F)
 ```

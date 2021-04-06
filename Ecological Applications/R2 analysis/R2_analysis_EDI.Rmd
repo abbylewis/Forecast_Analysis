@@ -1,0 +1,188 @@
+---
+title: "R2 analysis"
+author: "Abby Lewis"
+date: "9/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(plotly)
+library(ggpubr)
+library(quantreg)
+```
+
+Load and format data
+```{r}
+r2s = read.csv("R2_dataset_for_EDI.csv")
+
+# number of papers with 1 <- 7 day horizons
+length(unique(r2s$Title))
+length(unique(r2s$Title[as.numeric(r2s$Horiz_days)<8]))
+
+r2s <- r2s%>%
+  group_by_at(setdiff(names(r2s), c("Notes","R2_value","Site_or_year_group")))%>% #"Site_or_year_group","Model_group"
+  summarize(R2_value = mean(as.numeric(R2_value),na.rm = T))%>%
+  filter(!is.na(as.numeric(R2_value)))
+
+r2s$Chla <- 0
+r2s$Chla[grepl("chl",r2s$Var, ignore.case = T)]<-1
+
+r2s$Fish <- 0
+r2s$Fish[grepl("anchovy|mackarel|sardine|bonito|hake|fish|bluefin",r2s$Var, ignore.case = T)]<-1
+
+r2s$Phyto <- 0
+r2s$Phyto[grepl("cyano|oscillatoria|asterionella|desmus|anabena|aphaniz|microcyst|synecho|cyclo|stephanodiscus|raciborskii|circinale",r2s$Var, ignore.case = T)]<-1
+
+r2s$Pollen <- 0
+r2s$Pollen[grepl("pollen",r2s$Var, ignore.case = T)]<-1
+
+r2s$Plants <- 0
+r2s$Plants[grepl("corn|soybeans|rice|NDVI|evapotrans",r2s$Var, ignore.case = T)]<-1
+
+r2s$ET <- 0
+r2s$ET[grepl("evapotrans",r2s$Var, ignore.case = T)]<-1
+
+r2s$Bird <- 0
+r2s$Bird[grepl("turkey|bird|grouse|capercaill|grouse",r2s$Var, ignore.case = T)]<-1
+
+r2s$OtherAnimal <- 0
+r2s$OtherAnimal[grepl("porpoise|lobster|lolignid|ommastrephids|species",r2s$Var, ignore.case = T)]<-1
+
+r2s$first <- as.numeric(as.factor(r2s$Title))
+
+```
+
+Figure for paper
+```{r}
+safe_colorblind_palette <- c("#661100", "#AA4499", "#DDCC77", "#117733","#44AA99","#999933","#332288", "#88CCEE", "#CC6677","#888888")
+r2s = r2s%>%
+  filter(!is.na(as.numeric(Horiz_days)))
+
+c = r2s%>%
+  filter(Chla ==1,
+         as.numeric(Horiz_days) <8)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
+  geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15,size = 0.9)+
+  xlab("Horiz (days)")+
+  ylab("R2 value")+
+  labs(color = "ID")+
+  labs(title = "Chl", subtitle = "(n = 8)")+
+  ylim(0,1)+
+  theme_light()+
+  scale_color_manual(values = safe_colorblind_palette)+
+  scale_shape_manual(values = c(16,17,15,1,2,0,3,7,8,4))+
+  theme(legend.position = "none",
+        text=element_text(size=10,  family="Helvetica"))
+  
+p = r2s%>%
+  filter(Pollen == 1,
+         as.numeric(Horiz_days) <8)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
+  geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15, size = 0.9)+
+  labs(title = "Pollen", subtitle = "(n = 3)")+
+  xlab("Horiz (days)")+
+  labs(color = "ID")+
+  ylim(0,1)+
+  theme_light()+
+  scale_color_manual(values = safe_colorblind_palette)+
+  scale_shape_manual(values = c(16,17,15,1,2,0,3,7,8,4))+
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none",
+        text=element_text(size=10,  family="Helvetica"))
+
+e = r2s%>%
+  filter(ET == 1,
+         as.numeric(Horiz_days) <8)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
+  geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15, size = 0.9)+
+  labs(title = "ET", subtitle = "(n = 10)")+
+  ylab("R2")+
+  xlab("Horiz (days)")+
+  labs(color = "ID")+
+  ylim(0,1)+
+  theme_light()+
+  scale_color_manual(values = safe_colorblind_palette)+
+  scale_shape_manual(values = c(16,17,15,1,2,0,3,7,8,4))+
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none",
+        text=element_text(size=10,  family="Helvetica"))
+
+phy = r2s%>%
+  filter(Phyto ==1,
+         as.numeric(Horiz_days) <8)%>%
+  ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
+  geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
+  geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15,size = 0.9)+
+  xlab("Horiz (days)")+
+  ylab("R2 value")+
+  labs(color = "ID")+
+  labs(title = "Phyto", subtitle = "(n = 8)")+
+  ylim(0,1)+
+  theme_light()+
+  scale_color_manual(values = safe_colorblind_palette)+
+  scale_shape_manual(values = c(16,17,15,1,2,0,3,7,8,4))+
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none",
+        text=element_text(size=10,  family="Helvetica"))
+
+stats = r2s%>%
+  pivot_longer(c(Chla,Phyto,ET,Pollen))%>%
+  filter(name %in% c("Chla","Phyto","ET","Pollen"),
+         value == 1,
+         Horiz_days<8)%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))
+
+stats = stats%>%
+  filter(Horiz_days<=7)
+#stats$name<-factor(stats$name, levels = c("ET","Pollen","Phyto","Chla"))
+summary(stats$name)
+model = rq(R2_value~name*Horiz_days, data = stats, tau = 0.5)
+set.seed(47)
+summary(model, se = "boot", bsmethod= "wild") #Can also try xy, but "wild" is justified by heteroskedasticity of chla
+
+#summary(lm(R2_value~name+name:Horiz_days, data = stats))
+#summary(lm(R2_value~name*Horiz_days, data = stats))
+#model = lm(R2_value~name*Horiz_days, data = stats)
+et = predict(model,data.frame(name=rep("ET",7),Horiz_days = 1:7))
+chla = predict(model,data.frame(name=rep("Chla",7),Horiz_days = 1:7))
+phyto = predict(model,data.frame(name=rep("Phyto",7),Horiz_days = 1:7))
+pollen = predict(model,data.frame(name=rep("Pollen",7),Horiz_days = 1:7))
+
+indicator_cols <- c("#000000","#003ba8","#b7ed66","#009922")
+
+all2 = data.frame(horiz = 1:7,ET = et,Chl = chla,Phyto = phyto,Pollen = pollen)%>%
+  pivot_longer(2:5)%>%
+  ggplot(aes(x = horiz, y = value, color = name))+
+  geom_line()+
+  theme_light()+
+  xlab("Horiz (days)")+
+  ylim(0,1)+
+  ylab("Median R2")+
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank())+
+  scale_color_manual(breaks = c("Chl","Phyto","Pollen","ET"), values = indicator_cols)+
+  guides(col = guide_legend(ncol = 2,keyheight = .9))+
+  theme(legend.position = "top",
+        legend.spacing.x = unit(.05, units = "in"),
+        legend.key.width = unit(.1, units = "in"),
+        legend.title = element_blank(),
+        legend.margin = margin(-1,-3,-3,-3,unit = "pt"),
+        text=element_text(size=10,  family="Helvetica"))
+
+jpeg("R2_with_indicators.jpg",res = 300, width = 6, height = 3, units = "in")
+ggarrange(c,phy,p,e,all2, nrow = 1, widths = c(1.25,1,1,1,1))
+dev.off()
+ggarrange(c,phy,p,e,all2, nrow = 1, widths = c(1.25,1,1,1,1))
+```

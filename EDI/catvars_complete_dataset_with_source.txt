@@ -1,0 +1,35 @@
+attributeName	code	definition
+Automated_yn	At least one data stream	At least one stream of data used to make forecasts is available to the model within 24 hours when the system is working as intended
+Automated_yn	No data streams	No data streams are available to the model within 24 hours even when the system is working as intended
+Automated_yn	UNK	unknown (not specified in text)
+Automated_yn	Yes all data streams	All data streams used to make forecasts are available to the model within 24 hours when the system is working as intended
+Class	biogeochemical	"Forecast variable is biogeochemical, but not organismal"
+Class	both	both organismal and biogeochemical forecasts presented in text
+Class	organismal	forecast varaible relates to a population or community of organisms
+Ecosystem	agricultural	Agricultural forecast ecosystem
+Ecosystem	atmosphere	Atmospheric forecast ecosystem
+Ecosystem	desert	Desert forecast ecosystem
+Ecosystem	forest	Forest forecast ecosystem
+Ecosystem	freshwater	Freshwater forecast ecosystem
+Ecosystem	grassland	Grassland forecast ecosystem
+Ecosystem	marine	Marine forecast ecosystem
+Ecosystem	other	Forecast ecosystem does not fit within the other predefined ecosystem types (e.g. a forecast for bird migration across North America)
+Ecosystem	tundra	Tundra forecast ecosystem
+Ecosystem	urban	Urban forecast ecosystem
+Model_dim	0D	Zero dimensional model
+Model_dim	1D	One dimentsional model
+Model_dim	2D	Two dimensional model
+Model_dim	3D	Three dimensional model
+Model_type	both	Both empirical and process-based models are used
+Model_type	empirical	Final model used to generate forecasts is empirical
+Model_type	process-based	Final model used to generate forecasts is process-based
+Spat_scale	global	e.g. coral bleaching stress in world oceans
+Spat_scale	multipoint	"several distinct forecast locations, such as three different lakes"
+Spat_scale	national	"spanning all of one nation, such as nationwide production of an agricultural crop"
+Spat_scale	point	"localized to one discrete site, such as pollen forecasts for a city or algal forecasts for a lake"
+Spat_scale	regional	"localized to a broad geographic region, such as coral bleaching forecasts that span a sea"
+Uncert_category	assimilates	the model iteratively updates uncertainty through data assimilation
+Uncert_category	contains	"the model contains uncertainty, but uncertainty is not derived from data; e.g. uncertainty comes from spin-up initial conditions or hand-tuned parameters"
+Uncert_category	data_driven	the model contains data-driven uncertainty; e.g. uncertainty in meteorological drivers
+Uncert_category	no	this model does not contain uncertainty
+Uncert_category	propagates	the model propagates some source of uncertainty

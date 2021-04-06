@@ -1,2 +1,2 @@
 geographicDescription	northBoundingCoordinate	eastBoundingCoordinate	southBoundingCoordinate	westBoundingCoordinate
-"Global"
+Dataset extent	70.45276	159	-69.57416	-160

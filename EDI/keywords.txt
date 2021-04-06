@@ -1,12 +1,14 @@
 keyword	keywordThesaurus
-Near-term ecological forecasts
-best practices
-forecastability
-ecological predictability
-forecast uncertainty
-forecast skill
-open science
-null model
+data assimilation
 decision support
+ecological predictability
+forecast automation
+forecast horizon
+forecast skill
+forecast uncertainty
+iterative forecasting
+near-term forecast
+null model
+open science
 systematic review
-meta-analysis
+uncertainty partitioning

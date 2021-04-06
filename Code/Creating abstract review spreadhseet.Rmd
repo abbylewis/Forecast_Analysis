@@ -3,12 +3,6 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-TO DO: 
-- Double check intermediate numbers
-
-Where I'm at now:
-found two papers that were marked as no access but are in fact near-term ecological forecasts. Combined they cite three papers that need to be screened and are cited by 7 papers that need to be screened. This would probably add ~7 papers to the matrix analysis
-
 Original abstract screening results
 ```{r}
 library(VennDiagram)
@@ -90,6 +84,15 @@ for_EDI_final$NearTerm[is.na(for_EDI_final$NearTerm)&for_EDI_final$Forecast==1]<
 
 write.csv(for_EDI_final, "../Data/abstract_review_all_papers_EDI.csv", row.names = F)
 ```
+
+```{r}
+reviewed = read.csv("../Data/abstract_review_all_papers_EDI.csv")%>%
+  filter(NearTerm==1&Ecological==1&Forecast ==1)
+final = read.csv("../Data/complete_dataset_with_source.csv")
+lost = reviewed[!reviewed$Title%in%final$Title,]
+write.csv(lost,"../Data/papers_removed_matrix_review.csv")
+```
+
 
 Calculating the number of cited and citing papers
 ```{r}

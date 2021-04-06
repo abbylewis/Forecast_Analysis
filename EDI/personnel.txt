@@ -6,15 +6,15 @@ Cayelan	C.	Carey	Virginia Tech	cayelan@vt.edu	0000-0001-8835-4476	PI	SCC-IRG Tra
 Cayelan	C.	Carey	Virginia Tech	cayelan@vt.edu	0000-0001-8835-4476	PI	MSA: Macrosystems EDDIE: An undergraduate training program in macrosystems science and ecological forecasting	National Science Foundation	1926050
 Cayelan	C.	Carey	Virginia Tech	cayelan@vt.edu	0000-0001-8835-4476	PI	Collaborative Research: CIBR: Cyberinfrastructure Enabling End-to-End Workflows for Aquatic Ecosystem Forecasting	National Science Foundation	1933016
 Renato		Figueiredo	University of Florida	renato@acis.ufl.edu	0000-0001-8835-4476	PI	Collaborative Research: CIBR: Cyberinfrastructure Enabling End-to-End Workflows for Aquatic Ecosystem Forecasting	National Science Foundation	1933102
-Abigail	S. L.	Lewis	Virginia Tech	aslewis@vt.edu		PI	Graduate Research Fellowship	National Science Foundation	DGE-1651272
-Whitney	M.	Woelmer	Virginia Tech	wwoelmer@vt.edu		PI	Graduate Research Fellowship	National Science Foundation	DGE-1651272
+Abigail	S. L.	Lewis	Virginia Tech	aslewis@vt.edu	0000-0001-9933-4542	PI	Graduate Research Fellowship	National Science Foundation	DGE-1651272
+Whitney	M.	Woelmer	Virginia Tech	wwoelmer@vt.edu	0000-0001-5147-3877	PI	Graduate Research Fellowship	National Science Foundation	DGE-1651272
 Whitney	M.	Woelmer	Virginia Tech	wwoelmer@vt.edu	0000-0001-5147-3877	creator			
-Heather	L.	Wander	Virginia Tech	hwander@vt.edu		creator			
-Dexter	W.	Howard	Virginia Tech	dwh1998@vt.edu		creator			
-John		Smith	Virginia Tech	wsjohn2@vt.edu		creator			
+Heather	L.	Wander	Virginia Tech	hwander@vt.edu	0000-0002-3762-6045	creator			
+Dexter	W.	Howard	Virginia Tech	dwh1998@vt.edu	0000-0002-6118-2149	creator			
+John	W.	Smith	Virginia Tech	wsjohn2@vt.edu	0000-0002-1564-3290	creator			
 Ryan	P.	McClure	Virginia Tech	Ryan333@vt.edu	0000-0001-6370-3852	creator			
 Mary	E.	Lofton	Virginia Tech	melofton@vt.edu	0000-0003-3270-1330	creator			
-Nicholas	W.	Hammond	Virginia Tech	hammondnw@vt.edu		creator			
-Rachel		Corrigan	Virginia Tech	rachelc1@vt.edu		creator			
-R.	Quinn	Thomas	Virginia Tech	rqthomas@vt.edu		creator			
+Nicholas	W.	Hammond	Virginia Tech	hammondnw@vt.edu	0000-0003-2975-8280	creator			
+Rachel	S.	Corrigan	Virginia Tech	rachelc1@vt.edu	0000-0001-6101-8085	creator			
+R.	Quinn	Thomas	Virginia Tech	rqthomas@vt.edu	0000-0003-1282-7825	creator			
 Cayelan	C.	Carey	Virginia Tech	cayelan@vt.edu	0000-0001-8835-4476	creator			

@@ -42,6 +42,11 @@ write.csv(r2s, "../Data/R2_dataset_for_EDI.csv", row.names = F)
 Load and format data
 ```{r}
 r2s = read.csv("../Data/R2_dataset_for_EDI.csv")
+
+# number of papers with 1 <- 7 day horizons
+length(unique(r2s$Title))
+length(unique(r2s$Title[as.numeric(r2s$Horiz_days)<8]))
+
 r2s <- r2s%>%
   group_by_at(setdiff(names(r2s), c("Notes","R2_value","Site_or_year_group")))%>% #"Site_or_year_group","Model_group"
   summarize(R2_value = mean(as.numeric(R2_value),na.rm = T))%>%
@@ -88,7 +93,7 @@ c = r2s%>%
   geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
   geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15,size = 0.9)+
   xlab("Horiz (days)")+
-  ylab("R2 value")+
+  ylab(expression(Median~R^2))+
   labs(color = "ID")+
   labs(title = "Chl", subtitle = "(n = 8)")+
   ylim(0,1)+
@@ -162,58 +167,18 @@ jpeg("../Figures/R2_compare.jpg",width = 8,height = 4,units = "in",res = 300)
 ggarrange(c,phy,p,e, nrow = 1, widths = c(1.2,1,1,1))
 dev.off()
 
-#Tried to do breakpoint analysis but there is not enough data
-
-stats = r2s%>%
-  pivot_longer(c(Chla,Phyto,ET,Pollen))%>%
-  filter(name %in% c("Chla","Phyto","ET","Pollen"),
-         value == 1,
-         Horiz_days<8)%>%
-  mutate(Horiz_days = as.numeric(Horiz_days))
-
 stats2 = r2s%>%
   filter(Horiz_days<8,
          Chla ==1|Phyto==1|ET==1|Pollen==1)%>%
   mutate(Horiz_days = as.numeric(Horiz_days))
 
-medians = r2s%>%
-  mutate(Horiz_days = as.numeric(Horiz_days))%>%
-  pivot_longer(c(Chla,Phyto,ET,Pollen))%>%
-  filter(name %in% c("Chla","Phyto","ET","Pollen"),
-         value == 1,
-         Horiz_days<8)%>%
-  group_by(name,Horiz_days)%>%
-  summarize(median = median(R2_value))
-
-all = medians%>%
-  ggplot(aes(x=Horiz_days,y=median, color = name))+
-  geom_line()+
-  theme_light()+
-  xlab("Horiz (days")+
-  ylim(0,1)+
-  ylab("Median R2")+
-  theme(axis.text.y = element_blank(),
-        axis.title.y = element_blank(),
-        axis.ticks.y = element_blank())+
-  guides(col = guide_legend(ncol = 2,keyheight = .9))+
-  theme(legend.position = "top",
-        legend.title = element_blank(),
-        text=element_text(size=10,  family="Helvetica"))
-
-jpeg("../Figures/R2_compare2.jpg",width = 9,height = 4,units = "in",res = 300)
-ggarrange(c,phy,p,e,all, nrow = 1, widths = c(1.25,1,1,1,1))
-dev.off()
-ggarrange(c,phy,p,e,all, nrow = 1, widths = c(1.2,1,1,1,1.2))
-
 stats = stats%>%
   filter(Horiz_days<=7)
+summary(stats$name)
 model = rq(R2_value~name*Horiz_days, data = stats, tau = 0.5)
 set.seed(47)
-summary(model, se = "boot", bsmethod= "wild") #Can also try xy, but "wild" is justified by heteroskedasticity of chla
+summary(model, se = "boot", bsmethod= "wild") 
 
-#summary(lm(R2_value~name+name:Horiz_days, data = stats))
-#summary(lm(R2_value~name*Horiz_days, data = stats))
-#model = lm(R2_value~name*Horiz_days, data = stats)
 et = predict(model,data.frame(name=rep("ET",7),Horiz_days = 1:7))
 chla = predict(model,data.frame(name=rep("Chla",7),Horiz_days = 1:7))
 phyto = predict(model,data.frame(name=rep("Phyto",7),Horiz_days = 1:7))
@@ -226,9 +191,9 @@ all2 = data.frame(horiz = 1:7,ET = et,Chl = chla,Phyto = phyto,Pollen = pollen)%
   ggplot(aes(x = horiz, y = value, color = name))+
   geom_line()+
   theme_light()+
-  xlab("Horiz (days")+
+  xlab("Horiz (days)")+
   ylim(0,1)+
-  ylab("Median R2")+
+  ylab(expression(Median~R^2))+
   theme(axis.text.y = element_blank(),
         axis.title.y = element_blank(),
         axis.ticks.y = element_blank())+

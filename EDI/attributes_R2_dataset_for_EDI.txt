@@ -1,6 +1,6 @@
 attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
 Title	Paper title	character			NA	No data
-doi	doi from Web of Science	character			NA	No data
+doi	Digital object identifier (doi) from Web of Science	character			NA	No data
 Authors	Author list	character			NA	No data
 Year	Year of publication	numeric	nominalYear		NA	No data
 Horiz_days	Number of days into the future forecasted	numeric	dimensionless		NA	No data
