@@ -1,0 +1,87 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Creator: ASL
+
+Purpose: Create venn diagrams to illustrate the number of studies that met each of our three criteria after two rounds of review (abstract and paper reviews) for our original Web of Science search and a search of citing and cited papers. Calculate the percentage of abstracts that meet each criterion
+
+Section 1: Original Web of Science search
+```{r}
+# Load necessary libraries
+library(VennDiagram)
+library(tidyverse)
+library(readxl)
+
+#Read in data
+data<-read.csv("../Data/abstract_review_all_papers_EDI.csv")
+
+#Calculate the percent of papers that are ecological, the percent that are forecassts, the percent of ecological forecasts that are near-term, and the percent of all papers that are near-term ecological forecasts
+data%>%
+  filter(Round == 1)%>%
+  summarize(pct_eco = sum(Ecological)/n(),
+            pct_fore = sum(Forecast)/n(),
+            pct_near = sum(NearTerm&Ecological, na.rm = T)/sum(Forecast&Ecological),
+            pct_nef = sum(Ecological&NearTerm&Forecast, na.rm = T)/n())
+
+#Create a dataset of just the original Web of Science search to make Venn Diagram
+to_venn <- data%>%
+  filter(Round == 1)%>%
+  select(NearTerm,Ecological,Forecast)
+
+#Assign any cell that is not a 1 to "z" to be removed later
+to_venn[is.na(to_venn)] <- "z"
+to_venn[to_venn!=1]<-"z"
+
+#Fill in row numbers for cells with a value of 1, creating vectors of row numbers that meet each criterion
+to_venn$NearTerm[to_venn$NearTerm == 1]<-row.names(to_venn)[to_venn$NearTerm == 1]
+to_venn$Ecological[to_venn$Ecological == 1]<-row.names(to_venn)[to_venn$Ecological == 1]
+to_venn$Forecast[to_venn$Forecast == 1]<-row.names(to_venn)[to_venn$Forecast == 1]
+
+#Omit values of "z"
+n <- to_venn$NearTerm[to_venn$NearTerm != "z"]
+e <- to_venn$Ecological[to_venn$Ecological != "z"]
+f <- to_venn$Forecast[to_venn$Forecast != "z"]
+
+#Save venn diagram
+venn.plot <- venn.diagram(
+	list("Near term" = n,"Ecological" = e,"Forecast" = f), 
+	"../Figures/VennDiagrams/round1.tiff", cex = 2, cat.cex = 1.5, cat.dist = c(.03,0.1,0.06), cat.pos = c(320,40,160),margin = .1
+	)
+```
+
+Section 2: Citing and cited papers
+```{r}
+#Calculate the percent of papers that are ecological, the percent that are forecassts, the percent of ecological forecasts that are near-term, and the percent of all papers that are near-term ecological forecasts
+data%>%
+  filter(Round == 2)%>%
+  summarize(pct_eco = sum(Ecological)/n(),
+            pct_fore = sum(Forecast)/n(),
+            pct_near = sum(NearTerm&Ecological, na.rm = T)/sum(Forecast&Ecological),
+            pct_nef = sum(Ecological&NearTerm&Forecast, na.rm = T)/n())
+
+#Create a dataset of just the original Web of Science search to make Venn Diagram
+to_venn <- data%>%
+  filter(Round == 2)%>%
+  select(NearTerm,Ecological,Forecast)
+
+#Assign any cell that is not a 1 to "z" to be removed later
+to_venn[is.na(to_venn)] <- "z"
+to_venn[to_venn!=1]<-"z"
+
+#Fill in row numbers for cells with a value of 1, creating vectors of row numbers that meet each criterion
+to_venn$NearTerm[to_venn$NearTerm == 1]<-row.names(to_venn)[to_venn$NearTerm == 1]
+to_venn$Ecological[to_venn$Ecological == 1]<-row.names(to_venn)[to_venn$Ecological == 1]
+to_venn$Forecast[to_venn$Forecast == 1]<-row.names(to_venn)[to_venn$Forecast == 1]
+
+#Omit values of "z"
+n <- to_venn$NearTerm[to_venn$NearTerm != "z"]
+e <- to_venn$Ecological[to_venn$Ecological != "z"]
+f <- to_venn$Forecast[to_venn$Forecast != "z"]
+
+#Save venn diagram
+venn.plot <- venn.diagram(
+	list("Near term" = n,"Ecological" = e,"Forecast" = f), 
+	"../Figures/VennDiagrams/round2.tiff", cex = 2, cat.cex = 1.5, cat.dist = c(.03,0.1,0.06), cat.pos = c(320,40,160),margin = .1
+	)
+```

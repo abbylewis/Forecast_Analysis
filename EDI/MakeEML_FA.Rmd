@@ -31,14 +31,13 @@ make_eml(path = getwd(),
          data.table.name = c("Dataset 1: Abstract review", "Dataset 2: Matrix review","Dataset 3: R2 values"),
          data.table.description = c("Dataset 1: Abstract review","Dataset 2: Matrix review", "Dataset 3: R2 values"),
          data.table.quote.character = c('"','"','"'),
-         other.entity = c("Final import and analysis - for EDI.Rmd","R2_analysis_EDI.Rmd"),
-         other.entity.name = c("General data analysis","R2 analysis"),
-         other.entity.description = c("General data analysis","R2 analysis"),
+         other.entity = c("Final import and analysis - for EDI.Rmd","R2_analysis_EDI.Rmd","Venn diagrams.Rmd"),
+         other.entity.name = c("General data analysis","R2 analysis","Abstract review"),
+         other.entity.description = c("General data analysis","R2 analysis", "Abstract review"),
          temporal.coverage = c("1932-11-01", "2020-05-18"),
          maintenance.description = "complete",
          user.domain = "EDI",
          user.id = "ccarey",
-         package.id = "edi.196.2")
-
+         package.id = "edi.196.5")
 ```
 

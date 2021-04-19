@@ -1,0 +1,734 @@
+---
+title: "Final data ingest and analysis"
+author: "Abby Lewis"
+date: "10/29/2020"
+output: html_document
+---
+Creator: ASL
+
+Purpose: Process matrix analysis results. Create five figures: (1) the number of near-term ecological forecasts published per year, (2) a general description of ecological forecasting papers identified in this study, (3) the relationship between time step and time horizon of forecasting papers, (4) the total number of years of data used to develop each forecasting paper, (5) best practice adoption over time. Perform relevant calculations for matrix analysis results. 
+
+Note: Every code chunk can be rund individually to perform the specified task.
+
+Table of contents:
+Section 1: Load required packages
+Section 2: Plot the number of near-term ecological forecasting papers published per year from 1932-2019
+Section 3: Plot the distribution of forecast sites worldwide, across scales, and across variable types (one plot with three panels). Calculate summary statistics for forecast locations, scales, and variable classes
+Section 4: Determine the most common forecast variables
+Section 5: Analyze and plot the relationship between time step and time horizon of forecasting papers
+Section 6: Plot and calculate summary statistics for the temporal duration of data used to create each forecasting paper (summed over model development, training, evaluation, etc.) 
+Section 7: Calculate the number of unique journals and conference proceedings in the dataset, as well as the journal with the most papers represented
+Section 8: Conduct best practice analysis. Calculate summary statistics for best practice use and conduct logistic regression of best practice adoption over time. Plot the use of each best practice with logistic regression results
+Section 9: Calculate statistics for the type of uncertainty used
+Section 10: Calculate forecast evaluation statistics
+Section 11: Calculate statistics for end user engagement and ethical considerations
+Section 12: Calculate statistics for data assimilation
+Section 13: Calculate statistics for uncertainty partitioning
+Section 14: Calculate statistics for forecast archiving
+Section 15: Calculate statistics for null model use
+
+
+Section 1: Load required packages
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#Load required packages
+library(tidyverse)
+library(lubridate)
+library(colorspace)
+library(ggpubr)
+library(RColorBrewer)
+```
+
+Section 2: Plot the number of near-term ecological forecasting papers published per year from 1932-2019
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv") #Load data
+#Plot the number of papers published per year
+tiff("../Figures/Pubs_year_noEco.tif", width = 3, height = 3, units = "in",res = 800, compression="lzw")
+complete_forecasts%>%
+  ggplot()+
+  geom_histogram(aes(x = Year),binwidth = 1)+
+  theme_bw()+
+  xlab("Year")+
+  ylab("Near-term ecological forecasts")+
+  ylim(0,25)+
+  scale_x_continuous(limits = c(1930,2020), expand = c(0,0))+
+  theme(text=element_text(size=10,  family="Helvetica"),
+        axis.text = element_text(size = 9, family="Helvetica"))
+dev.off()
+```
+
+Section 3: Plot the distribution of forecast sites worldwide, across scales, and across variable types (one plot with three panels). Calculate summary statistics for forecast locations, scales, and variable classes
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+
+###
+# Panel A: Map
+###
+
+#Gather background map data
+WorldData <- map_data('world') %>% 
+  fortify()
+
+#Load colorblind-friendly palette
+safe_colorblind_palette <- c("#661100", "#AA4499", "#DDCC77", "#117733","#44AA99","#999933","#332288", "#88CCEE", "#CC6677","#888888")
+colors = lighten(safe_colorblind_palette, amount = .2) #Lighten the colors of the colorblind-friendly palette
+
+#Create separate dataframe for mapping
+for_map <- complete_forecasts
+#Create a vector of coordinates 
+coords <- for_map$Coords
+#Problem this loop solves: multipoint forecasts have multiple coordinate pairs separated by a semicolon. Here, we add columns to the for_map dataframe separating out all coordinates for a given paper
+for(i in 1:(max(str_count(for_map$Coords, ";"), na.rm = T)+1)){
+  stops <- regexpr(pattern = ";",coords)
+  stops[stops == -1] <- 10000L
+  coords_i <- substr(coords, start = 1, stop = stops-1)
+  for_map[nchar(coords_i)>0&!is.na(coords_i), paste0("Long",i)] <- as.numeric(sub("-*[0-9]+.[0-9]+,","",coords_i))[nchar(coords_i)>0&!is.na(coords_i)]
+  for_map[nchar(coords_i)>0&!is.na(coords_i), paste0("Lat",i)] <- as.numeric(sub(", -*[0-9]+.[0-9]+","",coords_i))[nchar(coords_i)>0&!is.na(coords_i)]
+  inds <- regexpr(pattern = ";",coords)
+  inds[inds == -1]<-NA
+  coords <- substr(coords, start = inds + 2, stop = 10000L)
+}
+#The previous loop added numerous columns of latitude and longitude to the for_map dataframe. Here we gather all of those columns into one column for latitude and one column for longitude, creating a longer dataframe
+for_map2 = for_map%>%
+  pivot_longer(cols = num_range("Lat", 1:max(str_count(for_map$Coords, ";")+1, na.rm = T)), names_to = "Lat_num", values_to= "Lat")%>%
+  pivot_longer(cols = num_range("Long", 1:max(str_count(for_map$Coords, ";")+1, na.rm = T)), names_to = "Long_num", values_to = "Long")%>%
+  filter(sub("[a-z]+","",Lat_num)==sub("[a-z]+","",Long_num, ""))%>%
+  filter(!Spat_scale == "global")
+
+#We want to plot a different symbol for regional and national forecasts than for point and multipoint forecasts. Here, we create a grouping variable that specifies whether (1) or not (0) the forecast scale is regional/national 
+for_map2$Region <- NA
+for_map2$Region[for_map2$Spat_scale %in% c("regional","national")] <- 1
+for_map2$Region[for_map2$Spat_scale %in% c("point","multipoint")]<-0
+
+#Create a world map of the forecast sites in this analysis
+map <- ggplot() +
+  geom_map(data = WorldData, map = WorldData,
+                  aes(map_id=region),
+                  fill = "white", colour = "#7f7f7f", size=0.5)+
+  coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim = c(-90,90))+
+  geom_point(data = for_map2%>%filter(Region == 1), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", size = 6, alpha  =.3, stroke = .5, show.legend = F)+
+  geom_point(data = for_map2%>%filter(Region == 0), aes(Long, Lat, fill = Ecosystem), shape = 21, color = "white", size = 2.5, alpha  =1, stroke = .5, show.legend = F)+
+  geom_point(aes(x = c(-300,-300), y=c(-300,-300),size = c("point or multipoint","regional or national"), alpha = c("point or multipoint","regional or national")), shape = 21, color = "white",fill = "grey20")+
+  xlab(NULL) + ylab(NULL) +
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  theme_void()+
+  theme(legend.title = element_blank(), 
+    legend.position = c(.15,.4),
+    text=element_text(size=10,  family="Helvetica"),
+    plot.margin = margin(0, 0, 0, 0, "cm"),
+    legend.box.background = element_rect(fill = "white", color = "white"))+
+  guides(size = guide_legend(override.aes = list(size = c(3,6))),alpha = guide_legend(override.aes = list(alpha = c(1,.3))))
+
+
+###
+# Panel B: Spatial scale barplot
+###
+
+#Make "ecosystem" a factor, enabling us to order the levels as we choose
+complete_forecasts$Ecosystem <- factor(complete_forecasts$Ecosystem, levels = c("agricultural","desert","grassland","forest","atmosphere","freshwater","marine","tundra","urban","other"))
+#Make "Spat_scale" (the spatial scale of the forecast) a factor, enabling us to order the levels as we choose
+complete_forecasts$Spat_scale<- factor(complete_forecasts$Spat_scale, levels = c("point","multipoint","regional","national","global"))
+#Plot the distribution of papers across spatial scales, with colors indicating ecosystem type
+extent <- complete_forecasts%>%
+  ggplot(aes(x = Spat_scale, fill = Ecosystem))+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  xlab("Spatial extent")+
+  geom_bar(show.legend = F)+
+  ylab("Papers (n)")+
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"))
+
+
+###
+# Generate legend for combined plot
+###
+
+# To generate the legend for the combined plot with the correct formatting, we create a "dummy" plot that will not be included and extract the legend from this plot
+
+#Function to extract legend
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+#"Dummy" plot from which the legend will be extracted
+class <- complete_forecasts%>%
+  ggplot(aes(x = Class, fill = Ecosystem))+
+  geom_bar()+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem",guide = guide_legend(position = "bottom", nrow = 2))+
+  theme(text=element_text(size=10,  family="Helvetica"))
+#The extracted legend is saved as "legend_fill"
+legend_fill <- g_legend(class)
+
+
+###
+# Panel C: Forecast variable class barplot
+###
+
+#Plot the distribution of forecasts across "class" (i.e., biogeochemical, organismal, or both)
+class <- complete_forecasts%>%
+  ggplot(aes(x = Class, fill = Ecosystem))+
+  geom_bar(show.legend = F)+
+  scale_fill_manual(breaks = c("agricultural", "atmosphere", "desert", "forest", "freshwater", "grassland", "marine", "tundra", "urban", "other", "NA"), values = colors, na.translate = T, na.value = "grey50", name = "Ecosystem")+
+  ylab("Papers (n)")+
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"))
+
+
+###
+# Assemble combined plot and save as jpeg
+###
+
+tiff("../Figures/Map_composite.tif",width = 6, height = 5.5, units = "in", res = 800, compression="lzw")
+ggarrange(map, ggarrange(extent, class, labels = c("b","c"), label.y = c(1.2,1.2), nrow = 1, widths = c(1.4,1)), legend_fill, nrow = 3, heights = c(6.2,3,1.5), labels = "a")
+dev.off()
+
+
+###
+# Calculate summary statistics for descriptive analysis
+###
+
+#Calculate the number and percentage of forecast sites in the northern hemisphere
+north_analysis <- for_map2$Lat[!is.na(for_map2$Lat)] #Select latitudes that are not NA
+sum(north_analysis>0) #Number of forecast sites with latitudes that are >0
+sum(north_analysis>0)/length(north_analysis)*100 #Percentage of forecast sites with latitudes that are >0
+
+#Calculate the number and percentage of papers that have a point scale
+sum(complete_forecasts$Spat_scale=="point") #Number
+sum(complete_forecasts$Spat_scale=="point")/nrow(complete_forecasts)*100 #Percentage
+
+#Calculate the number and percentage of papers that have a regional scale
+sum(complete_forecasts$Spat_scale=="regional") #Number
+sum(complete_forecasts$Spat_scale=="regional")/nrow(complete_forecasts)*100 #Percentage
+
+#Calculate the number and percentage of forecast papers that predict organismal variables
+sum(complete_forecasts$Class=="organismal"|complete_forecasts$Class=="both") #Number
+sum(complete_forecasts$Class=="organismal"|complete_forecasts$Class=="both")/nrow(complete_forecasts)*100 #Percentage
+
+#Calculate the number and percentage of forecast papers that predict biogeocehmical variables
+sum(complete_forecasts$Class=="biogeochemical"|complete_forecasts$Class=="both") #Number
+sum(complete_forecasts$Class=="biogeochemical"|complete_forecasts$Class=="both")/nrow(complete_forecasts)*100 #Percentage
+
+#Calculate the number and percentage of forecast papers that predict both organismal and biogeochemical variables
+sum(complete_forecasts$Class=="both") #Number
+sum(complete_forecasts$Class=="both")/nrow(complete_forecasts)*100 #Percentage
+
+#Calculate the number and percentage of forecast papers for marine ecosystems
+sum(complete_forecasts$Ecosystem=="marine") #Number
+sum(complete_forecasts$Ecosystem=="marine")/nrow(complete_forecasts) #Percentage
+
+#Calculate the number and percentage of forecast papers for freshwater ecosystems
+sum(complete_forecasts$Ecosystem=="freshwater") #Number
+sum(complete_forecasts$Ecosystem=="freshwater")/nrow(complete_forecasts) #Percentage
+
+#Calculate the number and percentage of forecast papers for agricultural ecosystems
+sum(complete_forecasts$Ecosystem=="agricultural") #Number
+sum(complete_forecasts$Ecosystem=="agricultural")/nrow(complete_forecasts) #Percentage
+```
+
+Section 4: Determine the most common forecast variables. To do this, we started by visually analyzing the types of forecast variables present, then counted the number in each of six categories using the code below
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Number of fish forecasts
+length(complete_forecasts$Vars_ident[grepl("catch|fish|pollock|salmon|anchovy|walleye|herring|trout|carp",complete_forecasts$Vars_ident, ignore.case = T)]) - 3 #subtracting 3 to exclude a paper on lobster catch, a paper on shellfish harvesting, and a paper on rusty crayfish distribution
+
+#Number of phytoplankton forecasts
+length(complete_forecasts$Vars_ident[grepl("diatom|cyano|oscillatoria|asterionella|desmus|anab|aphaniz|synecho|cyclo|stephanodiscus|raciborskii|circinale",complete_forecasts$Vars_ident, ignore.case = T)])
+
+#Number of chlorophyll forecasts
+length(complete_forecasts$Vars_ident[grepl("chl",complete_forecasts$Vars_ident, ignore.case = T)])
+
+#Number of evapotranspiration forecasts
+length(complete_forecasts$Vars_ident[grepl("ET |evap",complete_forecasts$Vars_ident,ignore.case = T)])
+
+#Number of pollen forecasts
+length(complete_forecasts$Vars_ident[grepl("pollen",complete_forecasts$Vars_ident,ignore.case = T)])
+
+#Number of crop yield forecasts
+length(complete_forecasts$Vars_ident[grepl("yield",complete_forecasts$Vars_ident, ignore.case = T)])
+```
+
+Section 5: Analyze and plot the relationship between time step and time horizon of forecasting papers
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+
+###
+# Time step
+###
+
+#Create a dataframe to organize timesteps into discrete bins
+time_bin = complete_forecasts
+#Create a new variable to store time bins
+time_bin$time_bin = NA
+
+#Some time steps are saved as a single number (in days) while others are saved as a range. First, we need to decide what bin to put the ranges into:
+time_bin$Time_step_days[is.na(as.numeric(time_bin$Time_step_days))] #Use this line to examine the non-numeric time steps
+time_bin$time_bin[time_bin$Time_step_days == "30-150"] <- "> 1 - 12 months" #A forecast that predicts on a time step of 30-150 days falls within the "> 1 - 12 months" category
+time_bin$time_bin[time_bin$Time_step_days == "1,7,15,30"] <- "1 - 30 days" #A forecast that predicts on a time step of 1, 7, 15, and 30 days falls within the "1 - 30 days" category
+
+#Now we can address the numeric timestep data:
+#Convert Time_step_days to numeric
+time_bin = time_bin %>%
+    mutate(Time_step_days = as.numeric(Time_step_days))
+# Assign numeric data to categories 
+time_bin$time_bin[time_bin$Time_step_days < 1] <- "< 1 day"
+time_bin$time_bin[time_bin$Time_step_days == 1] <- "1 day"
+time_bin$time_bin[time_bin$Time_step_days > 1 & time_bin$Time_step_days <= 7] <- "2 - 7 days"
+time_bin$time_bin[time_bin$Time_step_days > 7 & time_bin$Time_step_days <= 31] <- "8 days - 1 month"
+time_bin$time_bin[time_bin$Time_step_days > 31 & time_bin$Time_step_days < 365] <- "> 1 month - 1 year"
+time_bin$time_bin[time_bin$Time_step_days == 365] <- "1 year"
+time_bin$time_bin[time_bin$Time_step_days > 365 & time_bin$Time_step_days <= 365*5] <- "> 1 year - 5 years"
+time_bin$time_bin[time_bin$Time_step_days > 365*5] <- "> 5 years"
+#Convert timestep bins to a factor
+time_bin$time_bin <- factor(time_bin$time_bin, levels = c("< 1 day","1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years"))
+
+
+###
+# Forecast horizon
+###
+
+##Create a new variable to store horizon bins
+time_bin$horiz_bin = NA
+
+# Use this line to examine the non-numeric forecast horizons
+time_bin$Horiz_days[is.na(as.numeric(time_bin$Horiz_days))]
+time_bin$horiz_bin[time_bin$Horiz_days == "30-150"] <- "> 1 month - 1 year" #A forecast that predicts 30-150 days in the future falls within the "> 1 - 12 months" category
+time_bin$horiz_bin[time_bin$Horiz_days == "720 - 1800 (sites had different amounts of data)"] <- "> 1 year - 5 years" #A forecast that predicts 720-1800 days in the future falls within the "> 1 year - 5 years" category
+time_bin$horiz_bin[time_bin$Horiz_days == "365 and 3650"] <- "> 5 years - 10 years" #A forecast that predicts 365 and 3650 days in the future falls within the "> 5 years - 10 years" category because the maximum time into the future predicted is 10 years
+time_bin$horiz_bin[time_bin$Horiz_days == "7, 3650"] <- "2 - 7 days" #We are assigning this to the 2 - 7 day category because timestep is listed as 1 day and a 1 day timestep is only used for short term forecasts in this paper
+time_bin$horiz_bin[time_bin$Horiz_days == "14-77"] <- "> 1 month - 1 year" #A forecast that predicts 14-77 days in the future falls within the "> 1 month - 1 year" category
+
+#Now we can address the numeric forecast horizon data:
+#Convert Horiz_days to numeric
+time_bin = time_bin %>%
+    mutate(Horiz_days = as.numeric(Horiz_days))
+# Assign numeric data to categories 
+time_bin$horiz_bin[time_bin$Horiz_days < 1] <- "< 1 day"
+time_bin$horiz_bin[time_bin$Horiz_days == 1] <- "1 day"
+time_bin$horiz_bin[time_bin$Horiz_days > 1 & time_bin$Horiz_days <= 7] <- "2 - 7 days"
+time_bin$horiz_bin[time_bin$Horiz_days > 7 & time_bin$Horiz_days <= 31] <- "8 days - 1 month"
+time_bin$horiz_bin[time_bin$Horiz_days > 31 & time_bin$Horiz_days < 365] <- "> 1 month - 1 year"
+time_bin$horiz_bin[time_bin$Horiz_days == 365] <- "1 year"
+time_bin$horiz_bin[time_bin$Horiz_days > 365 & time_bin$Horiz_days <= 365*5] <- "> 1 year - 5 years"
+time_bin$horiz_bin[time_bin$Horiz_days > 365*5] <- "> 5 years"
+time_bin$horiz_bin <- factor(time_bin$horiz_bin, levels = c( "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years"))
+
+#Convert horizon bins to a factor
+time_bin$horiz_bin <- factor(time_bin$horiz_bin, levels = c("1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years", "> 5 years"))
+
+#Exclude NA values
+time_bin_plot = time_bin%>%
+  filter(!is.na(horiz_bin),
+         !is.na(time_bin))
+
+#Create a dataframe with the number of papers in each time step/forecast horizon combination to add to plot
+n = time_bin_plot%>%
+  group_by(horiz_bin,time_bin)%>%
+  summarise(ns = n())%>%
+  mutate(color = ns>20)
+
+#Plot the number of papers in each time step/forecast horizon combination as a heatmap
+tiff("../Figures/timestep_heatmap_small.tif",res = 800,width = 3, height = 3, units = "in")
+cols <- brewer.pal(n = 9, name = "BuPu")
+time_bin_plot%>%
+  ggplot(aes(x = horiz_bin, y = time_bin), na.rm = T)+
+  geom_bin2d()+
+  xlab("Time horizon (days)")+
+  ylab("Time step (days)")+
+  scale_fill_gradientn(colors = cols)+
+  scale_x_discrete(breaks = c( "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years","> 5 years"), labels = c("1","2 - 7","8 - 31","32 - 365","365","366 - 1825", ">1825"),drop  =F)+ #Change labels to units of days for interpretability
+  scale_y_discrete(breaks = c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years"), labels = c("< 1", "1","2 - 7","8 - 31","32 - 365","365","366 - 1825"),drop  =F)+ #Change labels to units of days for interpretability
+  geom_text(aes(label = ns, color = color), data = n, show.legend = F, size = 3)+ 
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"),
+        axis.text = element_text(size = 9, family="Helvetica"),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        legend.position = "none")+
+  scale_color_manual(values = c("gray40","gray100"))
+dev.off()
+
+
+###
+# Statistics
+##
+
+#Number and percentage of papers that predicted within one year into the future 
+nrow(time_bin%>%filter(horiz_bin %in% c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year"))) #number
+nrow(time_bin%>%filter(horiz_bin %in% c("< 1 day", "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100 #percentage
+
+# Number and percentage of papers that predicted 2–7 days into the future on a daily time step
+nrow(time_bin%>%filter(horiz_bin %in% c("2 - 7 days"),time_bin %in% c("1 day"))) #number
+nrow(time_bin%>%filter(horiz_bin %in% c("2 - 7 days"),time_bin %in% c("1 day")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100 #percentage
+
+# Number and percentage of papers that predicted one year into the future on a yearly timestep
+nrow(time_bin%>%filter(horiz_bin %in% c("1 year"),time_bin %in% c("1 year"))) #number
+nrow(time_bin%>%filter(horiz_bin %in% c("1 year"),time_bin %in% c("1 year")))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100 #percentage
+
+#Percentage of papers that predict at a horizon of at least one year in the dataset as a whole
+sum(time_bin$horiz_bin %in% c("1 year","> 1 year - 5 years","> 5 years"))/nrow(time_bin%>%filter(!is.na(horiz_bin)))*100
+#Percentage of papers that do not evaluate forecasts that predict at a horizon of at least one year
+time_bin$Forecast_eval_shown[time_bin$Forecast_eval == 0] <- 0
+sum(time_bin$horiz_bin %in% c("1 year","> 1 year - 5 years","> 5 years")&time_bin$Forecast_eval_shown==0)/nrow(time_bin%>%filter(!is.na(horiz_bin),Forecast_eval_shown==0))*100
+```
+
+Section 6: Plot and calculate summary statistics for the temporal duration of data used to create each forecasting paper (summed over model development, training, evaluation, etc.) 
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Calculate summary statistics for plot
+mean_dc<- round(mean(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1) #Mean duration (years)
+median_dc <- round(median(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T),1) #Median duration (years)
+
+#Create a dataframe with text to add to plot
+lines = data.frame(c(mean_dc),c(38))
+colnames(lines) = c("x","y")
+lines$label = c(paste0("Median = ",median_dc, " years \nMean = ", mean_dc, " years"))
+
+#Create a histogram of the amount of data used to create each paper
+tiff("../Figures/Years_of_data.tif", res = 800, width = 3, height = 3, units = "in", compression="lzw")
+complete_forecasts%>%
+  mutate(Year = as.numeric(Year))%>%
+  ggplot()+
+  geom_histogram(aes(x = as.numeric(Data_coverage)/365),bins = 20)+
+  geom_vline(xintercept = c(mean_dc, median_dc), color = "black")+
+  geom_text(aes(x = x,y=y,label= label), data = lines, nudge_x = 3, hjust = 0,vjust = 0,color = "grey20", size = 3)+
+  xlab("Years of data used to \ncreate forecasting paper")+
+  ylab("Number of papers")+
+  scale_y_continuous(limits = c(0,46), expand = c(0, 0))+
+  theme_light()+
+  theme(text=element_text(size=10,  family="Helvetica"),
+        axis.text = element_text(size = 9, family="Helvetica"))
+dev.off()
+
+
+###
+# Statistics
+##
+
+min(as.numeric(complete_forecasts$Data_coverage), na.rm = T) #minimum (in days)
+max(as.numeric(complete_forecasts$Data_coverage)/365, na.rm = T) #maximum (in years)
+
+#Number and percentage of papers that used over 10 years of data
+sum(as.numeric(complete_forecasts$Data_coverage)>(10*365), na.rm = T) #number
+sum(as.numeric(complete_forecasts$Data_coverage)>(10*365), na.rm = T)/nrow(complete_forecasts)*100 #percentage
+```
+
+Section 7: Calculate the number of unique journals and conference proceedings in the dataset, as well as the journal with the most papers represented
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+length(unique(complete_forecasts$Source)) #Number of unique sources
+
+#Create a dataframe with the number of papers from each source
+ns = complete_forecasts%>%
+  group_by(Source)%>%
+  summarize(n = n())
+
+ns$Source[which.max(ns$n)] #Source with the most papers
+ns$n[which.max(ns$n)] #Number of papers from the source with the most papers
+```
+
+Section 8: Conduct best practice analysis. Calculate summary statistics for best practice use and conduct logistic regression of best practice adoption over time. Plot the use of each best practice with logistic regression results
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Some best practices are already binary variables. Others (automation, uncertainty, and iterative workflows that update model parameters) need to be converted to binary variables for logistic regression
+complete_forecasts$Automated_bin <- 0 #Create a variable for binary forecast automation data
+complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1 #If at least one data stream is automated, the paper counts as being automated
+complete_forecasts$Uncert_yn <- as.numeric(!complete_forecasts$Uncert_category == "no") #If the forecast has any sort of uncertainty it counts as demonstrating uncertainty
+complete_forecasts$it_no_update_ic <- complete_forecasts$Iterative_yn==1&!complete_forecasts$DA_type%in%c("update IC","autoregressive, so new observed data become predictors for the next timestep","UNK","NA","autoregressive, uses previous observations to predict value at next timestep","previous ten days of driver data used as predictor in model, so it is updating iteratively") #Set up a variable for iterative workflows that do more than just update initial conditions
+
+#If the forecast is not evaluated, sometimes Forecast_eval_shown is set to NA. Here, we change those NAs to 0
+complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
+
+
+###
+# Statistics
+###
+
+#Calculate the number and percent of papers that demonstrate each best practice
+complete_forecasts%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            aut_n = sum(Automated_bin),
+            eva = sum(Forecast_eval_shown)/n(),
+            eva_n = sum(Forecast_eval_shown),
+            unc = sum(Uncert_yn)/n(),
+            unc_n = sum(Uncert_yn),
+            ite = sum(Iterative_yn)/n(),
+            ite_n = sum(Iterative_yn),
+            ite_no_ic = sum(it_no_update_ic)/n(),
+            ite_no_ic_n = sum(it_no_update_ic),
+            arc = sum(Archiving_yn)/n(),
+            arc_n = sum(Archiving_yn),
+            use = sum(End_user_yn)/n(),
+            use_n = sum(End_user_yn),
+            dat = sum(Drivers_published)/n(),
+            dat_n = sum(Drivers_published),
+            nul = sum(Null_yn)/n(),
+            nul_n = sum(Null_yn),
+            prt = sum(Uncert_partition_yn)/n(),
+            prt_n = sum(Uncert_partition_yn))
+
+#Calculate how many best practices wach paper demonstrated
+total = complete_forecasts%>%
+  group_by(Title)%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            eva = sum(Forecast_eval_shown)/n(),
+            unc = sum(Uncert_yn)/n(),
+            ite = sum(Iterative_yn)/n(),
+            arc = sum(Archiving_yn)/n(),
+            use = sum(End_user_yn)/n(),
+            dat = sum(Drivers_published)/n(),
+            nul = sum(Null_yn)/n(),
+            prt = sum(Uncert_partition_yn)/n(),
+            Total = sum(aut,eva,unc,ite,arc,use,dat,nul,prt))
+summary(as.factor(total$Total)) #Find the number of papers each number of best practices
+mean(total$Total) #Mean number of best practies used
+median(total$Total) #Median number of best practices used
+
+# Filter out the one paper from 1932
+complete_forecasts = complete_forecasts%>%
+  filter(Year>1932)
+
+#Perform binary logistic regression for all best practices
+aut = glm(Automated_bin~Year, data = complete_forecasts, family = "binomial")
+eva = glm(Forecast_eval_shown~Year, data = complete_forecasts, family = "binomial")
+unc = glm(Uncert_yn~Year, data = complete_forecasts, family = "binomial")
+ite = glm(Iterative_yn~Year, data = complete_forecasts, family = "binomial")
+ite_no_ic = glm(it_no_update_ic~Year, data = complete_forecasts, family = "binomial")
+arc = glm(Archiving_yn~Year, data = complete_forecasts, family = "binomial")
+use = glm(End_user_yn~Year, data = complete_forecasts, family = "binomial")
+dat = glm(Drivers_published~Year, data = complete_forecasts, family = "binomial")
+nul = glm(Null_yn~Year, data = complete_forecasts, family = "binomial")
+prt = glm(Uncert_partition_yn~Year, data = complete_forecasts, family = "binomial")
+
+#Summarize logisitic regression results in one data frame
+results = data.frame(var2 = "Include data driven uncertainty")%>%
+  full_join(data.frame(summary(unc)$coefficients, var2 = NA)%>% mutate(var = "Include data driven uncertainty"))%>%
+  full_join(data.frame(var2 = "Assess and report forecast skill"))%>%
+  full_join(data.frame(summary(eva)$coefficients) %>% mutate(var = "Assess and report forecast skill"))%>%
+  full_join(data.frame(var2 = "Identify an end user"))%>%
+  full_join(data.frame(summary(use)$coefficients) %>% mutate(var = "Identify an end user"))%>%
+  full_join(data.frame(var2 = "Make iterative forecasts"))%>%
+  full_join(data.frame(summary(ite)$coefficients) %>% mutate(var = "Make iterative forecasts"))%>%
+  full_join(data.frame(var2 = "Make iterative forecasts (updating model parameters)"))%>%
+  full_join(data.frame(summary(ite_no_ic)$coefficients) %>% mutate(var = "Make iterative forecasts (updating model parameters)"))%>%
+  full_join(data.frame(var2 = "Develop automated forecasting workflows"))%>%
+  full_join(data.frame(summary(aut)$coefficients) %>% mutate(var = "Develop automated forecasting workflows"))%>%
+  full_join(data.frame(var2 = "Make data available"))%>%
+  full_join(data.frame(summary(dat)$coefficients) %>% mutate(var = "Make data available"))%>%
+  full_join(data.frame(var2 = "Archive forecasts"))%>%
+  full_join(data.frame(summary(arc)$coefficients) %>% mutate(var = "Archive forecasts"))%>%
+  full_join(data.frame(var2 = "Use null model comparisons"))%>%
+  full_join(data.frame(summary(nul)$coefficients) %>% mutate(var = "Use null model comparisons"))%>%
+  full_join(data.frame(var2 = "Partition uncertainty"))%>%
+  full_join(data.frame(summary(prt)$coefficients) %>% mutate(var = "Partition uncertainty"))%>%
+  mutate(param = rep(c(NA,"Intercept","Year"),10))%>% #Label intercept and year rows
+  select(var, var2, param, Estimate, Std..Error, z.value, Pr...z..)
+
+results[-c(1,2,3)] = round(results[-c(1,2,3)], 3) #Round p-values to 3 decimal points
+results$param[is.na(results$param)]<-results$var2[is.na(results$param)] #Fill in missing best practice names
+results%>% #Filter out unnecessary variable names and view final table
+  select(-var2, -var)
+
+
+###
+# Plot
+###
+
+# Calculate model predictions for plot
+x = 1980:2020
+probs = predict(aut, list(Year = x), type = "response") #For the first best practice
+prob_df = data.frame(var = rep("Automated_bin",length(x)),x=x,probs=probs)
+real_name = c("Automated_bin", "Forecast_eval_shown", "Uncert_yn", "Iterative_yn","Archiving_yn", "End_user_yn","Drivers_published", "Null_yn", "Uncert_partition_yn") #Vector of best practice names to merge with complete_forecasts dataset
+model = c("aut", "eva","unc","ite","arc","use","dat","nul","prt") #Vector of model names created above
+#Loop through all models and generate predictions
+for (i in 2:length(model)){
+  probs = predict(get(model[i]), list(Year = x), type = "response")
+  new = data.frame(var = rep(real_name[i],length(x)),x=x,probs=probs)
+  prob_df = prob_df%>%
+    full_join(new)
+}
+
+#Create a long-formatted dataframe with all best practices in one column
+cf = complete_forecasts%>%
+  select(Automated_bin, Forecast_eval_shown, Uncert_yn, Iterative_yn, Archiving_yn, End_user_yn, Drivers_published, Null_yn, Uncert_partition_yn, Year)%>%
+  pivot_longer(cols = -Year)%>%
+  rename(var = name, x = Year)
+
+#Create a vector of names as we would like them in the figure
+labs = c("Automate forecasting workflows","Assess and report forecast skill", "Include uncertainty","Make iterative forecasts","Archive forecasts", "Identify an end user","Make data available", "Use null model comparisons", "Partition uncertainty")
+names(labs) = real_name #Assign the name of the labs to the best practice name as they are in the data frame (for plotting purposes)
+
+#Convert the best practice variable into a factor in both datasets
+prob_df$var = factor(prob_df$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
+cf$var = factor(cf$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
+
+#Calculate significance levels to add to graph
+results = results%>%
+  filter(param == "Year")%>%
+  select(-var2)%>%
+  filter(!var == "Make iterative forecasts (updating model parameters)")%>%
+  mutate(sig = "")
+results$sig[results$Pr...z..<0.05] <- "*"
+results$sig[results$Pr...z..<0.01] <- "**"
+results$sig[results$Pr...z..<0.001] <- "***"
+#Label the variable for results data frame
+results$var <- c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn")
+results$var = factor(results$var) #Convert to factor
+
+#Plot best practices over time with logistic regression results
+tiff("../Figures/best_practices_regression.tif",res = 800,width = 6, height = 5, units = "in", compression="lzw")
+plot = prob_df%>%
+  ggplot(aes(x = x, y = probs))+
+  geom_point(aes(y = value), data = cf, alpha = .15, color = "blue")+
+  geom_text(aes(x = 2000, y = .85, label = sig), data = results, size = 6)+
+  geom_line()+
+  ylim(0,1)+
+  xlim(1979,2021)+
+  facet_wrap(~var, labeller = labeller(var = labs))+
+  theme_bw()+
+  ylab("Probability")+
+  xlab("Year")+
+  theme(text=element_text(size=10,  family="Helvetica"),
+        axis.text = element_text(size = 9, family="Helvetica"))
+plot
+dev.off()
+```
+
+Section 9: Calculate statistics for the type of uncertainty used
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Create separate columns to indicate whether each source of uncertainty was used
+complete_forecasts$Driver <- grepl("driver|meteo", complete_forecasts$Uncert_source, ignore.case = T)*1
+complete_forecasts$Process <- grepl("process", complete_forecasts$Uncert_source, ignore.case = T)*1
+complete_forecasts$Param <- grepl("param", complete_forecasts$Uncert_source, ignore.case = T)*1
+complete_forecasts$IC <- grepl("init|ic", complete_forecasts$Uncert_source, ignore.case = T)*1
+complete_forecasts$Obs <- grepl("obs", complete_forecasts$Uncert_source, ignore.case = T)*1
+
+#Summarize results
+complete_forecasts%>%
+  filter(!Uncert_category=="no")%>%
+  summarize(driv = sum(Driver)/n(),
+            proc = sum(Process)/n(),
+            param = sum(Param)/n(),
+            ic = sum(IC)/n(),
+            obs = sum(Obs)/n())
+
+#Calculate the number and percentage of papers that use data driven uncertainty
+complete_forecasts$Uncert_dd <- as.numeric(complete_forecasts$Uncert_category %in% c("data_driven", "propagates", "assimilates"))
+sum(complete_forecasts$Uncert_dd) #Number
+complete_forecasts$Uncert_yn <- as.numeric(!complete_forecasts$Uncert_category == "no") #If the forecast has any sort of uncertainty it counts as demonstrating uncertainty
+sum(complete_forecasts$Uncert_dd)/nrow(complete_forecasts%>%filter(Uncert_yn == 1))*100 #Percentage of papers that use data-driven sources out of those that report uncertainty
+
+#Calculate the total number of forecasts that report uncertainty
+sum(complete_forecasts$Uncert_yn)
+```
+
+Section 10: Calculate forecast evaluation statistics. Note: the percentage of papers that predict at a horizon of at least one year out of papers that do not evaluate forecasts is presented in section 5 above and statistics for the percent of papers that use R2 are in the R2 analysis code file
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#If the forecast is not evaluated, sometimes Forecast_eval_shown is set to NA. Here, we change those NAs to 0
+complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
+
+#Create a variable indicating whether RMSE was reported
+complete_forecasts$RMSE <- as.numeric(grepl("rmse|root mean squared error|root mean square error",tolower(complete_forecasts$Eval_metrics)))
+#Calculate the percent of papers that reported RMSE
+sum(complete_forecasts$RMSE)/sum(complete_forecasts$Forecast_eval_shown)*100
+
+#Create a variable indicating whether MAE was reported
+complete_forecasts$MAE <- as.numeric(grepl("mae|mean absolute error",tolower(complete_forecasts$Eval_metrics)))
+#Calculate the percent of papers that reported MAE
+sum(complete_forecasts$MAE)/sum(complete_forecasts$Forecast_eval_shown)*100
+```
+
+Section 11: Calculate statistics for end user engagement and ethical considerations
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Number of papers that mention a specific end user
+sum(complete_forecasts$End_user_yn==1)
+
+#Percentage of forecasts that mention a specific end user that say the end user aided in forecast development
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$End_user_partnership==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1)*100
+#Percentage of forecasts that mention a specific end user that say forecasts are in use by the end user
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1)*100
+#Percentage of papers that mention ethical considerations made in designing the forecast
+sum(complete_forecasts$Ethical_considerations ==1, na.rm = T)/nrow(complete_forecasts)*100
+#Percentage of forecasts that are in use by an end user that mention ethical considerations made in designing the forecast
+sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1&complete_forecasts$Ethical_considerations==1, na.rm = T)/sum(complete_forecasts$End_user_yn==1&complete_forecasts$Used_by_stakeholder_yn==1, na.rm = T)*100
+```
+
+Section 12: Calculate statistics for data assimilation
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+complete_forecasts$it_ic <- complete_forecasts$Iterative_yn==1&complete_forecasts$DA_type%in%c("update IC","autoregressive, so new observed data become predictors for the next timestep","autoregressive, uses previous observations to predict value at next timestep","previous ten days of driver data used as predictor in model, so it is updating iteratively") #Set up a variable for iterative workflows that do more than just update initial conditions
+
+#Percent of iterative workflows that only updated initial conditions of the model
+sum(complete_forecasts$it_ic)/sum(complete_forecasts$Iterative_yn)*100
+```
+
+Section 13: Calculate statistics for uncertainty partitioning
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Year that papers partitioning uncertainty were published
+complete_forecasts$Year[complete_forecasts$Uncert_partition_yn==1]
+#Number of papers that partition initial condition uncertainty
+sum(complete_forecasts$Uncert_ic_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition parameter uncertainty
+sum(complete_forecasts$Uncert_param_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition process uncertainty
+sum(complete_forecasts$Uncert_process_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition driver uncertainty
+sum(complete_forecasts$Uncert_driver_yn[complete_forecasts$Uncert_partition_yn==1])
+#Dominant source of uncertainty for papers that partition uncertainty
+complete_forecasts$Uncert_dom[complete_forecasts$Uncert_partition_yn==1]
+```
+
+Section 14: Calculate statistics for forecast archiving
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Number of papers that archive forecasts
+sum(complete_forecasts$Archiving_yn==1)
+#Percentage of papers that archive forecasts on Zenodo
+sum(grepl("zenodo",complete_forecasts$Repository[complete_forecasts$Archiving_yn==1],ignore.case = T))/sum(complete_forecasts$Archiving_yn==1)*100
+```
+
+Section 15: Calculate statistics for null model use
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Number of papers that use a null model
+sum(complete_forecasts$Null_yn)
+
+#Percentage of papers that use a persistence null model
+sum(grepl("persistence",complete_forecasts$Null_type, ignore.case = T))/sum(complete_forecasts$Null_yn)*100
+#Percentage of papers that use a climatology null model
+sum(grepl("climatology",complete_forecasts$Null_type, ignore.case = T))/sum(complete_forecasts$Null_yn)*100
+#Number of papers that use both persistence and climatology null models
+sum(grepl("persistence",complete_forecasts$Null_type[grepl("climatology",complete_forecasts$Null_type, ignore.case = T)], ignore.case = T))
+```

@@ -7,7 +7,6 @@ Creator: ASL
 Purpose: Create venn diagrams to illustrate the number of studies that met each of our three criteria after two rounds of review (abstract and paper reviews) for our original Web of Science search and a search of citing and cited papers. Calculate the percentage of abstracts that meet each criterion
 
 Section 1: Original Web of Science search
-
 ```{r}
 # Load necessary libraries
 library(VennDiagram)
