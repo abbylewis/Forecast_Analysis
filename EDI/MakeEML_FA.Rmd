@@ -38,6 +38,6 @@ make_eml(path = getwd(),
          maintenance.description = "complete",
          user.domain = "EDI",
          user.id = "ccarey",
-         package.id = "edi.196.5")
+         package.id = "edi.874.1")
 ```
 

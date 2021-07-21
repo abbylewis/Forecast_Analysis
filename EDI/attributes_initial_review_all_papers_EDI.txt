@@ -1,9 +1,9 @@
 attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
-Title	Paper title	character			NA	No data
-doi	Digital object identifier (doi) from Web of Science	character			NA	No data
-Authors	Author list	character			NA	No data
-Year	Year of publication	numeric	nominalYear		NA	No data
-Round	"We performed our literature search process in two steps. Round 1 = Web of Science search, round 2 = search of citing and cited papers"	numeric	dimensionless		NA	No data
-NearTerm	"Paper predicts ≤ 10 years into the future from the forecast date. Marked NA when the paper does not include a forecast. 1 = near term, 0 = not near term"	numeric	dimensionless		NA	No data
-Ecological	"Focal variable is ecological (organismal or biogeochemical). 1 = ecological, 0 = not ecological"	numeric	dimensionless		NA	No data
-Forecast	"Paper includes at least one prediction of future conditions from the perspective of the model; forecasts could be developed retroactively (i.e., “hindcasts”) but could only use driver data that were available before the forecast date (e.g., forecasted or time-lagged driver variables). 1 = a forecast, 0 = not a forecast"	numeric	dimensionless		NA	No data
+Title	Paper title	character	NA	NA	NA	No data
+doi	Digital object identifier (doi) from Web of Science	character	NA	NA	NA	No data
+Authors	Author list	character	NA	NA	NA	No data
+Year	Year of publication	numeric	nominalYear	NA	NA	No data
+Round	"We performed our literature search process in two steps. Round 1 = Web of Science search, round 2 = search of citing and cited papers"	numeric	dimensionless	NA	NA	No data
+NearTerm	"Paper predicts less than or equal to 10 years into the future from the forecast date. Marked NA when the paper does not include a forecast. 1 = near term, 0 = not near term"	numeric	dimensionless	NA	NA	No data
+Ecological	"Focal variable is ecological (organismal or biogeochemical). 1 = ecological, 0 = not ecological"	numeric	dimensionless	NA	NA	No data
+Forecast	"Paper includes at least one prediction of future conditions from the perspective of the model; forecasts could be developed retroactively (i.e., hindcasts"") but could only use driver data that were available before the forecast date (e.g., forecasted or time-lagged driver variables). 1 = a forecast, 0 = not a forecast"""	numeric	dimensionless	NA	NA	No data

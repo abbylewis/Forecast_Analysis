@@ -1,0 +1,530 @@
+---
+title: "Reviewer interest"
+author: "Abby Lewis"
+date: "6/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+complete_forecasts = complete_forecasts%>%
+  mutate(Horiz_days = as.numeric(Horiz_days))%>%
+  filter(!is.na(Horiz_days),
+         Horiz_days<=3650)
+
+#Some best practices are already binary variables. Others (automation, uncertainty, and iterative workflows that update model parameters) need to be converted to binary variables for logistic regression
+complete_forecasts$Automated_bin <- 0 #Create a variable for binary forecast automation data
+complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1 #If at least one data stream is automated, the paper counts as being automated
+complete_forecasts$Uncert_yn <- as.numeric(!complete_forecasts$Uncert_category == "no") #If the forecast has any sort of uncertainty it counts as demonstrating uncertainty
+complete_forecasts$it_no_update_ic <- complete_forecasts$Iterative_yn==1&!complete_forecasts$DA_type%in%c("update IC","autoregressive, so new observed data become predictors for the next timestep","UNK","NA","autoregressive, uses previous observations to predict value at next timestep","previous ten days of driver data used as predictor in model, so it is updating iteratively") #Set up a variable for iterative workflows that do more than just update initial conditions
+
+#If the forecast is not evaluated, sometimes Forecast_eval_shown is set to NA. Here, we change those NAs to 0
+complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
+
+
+###
+# Statistics
+###
+
+#Calculate the number and percent of papers that demonstrate each best practice
+complete_forecasts%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            aut_n = sum(Automated_bin),
+            eva = sum(Forecast_eval_shown)/n(),
+            eva_n = sum(Forecast_eval_shown),
+            unc = sum(Uncert_yn)/n(),
+            unc_n = sum(Uncert_yn),
+            ite = sum(Iterative_yn)/n(),
+            ite_n = sum(Iterative_yn),
+            ite_no_ic = sum(it_no_update_ic)/n(),
+            ite_no_ic_n = sum(it_no_update_ic),
+            arc = sum(Archiving_yn)/n(),
+            arc_n = sum(Archiving_yn),
+            use = sum(End_user_yn)/n(),
+            use_n = sum(End_user_yn),
+            dat = sum(Drivers_published)/n(),
+            dat_n = sum(Drivers_published),
+            nul = sum(Null_yn)/n(),
+            nul_n = sum(Null_yn),
+            prt = sum(Uncert_partition_yn)/n(),
+            prt_n = sum(Uncert_partition_yn))
+
+#Calculate how many best practices each paper demonstrated
+total = complete_forecasts%>%
+  group_by(Title)%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            eva = sum(Forecast_eval_shown)/n(),
+            unc = sum(Uncert_yn)/n(),
+            ite = sum(Iterative_yn)/n(),
+            arc = sum(Archiving_yn)/n(),
+            use = sum(End_user_yn)/n(),
+            dat = sum(Drivers_published)/n(),
+            nul = sum(Null_yn)/n(),
+            prt = sum(Uncert_partition_yn)/n(),
+            Total = sum(aut,eva,unc,ite,arc,use,dat,nul,prt))
+summary(as.factor(total$Total)) #Find the number of papers each number of best practices
+mean(total$Total) #Mean number of best practies used
+median(total$Total) #Median number of best practices used
+
+# Filter out the one paper from 1932
+complete_forecasts = complete_forecasts%>%
+  filter(Year>1932)
+
+#Perform binary logistic regression for all best practices
+aut = glm(Automated_bin~Horiz_days, data = complete_forecasts, family = "binomial")
+eva = glm(Forecast_eval_shown~Horiz_days, data = complete_forecasts, family = "binomial")
+unc = glm(Uncert_yn~Horiz_days, data = complete_forecasts, family = "binomial")
+ite = glm(Iterative_yn~Horiz_days, data = complete_forecasts, family = "binomial")
+ite_no_ic = glm(it_no_update_ic~Horiz_days, data = complete_forecasts, family = "binomial")
+arc = glm(Archiving_yn~Horiz_days, data = complete_forecasts, family = "binomial")
+use = glm(End_user_yn~Horiz_days, data = complete_forecasts, family = "binomial")
+dat = glm(Drivers_published~Horiz_days, data = complete_forecasts, family = "binomial")
+nul = glm(Null_yn~Horiz_days, data = complete_forecasts, family = "binomial")
+prt = glm(Uncert_partition_yn~Horiz_days, data = complete_forecasts, family = "binomial")
+
+#Summarize logisitic regression results in one data frame
+results = data.frame(var2 = "Include data driven uncertainty")%>%
+  full_join(data.frame(summary(unc)$coefficients, var2 = NA)%>% mutate(var = "Include data driven uncertainty"))%>%
+  full_join(data.frame(var2 = "Assess and report forecast skill"))%>%
+  full_join(data.frame(summary(eva)$coefficients) %>% mutate(var = "Assess and report forecast skill"))%>%
+  full_join(data.frame(var2 = "Identify an end user"))%>%
+  full_join(data.frame(summary(use)$coefficients) %>% mutate(var = "Identify an end user"))%>%
+  full_join(data.frame(var2 = "Make iterative forecasts"))%>%
+  full_join(data.frame(summary(ite)$coefficients) %>% mutate(var = "Make iterative forecasts"))%>%
+  full_join(data.frame(var2 = "Make iterative forecasts (updating model parameters)"))%>%
+  full_join(data.frame(summary(ite_no_ic)$coefficients) %>% mutate(var = "Make iterative forecasts (updating model parameters)"))%>%
+  full_join(data.frame(var2 = "Develop automated forecasting workflows"))%>%
+  full_join(data.frame(summary(aut)$coefficients) %>% mutate(var = "Develop automated forecasting workflows"))%>%
+  full_join(data.frame(var2 = "Make data available"))%>%
+  full_join(data.frame(summary(dat)$coefficients) %>% mutate(var = "Make data available"))%>%
+  full_join(data.frame(var2 = "Archive forecasts"))%>%
+  full_join(data.frame(summary(arc)$coefficients) %>% mutate(var = "Archive forecasts"))%>%
+  full_join(data.frame(var2 = "Use null model comparisons"))%>%
+  full_join(data.frame(summary(nul)$coefficients) %>% mutate(var = "Use null model comparisons"))%>%
+  full_join(data.frame(var2 = "Partition uncertainty"))%>%
+  full_join(data.frame(summary(prt)$coefficients) %>% mutate(var = "Partition uncertainty"))%>%
+  mutate(param = rep(c(NA,"Intercept","Horiz_days"),10))%>% #Label intercept and Horiz_days rows
+  select(var, var2, param, Estimate, Std..Error, z.value, Pr...z..)
+
+results[-c(1,2,3)] = round(results[-c(1,2,3)], 3) #Round p-values to 3 decimal points
+results$param[is.na(results$param)]<-results$var2[is.na(results$param)] #Fill in missing best practice names
+results%>% #Filter out unnecessary variable names and view final table
+  select(-var2, -var)
+
+
+###
+# Plot
+###
+
+# Calculate model predictions for plot
+x = min(complete_forecasts$Horiz_days):max(complete_forecasts$Horiz_days)
+probs = predict(aut, list(Horiz_days = x), type = "response") #For the first best practice
+prob_df = data.frame(var = rep("Automated_bin",length(x)),x=x,probs=probs)
+real_name = c("Automated_bin", "Forecast_eval_shown", "Uncert_yn", "Iterative_yn","Archiving_yn", "End_user_yn","Drivers_published", "Null_yn", "Uncert_partition_yn") #Vector of best practice names to merge with complete_forecasts dataset
+model = c("aut", "eva","unc","ite","arc","use","dat","nul","prt") #Vector of model names created above
+#Loop through all models and generate predictions
+for (i in 2:length(model)){
+  probs = predict(get(model[i]), list(Horiz_days = x), type = "response")
+  new = data.frame(var = rep(real_name[i],length(x)),x=x,probs=probs)
+  prob_df = prob_df%>%
+    full_join(new)
+}
+
+#Create a long-formatted dataframe with all best practices in one column
+cf = complete_forecasts%>%
+  select(Automated_bin, Forecast_eval_shown, Uncert_yn, Iterative_yn, Archiving_yn, End_user_yn, Drivers_published, Null_yn, Uncert_partition_yn, Horiz_days)%>%
+  pivot_longer(cols = -Horiz_days)%>%
+  rename(var = name, x = Horiz_days)
+
+#Create a vector of names as we would like them in the figure
+labs = c("Automate forecasting workflows","Report forecast accuracy", "Include uncertainty","Make iterative forecasts","Archive forecasts", "Identify an end user","Make data available", "Use null model comparisons", "Partition uncertainty")
+names(labs) = real_name #Assign the name of the labs to the best practice name as they are in the data frame (for plotting purposes)
+
+#Convert the best practice variable into a factor in both datasets
+prob_df$var = factor(prob_df$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
+cf$var = factor(cf$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
+
+#Calculate significance levels to add to graph
+results = results%>%
+  filter(param == "Horiz_days")%>%
+  select(-var2)%>%
+  filter(!var == "Make iterative forecasts (updating model parameters)")%>%
+  mutate(sig = "")
+results$sig[results$Pr...z..<0.05] <- "*"
+results$sig[results$Pr...z..<0.01] <- "**"
+results$sig[results$Pr...z..<0.001] <- "***"
+#Label the variable for results data frame
+results$var <- c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn")
+results$var = factor(results$var) #Convert to factor
+
+#Plot best practices over time with logistic regression results
+jpeg("../Figures/best_practices_regression_review_horiz.jpg",res = 800,width = 6, height = 5, units = "in")
+plot = prob_df%>%
+  ggplot(aes(x = x, y = probs))+
+  geom_point(aes(y = value), data = cf, alpha = .15, color = "blue")+
+  geom_text(aes(x = 3000, y = .5, label = sig), data = results, size = 6)+
+  geom_line()+
+  ylim(0,1)+
+  facet_wrap(~var, labeller = labeller(var = labs))+
+  theme_bw()+
+  ylab("Probability")+
+  xlab("Forecast horizon (days)")+
+  theme(text=element_text(size=10,  family="Helvetica"),
+        axis.text = element_text(size = 9, family="Helvetica"))
+plot
+dev.off()
+```
+
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+complete_forecasts = complete_forecasts%>%
+  mutate(Time_step_days = as.numeric(Time_step_days))%>%
+  filter(!is.na(Time_step_days))
+
+#Some best practices are already binary variables. Others (automation, uncertainty, and iterative workflows that update model parameters) need to be converted to binary variables for logistic regression
+complete_forecasts$Automated_bin <- 0 #Create a variable for binary forecast automation data
+complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1 #If at least one data stream is automated, the paper counts as being automated
+complete_forecasts$Uncert_yn <- as.numeric(!complete_forecasts$Uncert_category == "no") #If the forecast has any sort of uncertainty it counts as demonstrating uncertainty
+complete_forecasts$it_no_update_ic <- complete_forecasts$Iterative_yn==1&!complete_forecasts$DA_type%in%c("update IC","autoregressive, so new observed data become predictors for the next timestep","UNK","NA","autoregressive, uses previous observations to predict value at next timestep","previous ten days of driver data used as predictor in model, so it is updating iteratively") #Set up a variable for iterative workflows that do more than just update initial conditions
+
+#If the forecast is not evaluated, sometimes Forecast_eval_shown is set to NA. Here, we change those NAs to 0
+complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
+
+
+###
+# Statistics
+###
+
+#Calculate the number and percent of papers that demonstrate each best practice
+complete_forecasts%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            aut_n = sum(Automated_bin),
+            eva = sum(Forecast_eval_shown)/n(),
+            eva_n = sum(Forecast_eval_shown),
+            unc = sum(Uncert_yn)/n(),
+            unc_n = sum(Uncert_yn),
+            ite = sum(Iterative_yn)/n(),
+            ite_n = sum(Iterative_yn),
+            ite_no_ic = sum(it_no_update_ic)/n(),
+            ite_no_ic_n = sum(it_no_update_ic),
+            arc = sum(Archiving_yn)/n(),
+            arc_n = sum(Archiving_yn),
+            use = sum(End_user_yn)/n(),
+            use_n = sum(End_user_yn),
+            dat = sum(Drivers_published)/n(),
+            dat_n = sum(Drivers_published),
+            nul = sum(Null_yn)/n(),
+            nul_n = sum(Null_yn),
+            prt = sum(Uncert_partition_yn)/n(),
+            prt_n = sum(Uncert_partition_yn))
+
+#Calculate how many best practices each paper demonstrated
+total = complete_forecasts%>%
+  group_by(Title)%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            eva = sum(Forecast_eval_shown)/n(),
+            unc = sum(Uncert_yn)/n(),
+            ite = sum(Iterative_yn)/n(),
+            arc = sum(Archiving_yn)/n(),
+            use = sum(End_user_yn)/n(),
+            dat = sum(Drivers_published)/n(),
+            nul = sum(Null_yn)/n(),
+            prt = sum(Uncert_partition_yn)/n(),
+            Total = sum(aut,eva,unc,ite,arc,use,dat,nul,prt))
+summary(as.factor(total$Total)) #Find the number of papers each number of best practices
+mean(total$Total) #Mean number of best practies used
+median(total$Total) #Median number of best practices used
+
+# Filter out the one paper from 1932
+complete_forecasts = complete_forecasts%>%
+  filter(Year>1932)
+
+#Perform binary logistic regression for all best practices
+aut = glm(Automated_bin~Time_step_days, data = complete_forecasts, family = "binomial")
+eva = glm(Forecast_eval_shown~Time_step_days, data = complete_forecasts, family = "binomial")
+unc = glm(Uncert_yn~Time_step_days, data = complete_forecasts, family = "binomial")
+ite = glm(Iterative_yn~Time_step_days, data = complete_forecasts, family = "binomial")
+ite_no_ic = glm(it_no_update_ic~Time_step_days, data = complete_forecasts, family = "binomial")
+arc = glm(Archiving_yn~Time_step_days, data = complete_forecasts, family = "binomial")
+use = glm(End_user_yn~Time_step_days, data = complete_forecasts, family = "binomial")
+dat = glm(Drivers_published~Time_step_days, data = complete_forecasts, family = "binomial")
+nul = glm(Null_yn~Time_step_days, data = complete_forecasts, family = "binomial")
+prt = glm(Uncert_partition_yn~Time_step_days, data = complete_forecasts, family = "binomial")
+
+#Summarize logisitic regression results in one data frame
+results = data.frame(var2 = "Include data driven uncertainty")%>%
+  full_join(data.frame(summary(unc)$coefficients, var2 = NA)%>% mutate(var = "Include data driven uncertainty"))%>%
+  full_join(data.frame(var2 = "Assess and report forecast skill"))%>%
+  full_join(data.frame(summary(eva)$coefficients) %>% mutate(var = "Assess and report forecast skill"))%>%
+  full_join(data.frame(var2 = "Identify an end user"))%>%
+  full_join(data.frame(summary(use)$coefficients) %>% mutate(var = "Identify an end user"))%>%
+  full_join(data.frame(var2 = "Make iterative forecasts"))%>%
+  full_join(data.frame(summary(ite)$coefficients) %>% mutate(var = "Make iterative forecasts"))%>%
+  full_join(data.frame(var2 = "Make iterative forecasts (updating model parameters)"))%>%
+  full_join(data.frame(summary(ite_no_ic)$coefficients) %>% mutate(var = "Make iterative forecasts (updating model parameters)"))%>%
+  full_join(data.frame(var2 = "Develop automated forecasting workflows"))%>%
+  full_join(data.frame(summary(aut)$coefficients) %>% mutate(var = "Develop automated forecasting workflows"))%>%
+  full_join(data.frame(var2 = "Make data available"))%>%
+  full_join(data.frame(summary(dat)$coefficients) %>% mutate(var = "Make data available"))%>%
+  full_join(data.frame(var2 = "Archive forecasts"))%>%
+  full_join(data.frame(summary(arc)$coefficients) %>% mutate(var = "Archive forecasts"))%>%
+  full_join(data.frame(var2 = "Use null model comparisons"))%>%
+  full_join(data.frame(summary(nul)$coefficients) %>% mutate(var = "Use null model comparisons"))%>%
+  full_join(data.frame(var2 = "Partition uncertainty"))%>%
+  full_join(data.frame(summary(prt)$coefficients) %>% mutate(var = "Partition uncertainty"))%>%
+  mutate(param = rep(c(NA,"Intercept","Time_step_days"),10))%>% #Label intercept and Time_step_days rows
+  select(var, var2, param, Estimate, Std..Error, z.value, Pr...z..)
+
+results[-c(1,2,3)] = round(results[-c(1,2,3)], 3) #Round p-values to 3 decimal points
+results$param[is.na(results$param)]<-results$var2[is.na(results$param)] #Fill in missing best practice names
+results%>% #Filter out unnecessary variable names and view final table
+  select(-var2, -var)
+
+
+###
+# Plot
+###
+
+# Calculate model predictions for plot
+x = min(complete_forecasts$Time_step_days):max(complete_forecasts$Time_step_days)
+probs = predict(aut, list(Time_step_days = x), type = "response") #For the first best practice
+prob_df = data.frame(var = rep("Automated_bin",length(x)),x=x,probs=probs)
+real_name = c("Automated_bin", "Forecast_eval_shown", "Uncert_yn", "Iterative_yn","Archiving_yn", "End_user_yn","Drivers_published", "Null_yn", "Uncert_partition_yn") #Vector of best practice names to merge with complete_forecasts dataset
+model = c("aut", "eva","unc","ite","arc","use","dat","nul","prt") #Vector of model names created above
+#Loop through all models and generate predictions
+for (i in 2:length(model)){
+  probs = predict(get(model[i]), list(Time_step_days = x), type = "response")
+  new = data.frame(var = rep(real_name[i],length(x)),x=x,probs=probs)
+  prob_df = prob_df%>%
+    full_join(new)
+}
+
+#Create a long-formatted dataframe with all best practices in one column
+cf = complete_forecasts%>%
+  select(Automated_bin, Forecast_eval_shown, Uncert_yn, Iterative_yn, Archiving_yn, End_user_yn, Drivers_published, Null_yn, Uncert_partition_yn, Time_step_days)%>%
+  pivot_longer(cols = -Time_step_days)%>%
+  rename(var = name, x = Time_step_days)
+
+#Create a vector of names as we would like them in the figure
+labs = c("Automate forecasting workflows","Report forecast accuracy", "Include uncertainty","Make iterative forecasts","Archive forecasts", "Identify an end user","Make data available", "Use null model comparisons", "Partition uncertainty")
+names(labs) = real_name #Assign the name of the labs to the best practice name as they are in the data frame (for plotting purposes)
+
+#Convert the best practice variable into a factor in both datasets
+prob_df$var = factor(prob_df$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
+cf$var = factor(cf$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
+
+#Calculate significance levels to add to graph
+results = results%>%
+  filter(param == "Time_step_days")%>%
+  select(-var2)%>%
+  filter(!var == "Make iterative forecasts (updating model parameters)")%>%
+  mutate(sig = "")
+results$sig[results$Pr...z..<0.05] <- "*"
+results$sig[results$Pr...z..<0.01] <- "**"
+results$sig[results$Pr...z..<0.001] <- "***"
+#Label the variable for results data frame
+results$var <- c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn")
+results$var = factor(results$var) #Convert to factor
+
+#Plot best practices over time with logistic regression results
+jpeg("../Figures/best_practices_regression_review_step.jpg",res = 800,width = 6, height = 5, units = "in")
+plot = prob_df%>%
+  ggplot(aes(x = x, y = probs))+
+  geom_point(aes(y = value), data = cf, alpha = .15, color = "blue")+
+  geom_text(aes(x = 1000, y = .75, label = sig), data = results, size = 6)+
+  geom_line()+
+  ylim(0,1)+
+  facet_wrap(~var, labeller = labeller(var = labs))+
+  theme_bw()+
+  ylab("Probability")+
+  xlab("Forecast time step (days)")+
+  theme(text=element_text(size=10,  family="Helvetica"),
+        axis.text = element_text(size = 9, family="Helvetica"))
+plot
+dev.off()
+```
+
+
+Adding multiple approaches
+```{r}
+#Load data
+complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
+
+#Some best practices are already binary variables. Others (automation, uncertainty, and iterative workflows that update model parameters) need to be converted to binary variables for logistic regression
+complete_forecasts$Automated_bin <- 0 #Create a variable for binary forecast automation data
+complete_forecasts$Automated_bin[complete_forecasts$Automated_yn %in% c("At least one data stream","Yes all data streams")]<-1 #If at least one data stream is automated, the paper counts as being automated
+complete_forecasts$Uncert_yn <- as.numeric(!complete_forecasts$Uncert_category == "no") #If the forecast has any sort of uncertainty it counts as demonstrating uncertainty
+complete_forecasts$it_no_update_ic <- complete_forecasts$Iterative_yn==1&!complete_forecasts$DA_type%in%c("update IC","autoregressive, so new observed data become predictors for the next timestep","UNK","NA","autoregressive, uses previous observations to predict value at next timestep","previous ten days of driver data used as predictor in model, so it is updating iteratively") #Set up a variable for iterative workflows that do more than just update initial conditions
+
+#If the forecast is not evaluated, sometimes Forecast_eval_shown is set to NA. Here, we change those NAs to 0
+complete_forecasts$Forecast_eval_shown[complete_forecasts$Forecast_eval == 0] <- 0
+
+
+###
+# Statistics
+###
+
+#Calculate the number and percent of papers that demonstrate each best practice
+complete_forecasts%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            aut_n = sum(Automated_bin),
+            eva = sum(Forecast_eval_shown)/n(),
+            eva_n = sum(Forecast_eval_shown),
+            unc = sum(Uncert_yn)/n(),
+            unc_n = sum(Uncert_yn),
+            ite = sum(Iterative_yn)/n(),
+            ite_n = sum(Iterative_yn),
+            ite_no_ic = sum(it_no_update_ic)/n(),
+            ite_no_ic_n = sum(it_no_update_ic),
+            arc = sum(Archiving_yn)/n(),
+            arc_n = sum(Archiving_yn),
+            use = sum(End_user_yn)/n(),
+            use_n = sum(End_user_yn),
+            dat = sum(Drivers_published)/n(),
+            dat_n = sum(Drivers_published),
+            nul = sum(Null_yn)/n(),
+            nul_n = sum(Null_yn),
+            prt = sum(Uncert_partition_yn)/n(),
+            prt_n = sum(Uncert_partition_yn),
+            mul = sum(Multiple_approaches_yn)/n(),
+            mul_n = sum(Multiple_approaches_yn))
+
+#Calculate how many best practices each paper demonstrated
+total = complete_forecasts%>%
+  group_by(Title)%>%
+  summarize(aut = sum(Automated_bin)/n(),
+            eva = sum(Forecast_eval_shown)/n(),
+            unc = sum(Uncert_yn)/n(),
+            ite = sum(Iterative_yn)/n(),
+            arc = sum(Archiving_yn)/n(),
+            use = sum(End_user_yn)/n(),
+            dat = sum(Drivers_published)/n(),
+            nul = sum(Null_yn)/n(),
+            mul = sum(Multiple_approaches_yn)/n(),
+            Total = sum(aut,eva,unc,ite,arc,use,dat,nul,mul))
+summary(as.factor(total$Total)) #Find the number of papers each number of best practices
+mean(total$Total) #Mean number of best practies used
+median(total$Total) #Median number of best practices used
+
+# Filter out the one paper from 1932
+complete_forecasts = complete_forecasts%>%
+  filter(Year>1932)
+
+#Perform binary logistic regression for all best practices
+aut = glm(Automated_bin~Year, data = complete_forecasts, family = "binomial")
+eva = glm(Forecast_eval_shown~Year, data = complete_forecasts, family = "binomial")
+unc = glm(Uncert_yn~Year, data = complete_forecasts, family = "binomial")
+ite = glm(Iterative_yn~Year, data = complete_forecasts, family = "binomial")
+ite_no_ic = glm(it_no_update_ic~Year, data = complete_forecasts, family = "binomial")
+arc = glm(Archiving_yn~Year, data = complete_forecasts, family = "binomial")
+use = glm(End_user_yn~Year, data = complete_forecasts, family = "binomial")
+dat = glm(Drivers_published~Year, data = complete_forecasts, family = "binomial")
+nul = glm(Null_yn~Year, data = complete_forecasts, family = "binomial")
+mul = glm(Multiple_approaches_yn~Year, data = complete_forecasts, family = "binomial")
+
+#Summarize logisitic regression results in one data frame
+results = data.frame(var2 = "Include data driven uncertainty")%>%
+  full_join(data.frame(summary(unc)$coefficients, var2 = NA)%>% mutate(var = "Include data driven uncertainty"))%>%
+  full_join(data.frame(var2 = "Assess and report forecast skill"))%>%
+  full_join(data.frame(summary(eva)$coefficients) %>% mutate(var = "Assess and report forecast skill"))%>%
+  full_join(data.frame(var2 = "Identify an end user"))%>%
+  full_join(data.frame(summary(use)$coefficients) %>% mutate(var = "Identify an end user"))%>%
+  full_join(data.frame(var2 = "Make iterative forecasts"))%>%
+  full_join(data.frame(summary(ite)$coefficients) %>% mutate(var = "Make iterative forecasts"))%>%
+  full_join(data.frame(var2 = "Make iterative forecasts (updating model parameters)"))%>%
+  full_join(data.frame(summary(ite_no_ic)$coefficients) %>% mutate(var = "Make iterative forecasts (updating model parameters)"))%>%
+  full_join(data.frame(var2 = "Develop automated forecasting workflows"))%>%
+  full_join(data.frame(summary(aut)$coefficients) %>% mutate(var = "Develop automated forecasting workflows"))%>%
+  full_join(data.frame(var2 = "Make data available"))%>%
+  full_join(data.frame(summary(dat)$coefficients) %>% mutate(var = "Make data available"))%>%
+  full_join(data.frame(var2 = "Archive forecasts"))%>%
+  full_join(data.frame(summary(arc)$coefficients) %>% mutate(var = "Archive forecasts"))%>%
+  full_join(data.frame(var2 = "Use null model comparisons"))%>%
+  full_join(data.frame(summary(nul)$coefficients) %>% mutate(var = "Use null model comparisons"))%>%
+  full_join(data.frame(var2 = "Multiple approaches"))%>%
+  full_join(data.frame(summary(mul)$coefficients) %>% mutate(var = "Multiple approaches"))%>%
+  mutate(param = rep(c(NA,"Intercept","Year"),10))%>% #Label intercept and year rows
+  select(var, var2, param, Estimate, Std..Error, z.value, Pr...z..)
+
+results[-c(1,2,3)] = round(results[-c(1,2,3)], 3) #Round p-values to 3 decimal points
+results$param[is.na(results$param)]<-results$var2[is.na(results$param)] #Fill in missing best practice names
+results%>% #Filter out unnecessary variable names and view final table
+  select(-var2, -var)
+
+mult = complete_forecasts%>%
+  filter(Multiple_approaches_yn==1)
+summary(mult$Approach_n)
+
+
+###
+# Plot
+###
+
+# Calculate model predictions for plot
+x = 1980:2020
+probs = predict(aut, list(Year = x), type = "response") #For the first best practice
+prob_df = data.frame(var = rep("Automated_bin",length(x)),x=x,probs=probs)
+real_name = c("Automated_bin", "Forecast_eval_shown", "Uncert_yn", "Iterative_yn","Archiving_yn", "End_user_yn","Drivers_published", "Null_yn","Multiple_approaches_yn") #Vector of best practice names to merge with complete_forecasts dataset
+model = c("aut", "eva","unc","ite","arc","use","dat","nul","mul") #Vector of model names created above
+#Loop through all models and generate predictions
+for (i in 2:length(model)){
+  probs = predict(get(model[i]), list(Year = x), type = "response")
+  new = data.frame(var = rep(real_name[i],length(x)),x=x,probs=probs)
+  prob_df = prob_df%>%
+    full_join(new)
+}
+
+#Create a long-formatted dataframe with all best practices in one column
+cf = complete_forecasts%>%
+  select(Automated_bin, Forecast_eval_shown, Uncert_yn, Iterative_yn, Archiving_yn, End_user_yn, Drivers_published, Null_yn, Multiple_approaches_yn, Year)%>%
+  pivot_longer(cols = -Year)%>%
+  rename(var = name, x = Year)
+
+#Create a vector of names as we would like them in the figure
+labs = c("Automate forecasting workflows","Report forecast accuracy", "Include uncertainty","Make iterative forecasts","Archive forecasts", "Identify an end user","Make data available", "Use null model comparisons", "Compare modeling approaches")
+names(labs) = real_name #Assign the name of the labs to the best practice name as they are in the data frame (for plotting purposes)
+
+#Convert the best practice variable into a factor in both datasets
+prob_df$var = factor(prob_df$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Multiple_approaches_yn"))
+cf$var = factor(cf$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Multiple_approaches_yn"))
+
+#Calculate significance levels to add to graph
+results = results%>%
+  filter(param == "Year")%>%
+  select(-var2)%>%
+  filter(!var == "Make iterative forecasts (updating model parameters)")%>%
+  mutate(sig = "")
+results$sig[results$Pr...z..<0.05] <- "*"
+results$sig[results$Pr...z..<0.01] <- "**"
+results$sig[results$Pr...z..<0.001] <- "***"
+#Label the variable for results data frame
+results$var <- c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn","Multiple_approaches_yn")
+results$var = factor(results$var) #Convert to factor
+
+#Plot best practices over time with logistic regression results
+tiff("../Figures/best_practices_regression_with_mult.tif",res = 800,width = 6, height = 5, units = "in", compression="lzw")
+plot = prob_df%>%
+  ggplot(aes(x = x, y = probs))+
+  geom_point(aes(y = value), data = cf, alpha = .15, color = "blue")+
+  geom_text(aes(x = 2000, y = .85, label = sig), data = results, size = 6)+
+  geom_line()+
+  ylim(0,1)+
+  xlim(1979,2021)+
+  facet_wrap(~var, labeller = labeller(var = labs))+
+  theme_bw()+
+  ylab("Probability")+
+  xlab("Year")+
+  theme(text=element_text(size=10,  family="Helvetica"),
+        axis.text = element_text(size = 9, family="Helvetica"))
+plot
+dev.off()
+```
+

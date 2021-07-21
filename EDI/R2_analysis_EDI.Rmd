@@ -110,7 +110,7 @@ c = r2s%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
   geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
   geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15,size = 0.9)+
-  xlab("Horiz (days)")+
+  xlab("Horizon (days)")+
   ylab(expression(R^2))+
   labs(color = "ID")+
   labs(title = "Chl", subtitle = "(n = 8)")+
@@ -131,7 +131,7 @@ phy = r2s%>%
   ggplot(aes(x = as.numeric(Horiz_days), y = as.numeric(R2_value)))+
   geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
   geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15,size = 0.9)+
-  xlab("Horiz (days)")+
+  xlab("Horizon (days)")+
   ylab("R2 value")+
   labs(color = "ID")+
   labs(title = "Phyto", subtitle = "(n = 8)")+
@@ -156,7 +156,7 @@ p = r2s%>%
   geom_boxplot(aes(group = Horiz_days),outlier.shape = NA)+
   geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15, size = 0.9)+
   labs(title = "Pollen", subtitle = "(n = 3)")+
-  xlab("Horiz (days)")+
+  xlab("Horizon (days)")+
   labs(color = "ID")+
   ylim(0,1)+
   theme_light()+
@@ -180,7 +180,7 @@ e = r2s%>%
   geom_jitter(aes(color = as.factor(first), shape = as.factor(first)),width = 0.15, size = 0.9)+
   labs(title = "ET", subtitle = "(n = 10)")+
   ylab("R2")+
-  xlab("Horiz (days)")+
+  xlab("Horizon (days)")+
   labs(color = "ID")+
   ylim(0,1)+
   theme_light()+
@@ -227,7 +227,7 @@ all2 = data.frame(horiz = 1:7,ET = et,Chl = chla,Phyto = phyto,Pollen = pollen)%
   ggplot(aes(x = horiz, y = value, color = name))+ #Create ggplot
   geom_line()+
   theme_light()+
-  xlab("Horiz (days)")+
+  xlab("Horizon (days)")+
   ylim(0,1)+
   xlim(0.6,7.4)+
   ylab(expression(R^2))+

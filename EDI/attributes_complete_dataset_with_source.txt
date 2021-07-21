@@ -1,58 +1,59 @@
 attributeName	attributeDefinition	class	unit	dateTimeFormatString	missingValueCode	missingValueCodeExplanation
-Title	Paper title	character			NA	No data
-doi	Digital object identifier (doi) from Web of Science	character			NA	No data
-Authors	Author list	character			NA	No data
-Year	Year of publication	numeric	nominalYear		NA	No data
-Source	Journal or conference in which the paper was published	character			NA	No data
-Spat_scale	"Forecast spatial scale, classified into five categories"	categorical			NA	No data
-Coords	"Geographic coordinates of the forecast site using decimal degrees. For papers with multiple locations, locations are separated using a semicolon. Locations for regional and national forecasts are approximately the center of the forecast area"	character			NA	No data
-Ecosystem	"Forecast ecosystem: forest, grassland, freshwater, marine, desert, tundra, atmosphere, agricultural, urban, global, other"	categorical			NA	No data
-Class	Forecast class: biogeochemical or organismal (population or community)	categorical			NA	No data
-Vars_ident	Identity of forecast variables	character			NA	No data
-Model_dim	"Model dimension: 0D, 1D, 2D, 3D"	categorical			NA	No data
-Model_type	"Model type: empirical (dependent on correlative or statistical relationships) or process-based (explicitly simulating ecological processes). For forecasting workflows that involve multiple models, this refers to the “final” model that forecasts the forecast variable of interest"	categorical			NA	No data
-Model_desc	"If specified: more detailed description of model: for example, Bayesian hierarchical, machine learning, named model (e.g., PROTECH), etc."	character			NA	No data
-Met_covar_yn	"Are meteorological covariates used in this forecast? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Phys_covar_yn	"Are physical covariates (e.g., streamflow) used in this forecast? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Bio_covar_yn	"Are biological covariates used in this forecast? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Chem_covar_yn	"Are chemical covariates used in this forecast? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Ens_within_model_yn	"Does the paper include an ensemble forecast (ensemble within model)? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Ens_members_n	Number of ensemble members	character			NA	No data
-Ens_of_models_yn	"Does the paper use an ensemble of models to produce one output? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Models_n	How many models in the ensemble model	numeric	dimensionless		NA	No data
-Multiple_approaches_yn	"Are multiple models with different model structures compared (NOT including null models)? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Approach_n	How many models with different structures are compared?	numeric	dimensionless		NA	No data
-Null_yn	"Was a forecast null model (persistence or climatology) included? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Null_n	How many null models?	numeric	dimensionless		NA	No data
-Null_type	What type of null model (climatology or persistence)?	character			NA	No data
-Horiz_days	"Maximum time into the future that the forecast predicts in this paper, described in days"	character			NA	No data
-Time_step_days	"Time step of forecast output. For example, a forecast that gives predictions for the next 16 days but was only run once a week would have a time step of one day (not one week)"	character			NA	No data
-Iterative_yn	"Are the forecasts described in the papers iterative (i.e., data updating forecasts iteratively)? Any form of iteration counts here: updating initial conditions with new data, refitting the model to incorporate new dta, updating parameter values, etc. State updating via the autoregressive term counts as data assimilation for autoregressive models"	numeric	dimensionless		NA	No data
-DA_type	"What technique of data assimilation was used? For example, KF, enKF, refit, update IC, etc."	character			NA	No data
-Uncert_category	"Extent to which uncertainty is included in the forecast, classified within 5 categories: no (this model does not contain uncertainty), contains (the model contains uncertainty, but uncertainty is not derived from data; e.g. uncertainty comes from spin-up initial conditions or hand-tuned parameters), data_driven (the model contains data-driven uncertainty; e.g. uncertainty in meteorological drivers), propagates (the model propagates some source of uncertainty), assimilates (the model iteratively updates uncertainty through data assimilation). NOTE: this is assumed to be a hierarchy (e.g. if the forecast contains data driven uncertainty and propagates that uncertainty, it would be marked ""propagates"")"	categorical			NA	No data
-Uncert_source	What sources of uncertainty were incorporated?	character			NA	No data
-Uncert_obs_yn	"Was observation uncertainty included? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Uncert_partition_yn	"Are at least two different sources of uncertainty quantified and compared? 1 = yes, 0 = no. NOTE: the two sources may be in the same category of uncertainty—e.g. two forms of driver data)"	numeric	dimensionless		NA	No data
-Uncert_ic_yn	"Initial condition uncertainty partitioned? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Uncert_driver_yn	"Driver uncertainty partitioned? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Uncert_param_yn	"Parameter uncertainty partitioned? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Uncert_process_yn	"Process uncertainty partitioned? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Uncert_other_yn	"Other partitioned sources of uncertainty? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Uncert_dom	"If at least two categories of uncertainty were partitioned, what was the dominant source of uncertainty?"	character			NA	No data
-Uncert_describe	"If the dominant source varies by forecast horizon, season, etc. please describe here"	character			NA	No data
-Forecast_eval	"Paper states that forecast was evaluated? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Forecast_eval_shown	"Forecast evaluation results reported in paper? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Eval_metrics	"List all skill metrics used (e.g. R2, RMSE, bias, MAE). SD and Bayesian credible intervals are not skill metrics"	character			NA	No data
-Eval_mult_horiz_yn	"Is forecast performance assessed at multiple forecast horizons (results must be reported in paper/supplemental info)? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Forecast_horiz_null_days	Maximum forecast horizon such that the forecast was better than the null model (out of any models used)	numeric	nominalDay		NA	No data
-Data_coverage	Temporal coverage of data used to create this forecasting paper 	numeric	nominalDay		NA	No data
-Automated_yn	"Was new data (driver and/or observations) available to the model in real time (<24 hours from collection) without any manual effort when the system was working as intended? 1 = yes, 0 = no"	categorical			NA	No data
-Archiving_yn	"Forecast archiving described in text? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Repository	Repository in which forecasts are archived	character			NA	No data
-Drivers_published	"Text specifies that driver data are publicly available to reproduce the forecasts? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-End_user_yn	"Specific end user identified (proper noun)? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-End_user_partnership	"Partnership with the end user in forecast development mentioned in paper? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Used_by_stakeholder_yn	"Forecast being used by the end user according to paper? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Delivery_method_yn	"Forecast delivery method identified? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
-Delivery_method	Forecast delivery method?	character			NA	No data
-Ethical_considerations	"Any ethical considerations mentioned? 1 = yes, 0 = no"	numeric	dimensionless		NA	No data
+Title	Paper title	character	NA	NA	NA	No data
+doi	Digital object identifier (doi) from Web of Science	character	NA	NA	NA	No data
+Authors	Author list	character	NA	NA	NA	No data
+Year	Year of publication	numeric	nominalYear	NA	NA	No data
+Source	Journal or conference in which the paper was published	character	NA	NA	NA	No data
+Spat_scale	"Forecast spatial scale, classified into five categories"	categorical	NA	NA	NA	No data
+Coords	"Geographic coordinates of the forecast site using decimal degrees. For papers with multiple locations, locations are separated using a semicolon. Locations for regional and national forecasts are approximately the center of the forecast area"	character	NA	NA	NA	No data
+Ecosystem	"Forecast ecosystem: forest, grassland, freshwater, marine, desert, tundra, atmosphere, agricultural, urban, global, other"	categorical	NA	NA	NA	No data
+Class	Forecast class: biogeochemical or organismal (which includes population or community)	categorical	NA	NA	NA	No data
+Vars_ident	Identity of forecast variables	character	NA	NA	NA	No data
+Model_dim	"Model dimension: 0D, 1D, 2D, 3D"	categorical	NA	NA	NA	No data
+Model_type	"Model type: empirical (dependent on correlative or statistical relationships) or process-based (explicitly simulating ecological processes). For forecasting workflows that involve a pipeline of multiple models, this refers to the final"" model that forecasts the forecast variable of interest"""	categorical	NA	NA	NA	No data
+Model_desc	"If specified: more detailed description of model: for example, Bayesian hierarchical, machine learning, named model (e.g., PROTECH), etc."	character	NA	NA	NA	No data
+Met_covar_yn	"Are meteorological covariates used in this forecast? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Phys_covar_yn	"Are physical covariates (e.g., streamflow) used in this forecast? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Bio_covar_yn	"Are biological covariates used in this forecast? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Chem_covar_yn	"Are chemical covariates used in this forecast? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Ens_within_model_yn	"Does the paper include an ensemble forecast (ensemble within model)? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Ens_members_n	Number of ensemble members	character	NA	NA	NA	No data
+Ens_of_models_yn	"Does the paper use an ensemble of models to produce one output? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Models_n	How many models in the ensemble model	numeric	dimensionless	NA	NA	No data
+Multiple_approaches_yn	"Are multiple models with different model structures compared (NOT including null models)? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Approach_n	How many models with different structures are compared?	numeric	dimensionless	NA	NA	No data
+Null_yn	"Was a forecast null model (persistence or climatology) included? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Null_n	How many null models?	numeric	dimensionless	NA	NA	No data
+Null_type	What type of null model (climatology or persistence)?	character	NA	NA	NA	No data
+Horiz_days	"Maximum time into the future that the forecast predicts in this paper, described in days"	character	NA	NA	NA	No data
+Time_step_days	"Time step of forecast output. For example, a forecast that gives predictions for the next 16 days but was only run once a week would have a time step of one day (not one week)"	character	NA	NA	NA	No data
+Iterative_yn	"Are the forecasts described in the papers iterative (i.e., data updating forecasts iteratively)? Any form of iteration counts here: updating initial conditions with new data, refitting the model to incorporate new dta, updating parameter values, etc. State updating via the autoregressive term counts as data assimilation for autoregressive models"	numeric	dimensionless	NA	NA	No data
+DA_type	"What technique of data assimilation was used? For example, KF, enKF, refit, update IC, etc."	character	NA	NA	NA	No data
+Uncert_category	"Extent to which uncertainty is included in the forecast, classified within 5 categories: no (this model does not contain uncertainty), contains (the model contains uncertainty, but uncertainty is not derived from data; e.g. uncertainty comes from spin-up initial conditions or hand-tuned parameters), data_driven (the model contains data-driven uncertainty; e.g. uncertainty in meteorological drivers), propagates (the model propagates some source of uncertainty), assimilates (the model iteratively updates uncertainty through data assimilation). NOTE: this is assumed to be a hierarchy (e.g. if the forecast contains data driven uncertainty and propagates that uncertainty, it would be marked ""propagates"")"	categorical	NA	NA	NA	No data
+Uncert_source	What sources of uncertainty were incorporated?	character	NA	NA	NA	No data
+Uncert_obs_yn	"Was observation uncertainty included? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Uncert_partition_yn	"Are at least two different sources of uncertainty quantified and compared? 1 = yes, 0 = no. NOTE: the two sources may be in the same category of uncertainty (e.g. two forms of driver data)"	numeric	dimensionless	NA	NA	No data
+Uncert_ic_yn	"Initial condition uncertainty partitioned? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Uncert_driver_yn	"Driver uncertainty partitioned? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Uncert_param_yn	"Parameter uncertainty partitioned? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Uncert_process_yn	"Process uncertainty partitioned? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Uncert_other_yn	"Other partitioned sources of uncertainty? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Uncert_dom	"If at least two categories of uncertainty were partitioned, what was the dominant source of uncertainty?"	character	NA	NA	NA	No data
+Uncert_describe	"If the dominant source varies by forecast horizon, season, etc. please describe here"	character	NA	NA	NA	No data
+Forecast_eval	"Paper states that forecast was evaluated? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Forecast_eval_shown	"Forecast evaluation results reported in paper? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Eval_metrics	"List all skill metrics used (e.g. R2, RMSE, bias, MAE). SD and Bayesian credible intervals are not skill metrics"	character	NA	NA	NA	No data
+Eval_mult_horiz_yn	"Is forecast performance assessed at multiple forecast horizons (results must be reported in paper/supplemental info)? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Forecast_horiz_null_days	Maximum forecast horizon such that the forecast was better than the null model (out of any models used)	numeric	nominalDay	NA	NA	No data
+Data_coverage	Temporal coverage of data used to create this forecasting paper	numeric	nominalDay	NA	NA	No data
+Automated_yn	"Was new data (driver and/or observations) available to the model in real time (<24 hours from collection) without any manual effort when the system was working as intended? 1 = yes, 0 = no"	categorical	NA	NA	NA	No data
+Archiving_yn	"Forecast archiving described in text? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Repository	Repository in which forecasts are archived	character	NA	NA	NA	No data
+Link_works	"Archiving website is still accessible via the link in the paper as of 14 Jun 2021? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Drivers_published	"Text specifies that driver data are publicly available to reproduce the forecasts? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+End_user_yn	"Specific end user identified (proper noun)? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+End_user_partnership	"Partnership with the end user in forecast development mentioned in paper? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Used_by_stakeholder_yn	"Forecast being used by the end user according to paper? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Delivery_method_yn	"Forecast delivery method identified? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data
+Delivery_method	Forecast delivery method?	character	NA	NA	NA	No data
+Ethical_considerations	"Any ethical considerations mentioned? 1 = yes, 0 = no"	numeric	dimensionless	NA	NA	No data

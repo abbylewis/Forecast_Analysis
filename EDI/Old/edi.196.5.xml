@@ -1,0 +1,2135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.2" packageId="edi.196.5" xsi:schemaLocation="https://eml.ecoinformatics.org/eml-2.2.0/ eml.xsd" system="edi">
+  <access authSystem="https://pasta.edirepository.org/authentication" order="allowFirst" scope="document">
+    <allow>
+      <principal>uid=ccarey,o=EDI,dc=edirepository,dc=org</principal>
+      <permission>all</permission>
+    </allow>
+    <allow>
+      <principal>public</principal>
+      <permission>read</permission>
+    </allow>
+  </access>
+  <dataset>
+    <title>Systematic review of near-term ecological forecasting literature published between 1932 and 2020</title>
+    <creator>
+      <individualName>
+        <givenName>Abigail</givenName>
+        <givenName>S. L.</givenName>
+        <surName>Lewis</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>aslewis@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-9933-4542</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Whitney</givenName>
+        <givenName>M.</givenName>
+        <surName>Woelmer</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>wwoelmer@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-5147-3877</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Heather</givenName>
+        <givenName>L.</givenName>
+        <surName>Wander</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>hwander@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0002-3762-6045</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Dexter</givenName>
+        <givenName>W.</givenName>
+        <surName>Howard</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>dwh1998@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0002-6118-2149</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>John</givenName>
+        <givenName>W.</givenName>
+        <surName>Smith</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>wsjohn2@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0002-1564-3290</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Ryan</givenName>
+        <givenName>P.</givenName>
+        <surName>McClure</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>Ryan333@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-6370-3852</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Mary</givenName>
+        <givenName>E.</givenName>
+        <surName>Lofton</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>melofton@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0003-3270-1330</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Nicholas</givenName>
+        <givenName>W.</givenName>
+        <surName>Hammond</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>hammondnw@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0003-2975-8280</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Rachel</givenName>
+        <givenName>S.</givenName>
+        <surName>Corrigan</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>rachelc1@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-6101-8085</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>R.</givenName>
+        <givenName>Quinn</givenName>
+        <surName>Thomas</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>rqthomas@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0003-1282-7825</userId>
+    </creator>
+    <creator>
+      <individualName>
+        <givenName>Cayelan</givenName>
+        <givenName>C.</givenName>
+        <surName>Carey</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+    </creator>
+    <pubDate>2021-07-09</pubDate>
+    <abstract>
+      <para>This data publication includes results and code from a systematic review of near-term ecological forecasting literature. The study had two primary goals: (1) analyze the state of near-term ecological forecasting literature, and (2) compare forecast skill across ecosystems and variables. We began by conducting a Web of Science search for “forecast*” in the title, abstract, and keywords of all papers published in ecological journals, then screened all papers from this search to identify near-term ecological forecasts. We defined a near-term ecological forecast as future predictions of community, population, or biogeochemical variables ≤ 10 years from the forecast date.  To more broadly survey the literature, we then searched all papers that cited or were cited by the near-term ecological forecasts we identified. We performed an in-depth review of all near-term ecological forecasting papers identified through this search process, and recorded forecast skill data for all papers that reported R or R2. Our results indicate that the rate of publication of near-term ecological forecasts is increasing over time and the field is becoming increasingly open and automated. Across published forecasts, we find that forecast skill decreases in predictable patterns and these patterns differ between forecast variables. This data publication includes three products from this analysis: (1) a database of all papers identified in the two searches, including our assessment of whether they included an ecological focal variable, included a forecast, and whether the forecast was near-term (≤10 years), (2) a matrix of all data collected on the near-term ecological forecasts we identified, and (3) a database of R2 values for papers that reported R or R2. </para>
+    </abstract>
+    <keywordSet>
+      <keyword>data assimilation</keyword>
+      <keyword>decision support</keyword>
+      <keyword>ecological predictability</keyword>
+      <keyword>forecast automation</keyword>
+      <keyword>forecast horizon</keyword>
+      <keyword>forecast skill</keyword>
+      <keyword>forecast uncertainty</keyword>
+      <keyword>iterative forecasting</keyword>
+      <keyword>near-term forecast</keyword>
+      <keyword>null model</keyword>
+      <keyword>open science</keyword>
+      <keyword>systematic review</keyword>
+      <keyword>uncertainty partitioning</keyword>
+    </keywordSet>
+    <intellectualRights>
+      <para>This information is released under the Creative Commons license - Attribution - CC BY (https://creativecommons.org/licenses/by/4.0/). The consumer of these data (\"Data User\" herein) is required to cite it appropriately in any publication that results from its use. The Data User should realize that these data may be actively used by others for ongoing research and that coordination may be necessary to prevent duplicate publication. The Data User is urged to contact the authors of these data if any questions about methodology or results occur. Where appropriate, the Data User is encouraged to consider collaboration or co-authorship with the authors. The Data User should realize that misinterpretation of data may occur if used out of context of the original study. While substantial efforts are made to ensure the accuracy of data and associated documentation, complete accuracy of data sets cannot be guaranteed. All data are made available \"as is.\" The Data User should be aware, however, that data are updated periodically and it is the responsibility of the Data User to check for new versions of the data. The data authors and the repository where these data were obtained shall not be liable for damages resulting from any use or misinterpretation of the data. Thank you.</para>
+    </intellectualRights>
+    <coverage>
+      <geographicCoverage>
+        <geographicDescription>Dataset extent</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-160</westBoundingCoordinate>
+          <eastBoundingCoordinate>159</eastBoundingCoordinate>
+          <northBoundingCoordinate>70.45276</northBoundingCoordinate>
+          <southBoundingCoordinate>-69.57416</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <temporalCoverage>
+        <rangeOfDates>
+          <beginDate>
+            <calendarDate>1932-11-01</calendarDate>
+          </beginDate>
+          <endDate>
+            <calendarDate>2020-05-18</calendarDate>
+          </endDate>
+        </rangeOfDates>
+      </temporalCoverage>
+    </coverage>
+    <maintenance>
+      <description>complete</description>
+    </maintenance>
+    <contact>
+      <individualName>
+        <givenName>Abigail</givenName>
+        <givenName>S. L.</givenName>
+        <surName>Lewis</surName>
+      </individualName>
+      <organizationName>Virginia Tech</organizationName>
+      <electronicMailAddress>aslewis@vt.edu</electronicMailAddress>
+      <userId directory="https://orcid.org">https://orcid.org/0000-0001-9933-4542</userId>
+    </contact>
+    <methods>
+      <methodStep>
+        <description>
+          <para>We systematically reviewed literature on near-term ecological forecasting to both determine how best practices have been implemented over time and compare forecastability across scales and variables. First, we searched the Web of ScienceTM Core Collection [v.5.34] database (Clarivate Analytics, Philadelphia, USA) and reviewed abstracts to identify papers that report near-term ecological forecasts (described in Literature search below). Two reviewers then independently read and analyzed each selected paper using a standardized matrix of criteria (Matrix analysis) and we recorded forecast skill when reported (Forecast skill). </para>
+          <para>Literature search (Dataset 1)
+We began by querying Web of Science Core Collection [v.5.34] for “forecast*” in the title, abstract, or keywords of papers published in 301 ecological journals, then manually screened abstracts of all resulting papers. We conducted the Web of Science search on 18 May 2020 and limited the search to articles and proceedings papers (hereafter, ‘papers’) published in English. This yielded 2711 results. </para>
+          <para>We screened the abstracts of all 2711 papers and selected those that met three criteria:
+(1) Papers had to include at least one forecast, which we defined as a prediction of future conditions from the perspective of the model; forecasts could be developed retroactively (i.e., “hindcasts”) but could only use driver data that were available before the forecast date (e.g., forecasted or time-lagged driver variables).
+(2) The forecast had to be near-term, which we defined as predicting ≤ 10 years into the future.
+(3)The forecast had to be ecological, which we defined as predicting a biogeochemical, population, or community response variable. This definition therefore excludes physical (e.g., streamflow or water temperature) and meteorological forecasts. Forecasts of human disease were only included if there was an animal vector.
+If the abstract indicated that the paper met all three criteria, it was moved to a second round of screening. Here, a second reviewer read the full paper to ensure that at least one forecast in the paper met all three criteria. Through this screening process, we identified 142 near-term ecological forecasting papers out of the 2711 Web of Science results. </para>
+          <para>Because ecological forecasts may be published in journals that are not categorized as “ecological” by Web of Science, we then searched all papers that were cited by the near-term ecological forecast papers we identified, as well as all papers that cited these studies. We selected those that were published in English and included “forecast*” in the title, abstract, or keywords, then screened the abstracts to ensure they met our three criteria. Finally, we read the papers themselves for confirmation. Through this second screening we identified an additional 110 near-term ecological forecasting papers.</para>
+          <para>Matrix analysis (Dataset 2)
+We analyzed each of the 252 papers selected in our systematic search using a standardized matrix of questions. This matrix was co-developed over several months of iteration and discussion by all authors within an Ecological Forecasting graduate seminar at Virginia Tech (January–May 2020). The final matrix used for this study included 65 questions about the model, evaluation, cyberinfrastructure, archiving, and decision support: descriptions of all questions and results are presented in dataset 2. 
+ 
+Throughout the graduate seminar, we read and analyzed 10 papers as a group, ensuring that all reviewers understood how to interpret and answer questions in a consistent manner. Reviewers also screened several papers individually and checked their responses with another reviewer prior to the start of this analysis, helping to ensure consistency between reviewers. For the analysis described in this paper, all 252 papers were read and analyzed independently by two reviewers, and reviewers then compared any differing answers to reach consensus on a final set of responses for each paper. </para>
+          <para>During the intensive matrix analysis, 74 papers were determined to not meet our criteria of being near-term ecological forecasts, despite having passed the initial rounds of screening—these papers typically used one or more data sources that would not have been possible to know before the forecast date, and were difficult to identify without reading the entire paper and its supplement in detail. These papers were excluded from the analysis, leaving 178 papers in the final dataset (dataset 2). </para>
+          <para>Forecast skill (Dataset 3)
+We gathered all Pearson's r and R2 data reported in papers in the matrix analysis dataset. Pearson’s r values were squared to yield R2. We recorded the number of days into the future forecasted for each value of R2, the specific forecast variable associated with that value, and whether different values of R2 came from the same model, site, or year. 
+</para>
+        </description>
+      </methodStep>
+    </methods>
+    <project>
+      <title>Collaborative Research: Consequences of changing oxygen availability for carbon cycling in freshwater ecosystems</title>
+      <personnel>
+        <individualName>
+          <givenName>Cayelan</givenName>
+          <givenName>C.</givenName>
+          <surName>Carey</surName>
+        </individualName>
+        <organizationName>Virginia Tech</organizationName>
+        <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+        <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+        <role>Principal Investigator</role>
+      </personnel>
+      <funding>National Science Foundation 1753639</funding>
+      <relatedProject>
+        <title>SCC-IRG Track 2: Resilient Water Systems: Integrating Environmental Sensor Networks and Real-Time Forecasting to Adaptively Manage Drinking Water Quality and Build Social Trust</title>
+        <personnel>
+          <individualName>
+            <givenName>Cayelan</givenName>
+            <givenName>C.</givenName>
+            <surName>Carey</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>National Science Foundation 1737424</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>MSA: Macrosystems EDDIE: An undergraduate training program in macrosystems science and ecological forecasting</title>
+        <personnel>
+          <individualName>
+            <givenName>Cayelan</givenName>
+            <givenName>C.</givenName>
+            <surName>Carey</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>National Science Foundation 1926050</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>Collaborative Research: CIBR: Cyberinfrastructure Enabling End-to-End Workflows for Aquatic Ecosystem Forecasting</title>
+        <personnel>
+          <individualName>
+            <givenName>Cayelan</givenName>
+            <givenName>C.</givenName>
+            <surName>Carey</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>cayelan@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>National Science Foundation 1933016</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>Collaborative Research: CIBR: Cyberinfrastructure Enabling End-to-End Workflows for Aquatic Ecosystem Forecasting</title>
+        <personnel>
+          <individualName>
+            <givenName>Renato</givenName>
+            <surName>Figueiredo</surName>
+          </individualName>
+          <organizationName>University of Florida</organizationName>
+          <electronicMailAddress>renato@acis.ufl.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-8835-4476</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>National Science Foundation 1933102</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>Graduate Research Fellowship</title>
+        <personnel>
+          <individualName>
+            <givenName>Abigail</givenName>
+            <givenName>S. L.</givenName>
+            <surName>Lewis</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>aslewis@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-9933-4542</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>National Science Foundation DGE-1651272</funding>
+      </relatedProject>
+      <relatedProject>
+        <title>Graduate Research Fellowship</title>
+        <personnel>
+          <individualName>
+            <givenName>Whitney</givenName>
+            <givenName>M.</givenName>
+            <surName>Woelmer</surName>
+          </individualName>
+          <organizationName>Virginia Tech</organizationName>
+          <electronicMailAddress>wwoelmer@vt.edu</electronicMailAddress>
+          <userId directory="https://orcid.org">https://orcid.org/0000-0001-5147-3877</userId>
+          <role>Principal Investigator</role>
+        </personnel>
+        <funding>National Science Foundation DGE-1651272</funding>
+      </relatedProject>
+    </project>
+    <dataTable>
+      <entityName>Dataset 1: Abstract review</entityName>
+      <entityDescription>Dataset 1: Abstract review</entityDescription>
+      <physical>
+        <objectName>initial_review_all_papers_EDI.csv</objectName>
+        <size unit="bytes">660799</size>
+        <authentication method="MD5">896ef19f8f0cd705ce758fd15dcc676d</authentication>
+        <dataFormat>
+          <textFormat>
+            <numHeaderLines>1</numHeaderLines>
+            <recordDelimiter>\n</recordDelimiter>
+            <attributeOrientation>column</attributeOrientation>
+            <simpleDelimited>
+              <fieldDelimiter>,</fieldDelimiter>
+              <quoteCharacter>"</quoteCharacter>
+            </simpleDelimited>
+          </textFormat>
+        </dataFormat>
+      </physical>
+      <attributeList>
+        <attribute>
+          <attributeName>Title</attributeName>
+          <attributeDefinition>Paper title</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Paper title</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>doi</attributeName>
+          <attributeDefinition>Digital object identifier (doi) from Web of Science</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Digital object identifier (doi) from Web of Science</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Authors</attributeName>
+          <attributeDefinition>Author list</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Author list</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Year</attributeName>
+          <attributeDefinition>Year of publication</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>nominalYear</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">1932</minimum>
+                  <maximum exclusive="false">2020</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Round</attributeName>
+          <attributeDefinition>We performed our literature search process in two steps. Round 1 = Web of Science search, round 2 = search of citing and cited papers</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">1</minimum>
+                  <maximum exclusive="false">2</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>NearTerm</attributeName>
+          <attributeDefinition>Paper predicts � 10 years into the future from the forecast date. Marked NA when the paper does not include a forecast. 1 = near term, 0 = not near term</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Ecological</attributeName>
+          <attributeDefinition>Focal variable is ecological (organismal or biogeochemical). 1 = ecological, 0 = not ecological</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Forecast</attributeName>
+          <attributeDefinition>Paper includes at least one prediction of future conditions from the perspective of the model; forecasts could be developed retroactively (i.e., �hindcasts�) but could only use driver data that were available before the forecast date (e.g., forecasted or time-lagged driver variables). 1 = a forecast, 0 = not a forecast</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+      </attributeList>
+      <numberOfRecords>3183</numberOfRecords>
+    </dataTable>
+    <dataTable>
+      <entityName>Dataset 2: Matrix review</entityName>
+      <entityDescription>Dataset 2: Matrix review</entityDescription>
+      <physical>
+        <objectName>complete_dataset_with_source.csv</objectName>
+        <size unit="bytes">96810</size>
+        <authentication method="MD5">ab1dfa3af45e74a017ac2f043e6940f3</authentication>
+        <dataFormat>
+          <textFormat>
+            <numHeaderLines>1</numHeaderLines>
+            <recordDelimiter>\r\n</recordDelimiter>
+            <attributeOrientation>column</attributeOrientation>
+            <simpleDelimited>
+              <fieldDelimiter>,</fieldDelimiter>
+              <quoteCharacter>"</quoteCharacter>
+            </simpleDelimited>
+          </textFormat>
+        </dataFormat>
+      </physical>
+      <attributeList>
+        <attribute>
+          <attributeName>Title</attributeName>
+          <attributeDefinition>Paper title</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Paper title</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>doi</attributeName>
+          <attributeDefinition>Digital object identifier (doi) from Web of Science</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Digital object identifier (doi) from Web of Science</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Authors</attributeName>
+          <attributeDefinition>Author list</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Author list</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Year</attributeName>
+          <attributeDefinition>Year of publication</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>nominalYear</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">1932</minimum>
+                  <maximum exclusive="false">2020</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Source</attributeName>
+          <attributeDefinition>Journal or conference in which the paper was published</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Journal or conference in which the paper was published</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Spat_scale</attributeName>
+          <attributeDefinition>Forecast spatial scale, classified into five categories</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>global</code>
+                    <definition>e.g. coral bleaching stress in world oceans</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>multipoint</code>
+                    <definition>several distinct forecast locations, such as three different lakes</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>national</code>
+                    <definition>spanning all of one nation, such as nationwide production of an agricultural crop</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>point</code>
+                    <definition>localized to one discrete site, such as pollen forecasts for a city or algal forecasts for a lake</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>regional</code>
+                    <definition>localized to a broad geographic region, such as coral bleaching forecasts that span a sea</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Coords</attributeName>
+          <attributeDefinition>Geographic coordinates of the forecast site using decimal degrees. For papers with multiple locations, locations are separated using a semicolon. Locations for regional and national forecasts are approximately the center of the forecast area</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Geographic coordinates of the forecast site using decimal degrees. For papers with multiple locations, locations are separated using a semicolon. Locations for regional and national forecasts are approximately the center of the forecast area</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Ecosystem</attributeName>
+          <attributeDefinition>Forecast ecosystem: forest, grassland, freshwater, marine, desert, tundra, atmosphere, agricultural, urban, global, other</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>agricultural</code>
+                    <definition>Agricultural forecast ecosystem</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>atmosphere</code>
+                    <definition>Atmospheric forecast ecosystem</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>desert</code>
+                    <definition>Desert forecast ecosystem</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>forest</code>
+                    <definition>Forest forecast ecosystem</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>freshwater</code>
+                    <definition>Freshwater forecast ecosystem</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>grassland</code>
+                    <definition>Grassland forecast ecosystem</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>marine</code>
+                    <definition>Marine forecast ecosystem</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>other</code>
+                    <definition>Forecast ecosystem does not fit within the other predefined ecosystem types (e.g. a forecast for bird migration across North America)</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>tundra</code>
+                    <definition>Tundra forecast ecosystem</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>urban</code>
+                    <definition>Urban forecast ecosystem</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Class</attributeName>
+          <attributeDefinition>Forecast class: biogeochemical or organismal (population or community)</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>biogeochemical</code>
+                    <definition>Forecast variable is biogeochemical, but not organismal</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>both</code>
+                    <definition>both organismal and biogeochemical forecasts presented in text</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>organismal</code>
+                    <definition>forecast varaible relates to a population or community of organisms</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Vars_ident</attributeName>
+          <attributeDefinition>Identity of forecast variables</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Identity of forecast variables</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Model_dim</attributeName>
+          <attributeDefinition>Model dimension: 0D, 1D, 2D, 3D</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>0D</code>
+                    <definition>Zero dimensional model</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>1D</code>
+                    <definition>One dimentsional model</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>2D</code>
+                    <definition>Two dimensional model</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>3D</code>
+                    <definition>Three dimensional model</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Model_type</attributeName>
+          <attributeDefinition>Model type: empirical (dependent on correlative or statistical relationships) or process-based (explicitly simulating ecological processes). For forecasting workflows that involve multiple models, this refers to the �final� model that forecasts the forecast variable of interest</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>both</code>
+                    <definition>Both empirical and process-based models are used</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>empirical</code>
+                    <definition>Final model used to generate forecasts is empirical</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>process-based</code>
+                    <definition>Final model used to generate forecasts is process-based</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Model_desc</attributeName>
+          <attributeDefinition>If specified: more detailed description of model: for example, Bayesian hierarchical, machine learning, named model (e.g., PROTECH), etc.</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>If specified: more detailed description of model: for example, Bayesian hierarchical, machine learning, named model (e.g., PROTECH), etc.</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Met_covar_yn</attributeName>
+          <attributeDefinition>Are meteorological covariates used in this forecast? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Phys_covar_yn</attributeName>
+          <attributeDefinition>Are physical covariates (e.g., streamflow) used in this forecast? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Bio_covar_yn</attributeName>
+          <attributeDefinition>Are biological covariates used in this forecast? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Chem_covar_yn</attributeName>
+          <attributeDefinition>Are chemical covariates used in this forecast? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Ens_within_model_yn</attributeName>
+          <attributeDefinition>Does the paper include an ensemble forecast (ensemble within model)? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Ens_members_n</attributeName>
+          <attributeDefinition>Number of ensemble members</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Number of ensemble members</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Ens_of_models_yn</attributeName>
+          <attributeDefinition>Does the paper use an ensemble of models to produce one output? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Models_n</attributeName>
+          <attributeDefinition>How many models in the ensemble model</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">1</minimum>
+                  <maximum exclusive="false">10</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Multiple_approaches_yn</attributeName>
+          <attributeDefinition>Are multiple models with different model structures compared (NOT including null models)? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Approach_n</attributeName>
+          <attributeDefinition>How many models with different structures are compared?</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">49</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Null_yn</attributeName>
+          <attributeDefinition>Was a forecast null model (persistence or climatology) included? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Null_n</attributeName>
+          <attributeDefinition>How many null models?</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">2</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Null_type</attributeName>
+          <attributeDefinition>What type of null model (climatology or persistence)?</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>What type of null model (climatology or persistence)?</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Horiz_days</attributeName>
+          <attributeDefinition>Maximum time into the future that the forecast predicts in this paper, described in days</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Maximum time into the future that the forecast predicts in this paper, described in days</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Time_step_days</attributeName>
+          <attributeDefinition>Time step of forecast output. For example, a forecast that gives predictions for the next 16 days but was only run once a week would have a time step of one day (not one week)</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Time step of forecast output. For example, a forecast that gives predictions for the next 16 days but was only run once a week would have a time step of one day (not one week)</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Iterative_yn</attributeName>
+          <attributeDefinition>Are the forecasts described in the papers iterative (i.e., data updating forecasts iteratively)? Any form of iteration counts here: updating initial conditions with new data, refitting the model to incorporate new dta, updating parameter values, etc. State updating via the autoregressive term counts as data assimilation for autoregressive models</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>DA_type</attributeName>
+          <attributeDefinition>What technique of data assimilation was used? For example, KF, enKF, refit, update IC, etc.</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>What technique of data assimilation was used? For example, KF, enKF, refit, update IC, etc.</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_category</attributeName>
+          <attributeDefinition>Extent to which uncertainty is included in the forecast, classified within 5 categories: no (this model does not contain uncertainty), contains (the model contains uncertainty, but uncertainty is not derived from data; e.g. uncertainty comes from spin-up initial conditions or hand-tuned parameters), data_driven (the model contains data-driven uncertainty; e.g. uncertainty in meteorological drivers), propagates (the model propagates some source of uncertainty), assimilates (the model iteratively updates uncertainty through data assimilation). NOTE: this is assumed to be a hierarchy (e.g. if the forecast contains data driven uncertainty and propagates that uncertainty, it would be marked propagates)</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>assimilates</code>
+                    <definition>the model iteratively updates uncertainty through data assimilation</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>contains</code>
+                    <definition>the model contains uncertainty, but uncertainty is not derived from data; e.g. uncertainty comes from spin-up initial conditions or hand-tuned parameters</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>data_driven</code>
+                    <definition>the model contains data-driven uncertainty; e.g. uncertainty in meteorological drivers</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>no</code>
+                    <definition>this model does not contain uncertainty</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>propagates</code>
+                    <definition>the model propagates some source of uncertainty</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_source</attributeName>
+          <attributeDefinition>What sources of uncertainty were incorporated?</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>What sources of uncertainty were incorporated?</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_obs_yn</attributeName>
+          <attributeDefinition>Was observation uncertainty included? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_partition_yn</attributeName>
+          <attributeDefinition>Are at least two different sources of uncertainty quantified and compared? 1 = yes, 0 = no. NOTE: the two sources may be in the same category of uncertainty�e.g. two forms of driver data)</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_ic_yn</attributeName>
+          <attributeDefinition>Initial condition uncertainty partitioned? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_driver_yn</attributeName>
+          <attributeDefinition>Driver uncertainty partitioned? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_param_yn</attributeName>
+          <attributeDefinition>Parameter uncertainty partitioned? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_process_yn</attributeName>
+          <attributeDefinition>Process uncertainty partitioned? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_other_yn</attributeName>
+          <attributeDefinition>Other partitioned sources of uncertainty? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">0</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_dom</attributeName>
+          <attributeDefinition>If at least two categories of uncertainty were partitioned, what was the dominant source of uncertainty?</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>If at least two categories of uncertainty were partitioned, what was the dominant source of uncertainty?</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Uncert_describe</attributeName>
+          <attributeDefinition>If the dominant source varies by forecast horizon, season, etc. please describe here</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>If the dominant source varies by forecast horizon, season, etc. please describe here</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Forecast_eval</attributeName>
+          <attributeDefinition>Paper states that forecast was evaluated? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Forecast_eval_shown</attributeName>
+          <attributeDefinition>Forecast evaluation results reported in paper? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Eval_metrics</attributeName>
+          <attributeDefinition>List all skill metrics used (e.g. R2, RMSE, bias, MAE). SD and Bayesian credible intervals are not skill metrics</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>List all skill metrics used (e.g. R2, RMSE, bias, MAE). SD and Bayesian credible intervals are not skill metrics</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Eval_mult_horiz_yn</attributeName>
+          <attributeDefinition>Is forecast performance assessed at multiple forecast horizons (results must be reported in paper/supplemental info)? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Forecast_horiz_null_days</attributeName>
+          <attributeDefinition>Maximum forecast horizon such that the forecast was better than the null model (out of any models used)</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>nominalDay</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1865</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Data_coverage</attributeName>
+          <attributeDefinition>Temporal coverage of data used to create this forecasting paper�</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>nominalDay</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">17</minimum>
+                  <maximum exclusive="false">52925</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Automated_yn</attributeName>
+          <attributeDefinition>Was new data (driver and/or observations) available to the model in real time (&lt;24 hours from collection) without any manual effort when the system was working as intended? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>At least one data stream</code>
+                    <definition>At least one stream of data used to make forecasts is available to the model within 24 hours when the system is working as intended</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>No data streams</code>
+                    <definition>No data streams are available to the model within 24 hours even when the system is working as intended</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>UNK</code>
+                    <definition>unknown (not specified in text)</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>Yes all data streams</code>
+                    <definition>All data streams used to make forecasts are available to the model within 24 hours when the system is working as intended</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Archiving_yn</attributeName>
+          <attributeDefinition>Forecast archiving described in text? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Repository</attributeName>
+          <attributeDefinition>Repository in which forecasts are archived</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Repository in which forecasts are archived</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Link_works</attributeName>
+          <attributeDefinition>Archiving website is still accessible via the link in the paper as of 14 Jun 2021? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Drivers_published</attributeName>
+          <attributeDefinition>Text specifies that driver data are publicly available to reproduce the forecasts? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>End_user_yn</attributeName>
+          <attributeDefinition>Specific end user identified (proper noun)? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>End_user_partnership</attributeName>
+          <attributeDefinition>Partnership with the end user in forecast development mentioned in paper? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Used_by_stakeholder_yn</attributeName>
+          <attributeDefinition>Forecast being used by the end user according to paper? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Delivery_method_yn</attributeName>
+          <attributeDefinition>Forecast delivery method identified? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Delivery_method</attributeName>
+          <attributeDefinition>Forecast delivery method?</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Forecast delivery method?</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Ethical_considerations</attributeName>
+          <attributeDefinition>Any ethical considerations mentioned? 1 = yes, 0 = no</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+      </attributeList>
+      <numberOfRecords>178</numberOfRecords>
+    </dataTable>
+    <dataTable>
+      <entityName>Dataset 3: R2 values</entityName>
+      <entityDescription>Dataset 3: R2 values</entityDescription>
+      <physical>
+        <objectName>R2_dataset_for_EDI.csv</objectName>
+        <size unit="bytes">261112</size>
+        <authentication method="MD5">f607d26c423017a6552639d976e5f88d</authentication>
+        <dataFormat>
+          <textFormat>
+            <numHeaderLines>1</numHeaderLines>
+            <recordDelimiter>\r\n</recordDelimiter>
+            <attributeOrientation>column</attributeOrientation>
+            <simpleDelimited>
+              <fieldDelimiter>,</fieldDelimiter>
+              <quoteCharacter>"</quoteCharacter>
+            </simpleDelimited>
+          </textFormat>
+        </dataFormat>
+      </physical>
+      <attributeList>
+        <attribute>
+          <attributeName>Title</attributeName>
+          <attributeDefinition>Paper title</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Paper title</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>doi</attributeName>
+          <attributeDefinition>Digital object identifier (doi) from Web of Science</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Digital object identifier (doi) from Web of Science</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Authors</attributeName>
+          <attributeDefinition>Author list</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Author list</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Year</attributeName>
+          <attributeDefinition>Year of publication</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>nominalYear</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">1986</minimum>
+                  <maximum exclusive="false">2019</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Horiz_days</attributeName>
+          <attributeDefinition>Number of days into the future forecasted</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">1</minimum>
+                  <maximum exclusive="false">5475</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Var</attributeName>
+          <attributeDefinition>Variable forecasted</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Variable forecasted</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Notes</attributeName>
+          <attributeDefinition>Notes about the R2 values reported</attributeDefinition>
+          <storageType>string</storageType>
+          <measurementScale>
+            <nominal>
+              <nonNumericDomain>
+                <textDomain>
+                  <definition>Notes about the R2 values reported</definition>
+                </textDomain>
+              </nonNumericDomain>
+            </nominal>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>R2_value</attributeName>
+          <attributeDefinition>Value of R2</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+                <bounds>
+                  <minimum exclusive="false">0</minimum>
+                  <maximum exclusive="false">1</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Model_group</attributeName>
+          <attributeDefinition>Integer values to separate different models within a paper</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">1</minimum>
+                  <maximum exclusive="false">105</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+        <attribute>
+          <attributeName>Site_or_year_group</attributeName>
+          <attributeDefinition>Integer values to identify forecasts at distinct sites or for distinct years within one paper</attributeDefinition>
+          <storageType>float</storageType>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>natural</numberType>
+                <bounds>
+                  <minimum exclusive="false">1</minimum>
+                  <maximum exclusive="false">9</maximum>
+                </bounds>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NA</code>
+            <codeExplanation>No data</codeExplanation>
+          </missingValueCode>
+        </attribute>
+      </attributeList>
+      <numberOfRecords>975</numberOfRecords>
+    </dataTable>
+    <otherEntity>
+      <entityName>General data analysis</entityName>
+      <entityDescription>General data analysis</entityDescription>
+      <physical>
+        <objectName>Final import and analysis - for EDI.Rmd</objectName>
+        <size unit="bytes">42093</size>
+        <authentication method="MD5">751e8e15b7222fa9ba580d47f6507559</authentication>
+        <dataFormat>
+          <externallyDefinedFormat>
+            <formatName>text/x-markdown</formatName>
+          </externallyDefinedFormat>
+        </dataFormat>
+      </physical>
+      <entityType>unknown</entityType>
+    </otherEntity>
+    <otherEntity>
+      <entityName>R2 analysis</entityName>
+      <entityDescription>R2 analysis</entityDescription>
+      <physical>
+        <objectName>R2_analysis_EDI.Rmd</objectName>
+        <size unit="bytes">10842</size>
+        <authentication method="MD5">5020c0c85c7c2b957c76c3ec67852a72</authentication>
+        <dataFormat>
+          <externallyDefinedFormat>
+            <formatName>text/x-markdown</formatName>
+          </externallyDefinedFormat>
+        </dataFormat>
+      </physical>
+      <entityType>unknown</entityType>
+    </otherEntity>
+    <otherEntity>
+      <entityName>Abstract review</entityName>
+      <entityDescription>Abstract review</entityDescription>
+      <physical>
+        <objectName>Venn diagrams.Rmd</objectName>
+        <size unit="bytes">3691</size>
+        <authentication method="MD5">7533273d63236f1591d9086d57f600dd</authentication>
+        <dataFormat>
+          <externallyDefinedFormat>
+            <formatName>text/x-markdown</formatName>
+          </externallyDefinedFormat>
+        </dataFormat>
+      </physical>
+      <entityType>unknown</entityType>
+    </otherEntity>
+  </dataset>
+</eml:eml>

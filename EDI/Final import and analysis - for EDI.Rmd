@@ -1,31 +1,30 @@
 ---
-title: "Final data ingest and analysis"
-author: "Abby Lewis"
+title: "Best practice data ingest and analysis"
+author: "Abigail S. L. Lewis"
 date: "10/29/2020"
 output: html_document
 ---
 Creator: ASL
 
-Purpose: Process matrix analysis results. Create five figures: (1) the number of near-term ecological forecasts published per year, (2) a general description of ecological forecasting papers identified in this study, (3) the relationship between time step and time horizon of forecasting papers, (4) the total number of years of data used to develop each forecasting paper, (5) best practice adoption over time. Perform relevant calculations for matrix analysis results. 
+Purpose: Process matrix analysis results. Create five figures: (1) the number of near-term ecological forecasts published per year, (2) a general description of ecological forecasting papers identified in this study, (3) the relationship between time step and forecast horizon of forecasting papers, (4) the total number of years of data used to develop each forecasting paper, (5) best practice adoption over time. Perform relevant calculations for matrix analysis results. 
 
-Note: Every code chunk can be rund individually to perform the specified task.
+Note: Every code chunk can be run individually to perform the specified task. The directories are set up such that this is in a "Code" folder, and additional folders exist for "Figures" (where the figures created by this code will be stored) and "Data" (containing "complete_dataset_with_source.csv")
 
 Table of contents:
 Section 1: Load required packages
 Section 2: Plot the number of near-term ecological forecasting papers published per year from 1932-2019
 Section 3: Plot the distribution of forecast sites worldwide, across scales, and across variable types (one plot with three panels). Calculate summary statistics for forecast locations, scales, and variable classes
 Section 4: Determine the most common forecast variables
-Section 5: Analyze and plot the relationship between time step and time horizon of forecasting papers
+Section 5: Analyze and plot the relationship between time step and forecast horizon of forecasting papers
 Section 6: Plot and calculate summary statistics for the temporal duration of data used to create each forecasting paper (summed over model development, training, evaluation, etc.) 
 Section 7: Calculate the number of unique journals and conference proceedings in the dataset, as well as the journal with the most papers represented
 Section 8: Conduct best practice analysis. Calculate summary statistics for best practice use and conduct logistic regression of best practice adoption over time. Plot the use of each best practice with logistic regression results
-Section 9: Calculate statistics for the type of uncertainty used
+Section 9: Calculate statistics for the type of uncertainty used and details about uncertainty partitioning
 Section 10: Calculate forecast evaluation statistics
 Section 11: Calculate statistics for end user engagement and ethical considerations
 Section 12: Calculate statistics for data assimilation
-Section 13: Calculate statistics for uncertainty partitioning
-Section 14: Calculate statistics for forecast archiving
-Section 15: Calculate statistics for null model use
+Section 13: Calculate statistics for forecast archiving
+Section 14: Calculate statistics for null model use
 
 
 Section 1: Load required packages
@@ -253,7 +252,7 @@ length(complete_forecasts$Vars_ident[grepl("pollen",complete_forecasts$Vars_iden
 length(complete_forecasts$Vars_ident[grepl("yield",complete_forecasts$Vars_ident, ignore.case = T)])
 ```
 
-Section 5: Analyze and plot the relationship between time step and time horizon of forecasting papers
+Section 5: Analyze and plot the relationship between time step and forecast horizon of forecasting papers
 ```{r}
 #Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
@@ -340,7 +339,7 @@ cols <- brewer.pal(n = 9, name = "BuPu")
 time_bin_plot%>%
   ggplot(aes(x = horiz_bin, y = time_bin), na.rm = T)+
   geom_bin2d()+
-  xlab("Time horizon (days)")+
+  xlab("Forecast horizon (days)")+
   ylab("Time step (days)")+
   scale_fill_gradientn(colors = cols)+
   scale_x_discrete(breaks = c( "1 day","2 - 7 days","8 days - 1 month","> 1 month - 1 year","1 year","> 1 year - 5 years","> 5 years"), labels = c("1","2 - 7","8 - 31","32 - 365","365","366 - 1825", ">1825"),drop  =F)+ #Change labels to units of days for interpretability
@@ -479,9 +478,11 @@ complete_forecasts%>%
             nul = sum(Null_yn)/n(),
             nul_n = sum(Null_yn),
             prt = sum(Uncert_partition_yn)/n(),
-            prt_n = sum(Uncert_partition_yn))
+            prt_n = sum(Uncert_partition_yn),
+            mul = sum(Multiple_approaches_yn)/n(),
+            mul_n = sum(Multiple_approaches_yn))
 
-#Calculate how many best practices wach paper demonstrated
+#Calculate how many best practices each paper demonstrated
 total = complete_forecasts%>%
   group_by(Title)%>%
   summarize(aut = sum(Automated_bin)/n(),
@@ -492,8 +493,8 @@ total = complete_forecasts%>%
             use = sum(End_user_yn)/n(),
             dat = sum(Drivers_published)/n(),
             nul = sum(Null_yn)/n(),
-            prt = sum(Uncert_partition_yn)/n(),
-            Total = sum(aut,eva,unc,ite,arc,use,dat,nul,prt))
+            mul = sum(Multiple_approaches_yn)/n(),
+            Total = sum(aut,eva,unc,ite,arc,use,dat,nul,mul))
 summary(as.factor(total$Total)) #Find the number of papers each number of best practices
 mean(total$Total) #Mean number of best practies used
 median(total$Total) #Median number of best practices used
@@ -512,7 +513,7 @@ arc = glm(Archiving_yn~Year, data = complete_forecasts, family = "binomial")
 use = glm(End_user_yn~Year, data = complete_forecasts, family = "binomial")
 dat = glm(Drivers_published~Year, data = complete_forecasts, family = "binomial")
 nul = glm(Null_yn~Year, data = complete_forecasts, family = "binomial")
-prt = glm(Uncert_partition_yn~Year, data = complete_forecasts, family = "binomial")
+mul = glm(Multiple_approaches_yn~Year, data = complete_forecasts, family = "binomial")
 
 #Summarize logisitic regression results in one data frame
 results = data.frame(var2 = "Include data driven uncertainty")%>%
@@ -533,8 +534,8 @@ results = data.frame(var2 = "Include data driven uncertainty")%>%
   full_join(data.frame(summary(arc)$coefficients) %>% mutate(var = "Archive forecasts"))%>%
   full_join(data.frame(var2 = "Use null model comparisons"))%>%
   full_join(data.frame(summary(nul)$coefficients) %>% mutate(var = "Use null model comparisons"))%>%
-  full_join(data.frame(var2 = "Partition uncertainty"))%>%
-  full_join(data.frame(summary(prt)$coefficients) %>% mutate(var = "Partition uncertainty"))%>%
+  full_join(data.frame(var2 = "Multiple approaches"))%>%
+  full_join(data.frame(summary(mul)$coefficients) %>% mutate(var = "Multiple approaches"))%>%
   mutate(param = rep(c(NA,"Intercept","Year"),10))%>% #Label intercept and year rows
   select(var, var2, param, Estimate, Std..Error, z.value, Pr...z..)
 
@@ -542,6 +543,10 @@ results[-c(1,2,3)] = round(results[-c(1,2,3)], 3) #Round p-values to 3 decimal p
 results$param[is.na(results$param)]<-results$var2[is.na(results$param)] #Fill in missing best practice names
 results%>% #Filter out unnecessary variable names and view final table
   select(-var2, -var)
+
+mult = complete_forecasts%>%
+  filter(Multiple_approaches_yn==1)
+summary(mult$Approach_n)
 
 
 ###
@@ -552,8 +557,8 @@ results%>% #Filter out unnecessary variable names and view final table
 x = 1980:2020
 probs = predict(aut, list(Year = x), type = "response") #For the first best practice
 prob_df = data.frame(var = rep("Automated_bin",length(x)),x=x,probs=probs)
-real_name = c("Automated_bin", "Forecast_eval_shown", "Uncert_yn", "Iterative_yn","Archiving_yn", "End_user_yn","Drivers_published", "Null_yn", "Uncert_partition_yn") #Vector of best practice names to merge with complete_forecasts dataset
-model = c("aut", "eva","unc","ite","arc","use","dat","nul","prt") #Vector of model names created above
+real_name = c("Automated_bin", "Forecast_eval_shown", "Uncert_yn", "Iterative_yn","Archiving_yn", "End_user_yn","Drivers_published", "Null_yn","Multiple_approaches_yn") #Vector of best practice names to merge with complete_forecasts dataset
+model = c("aut", "eva","unc","ite","arc","use","dat","nul","mul") #Vector of model names created above
 #Loop through all models and generate predictions
 for (i in 2:length(model)){
   probs = predict(get(model[i]), list(Year = x), type = "response")
@@ -564,17 +569,17 @@ for (i in 2:length(model)){
 
 #Create a long-formatted dataframe with all best practices in one column
 cf = complete_forecasts%>%
-  select(Automated_bin, Forecast_eval_shown, Uncert_yn, Iterative_yn, Archiving_yn, End_user_yn, Drivers_published, Null_yn, Uncert_partition_yn, Year)%>%
+  select(Automated_bin, Forecast_eval_shown, Uncert_yn, Iterative_yn, Archiving_yn, End_user_yn, Drivers_published, Null_yn, Multiple_approaches_yn, Year)%>%
   pivot_longer(cols = -Year)%>%
   rename(var = name, x = Year)
 
 #Create a vector of names as we would like them in the figure
-labs = c("Automate forecasting workflows","Assess and report forecast skill", "Include uncertainty","Make iterative forecasts","Archive forecasts", "Identify an end user","Make data available", "Use null model comparisons", "Partition uncertainty")
+labs = c("Automate forecasting workflows","Report forecast accuracy", "Include uncertainty","Make iterative forecasts","Archive forecasts", "Identify an end user","Make data available", "Use null model comparisons", "Compare modeling approaches")
 names(labs) = real_name #Assign the name of the labs to the best practice name as they are in the data frame (for plotting purposes)
 
 #Convert the best practice variable into a factor in both datasets
-prob_df$var = factor(prob_df$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
-cf$var = factor(cf$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn"))
+prob_df$var = factor(prob_df$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Multiple_approaches_yn"))
+cf$var = factor(cf$var, levels = c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Multiple_approaches_yn"))
 
 #Calculate significance levels to add to graph
 results = results%>%
@@ -586,11 +591,11 @@ results$sig[results$Pr...z..<0.05] <- "*"
 results$sig[results$Pr...z..<0.01] <- "**"
 results$sig[results$Pr...z..<0.001] <- "***"
 #Label the variable for results data frame
-results$var <- c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn", "Uncert_partition_yn")
+results$var <- c("Uncert_yn", "Forecast_eval_shown", "End_user_yn", "Iterative_yn", "Automated_bin", "Drivers_published", "Archiving_yn", "Null_yn","Multiple_approaches_yn")
 results$var = factor(results$var) #Convert to factor
 
 #Plot best practices over time with logistic regression results
-tiff("../Figures/best_practices_regression.tif",res = 800,width = 6, height = 5, units = "in", compression="lzw")
+tiff("../Figures/best_practices_regression_with_mult.tif",res = 800,width = 6, height = 5, units = "in", compression="lzw")
 plot = prob_df%>%
   ggplot(aes(x = x, y = probs))+
   geom_point(aes(y = value), data = cf, alpha = .15, color = "blue")+
@@ -608,7 +613,7 @@ plot
 dev.off()
 ```
 
-Section 9: Calculate statistics for the type of uncertainty used
+Section 9: Calculate statistics for the type of uncertainty used and details about uncertainty partitioning
 ```{r}
 #Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
@@ -637,6 +642,19 @@ sum(complete_forecasts$Uncert_dd)/nrow(complete_forecasts%>%filter(Uncert_yn == 
 
 #Calculate the total number of forecasts that report uncertainty
 sum(complete_forecasts$Uncert_yn)
+
+#Year that papers partitioning uncertainty were published
+complete_forecasts$Year[complete_forecasts$Uncert_partition_yn==1]
+#Number of papers that partition initial condition uncertainty
+sum(complete_forecasts$Uncert_ic_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition parameter uncertainty
+sum(complete_forecasts$Uncert_param_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition process uncertainty
+sum(complete_forecasts$Uncert_process_yn[complete_forecasts$Uncert_partition_yn==1])
+#Number of papers that partition driver uncertainty
+sum(complete_forecasts$Uncert_driver_yn[complete_forecasts$Uncert_partition_yn==1])
+#Dominant source of uncertainty for papers that partition uncertainty
+complete_forecasts$Uncert_dom[complete_forecasts$Uncert_partition_yn==1]
 ```
 
 Section 10: Calculate forecast evaluation statistics. Note: the percentage of papers that predict at a horizon of at least one year out of papers that do not evaluate forecasts is presented in section 5 above and statistics for the percent of papers that use R2 are in the R2 analysis code file
@@ -687,26 +705,7 @@ complete_forecasts$it_ic <- complete_forecasts$Iterative_yn==1&complete_forecast
 sum(complete_forecasts$it_ic)/sum(complete_forecasts$Iterative_yn)*100
 ```
 
-Section 13: Calculate statistics for uncertainty partitioning
-```{r}
-#Load data
-complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
-
-#Year that papers partitioning uncertainty were published
-complete_forecasts$Year[complete_forecasts$Uncert_partition_yn==1]
-#Number of papers that partition initial condition uncertainty
-sum(complete_forecasts$Uncert_ic_yn[complete_forecasts$Uncert_partition_yn==1])
-#Number of papers that partition parameter uncertainty
-sum(complete_forecasts$Uncert_param_yn[complete_forecasts$Uncert_partition_yn==1])
-#Number of papers that partition process uncertainty
-sum(complete_forecasts$Uncert_process_yn[complete_forecasts$Uncert_partition_yn==1])
-#Number of papers that partition driver uncertainty
-sum(complete_forecasts$Uncert_driver_yn[complete_forecasts$Uncert_partition_yn==1])
-#Dominant source of uncertainty for papers that partition uncertainty
-complete_forecasts$Uncert_dom[complete_forecasts$Uncert_partition_yn==1]
-```
-
-Section 14: Calculate statistics for forecast archiving
+Section 13: Calculate statistics for forecast archiving
 ```{r}
 #Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
@@ -715,9 +714,13 @@ complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
 sum(complete_forecasts$Archiving_yn==1)
 #Percentage of papers that archive forecasts on Zenodo
 sum(grepl("zenodo",complete_forecasts$Repository[complete_forecasts$Archiving_yn==1],ignore.case = T))/sum(complete_forecasts$Archiving_yn==1)*100
+#Number of papers with websites that were still accessible via the link in the paper as of 14 Jun 2021
+sum(!is.na(complete_forecasts$Link_works)&complete_forecasts$Link_works == 1)
+#Total number of papers with websites linked in the paper
+sum(!is.na(complete_forecasts$Link_works))
 ```
 
-Section 15: Calculate statistics for null model use
+Section 14: Calculate statistics for null model use
 ```{r}
 #Load data
 complete_forecasts <- read.csv("../Data/complete_dataset_with_source.csv")
